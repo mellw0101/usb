@@ -1,5 +1,3 @@
-#include "structs.hpp"
-#include <xcb/xcb.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -1296,7 +1294,8 @@ class WinManager {
                 {   L_ARROW,    CTRL | SUPER            },
                 {   R_ARROW,    CTRL | SUPER | SHIFT    },
                 {   L_ARROW,    CTRL | SUPER | SHIFT    },
-                {   TAB,        ALT                     }
+                {   TAB,        ALT                     },
+                {   K,          ALT | SUPER             }
             });
 
             // make_frame(c);
@@ -1613,7 +1612,7 @@ class Event {
         /*
             VARIABELS TO STORE KEYCODES
          */ 
-        xcb_keycode_t t{},q{},f{},f11{},n_1{},n_2{},n_3{},n_4{},n_5{},r_arrow{},l_arrow{},tab{}; 
+        xcb_keycode_t t{}, q{}, f{}, f11{}, n_1{}, n_2{}, n_3{}, n_4{}, n_5{}, r_arrow{}, l_arrow{}, tab{}, k{}; 
         
         void 
         key_press_handler(const xcb_generic_event_t * ev)
@@ -1751,6 +1750,14 @@ class Event {
             {
                 wm::cycle_focus();
             }
+
+			if ((e->detail == k)
+			 && (e->state & ALT)
+			 && (e->state & SUPER))
+			{
+				client * c = get::client_from_win(& e->event);
+				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 2000);
+			}
         }
 
         void /* 
@@ -1774,6 +1781,7 @@ class Event {
                 xcb_keycode_t * r_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, R_ARROW);
                 xcb_keycode_t * l_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, L_ARROW);
                 xcb_keycode_t * tab_keycodes        = xcb_key_symbols_get_keycode(keysyms, TAB);
+                xcb_keycode_t * k_keycodes			= xcb_key_symbols_get_keycode(keysyms, K);
                 
                 if (t_keycodes) 
                 {
@@ -1846,6 +1854,12 @@ class Event {
                     tab = * tab_keycodes;
                     free(tab_keycodes);
                 }
+
+                if (k_keycodes)
+				{
+					k = * k_keycodes;
+					free(k_keycodes);
+				}
             }
         }
         

@@ -34,7 +34,7 @@
 #define R_ARROW 0xff53
 #define L_ARROW 0xff51
 #define TAB     0xff09
-#define KEY     0x6b
+#define K       0x6b
 
 /* BUTTON DEFENITIONS */
 #define L_MOUSE_BUTTON XCB_BUTTON_INDEX_1
