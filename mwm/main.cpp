@@ -823,10 +823,12 @@ class mv_Desktop {
 				case NEXT:
 				{
 					Next_Desktop::move();
+					break;
 				}
 				case PREV:
 				{
 					Prev_Desktop::move();
+					break;
 				}
 			}
 		}
