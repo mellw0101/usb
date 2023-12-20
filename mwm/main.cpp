@@ -828,6 +828,7 @@ move_to_next_desktop()
         if (c)
         {
 			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
 			show_hide_client(c, HIDE);
         }
     }
@@ -841,6 +842,7 @@ move_to_next_desktop()
 			c->x = c->x + screen->width_in_pixels;
 			show_hide_client(c, SHOW);
 			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
 		}
     }
 }
