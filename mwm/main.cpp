@@ -745,7 +745,8 @@ class Animate {
         {
 			log_info("currentX = " + std::to_string(currentX));
 			log_info("currentY = " + std::to_string(currentY));
-            currentX += deltaX;
+            
+			currentX += deltaX;
             currentY += deltaY;
 
             xcb_configure_window
@@ -1772,7 +1773,7 @@ class Event {
 			 && (e->state & SUPER))
 			{
 				client * c = get::client_from_win(& e->event);
-				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 400);
+				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 200);
 			}
         }
 
