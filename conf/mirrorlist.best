@@ -1,0 +1,33 @@
+# Fastest
+Server = https://ftp.lysator.liu.se/pub/archlinux/$repo/os/$arch
+Server = https://mirror.neuf.no/archlinux/$repo/os/$arch
+Server = https://mirror.wuki.li/archlinux/$repo/os/$arch
+Server = https://arch.yhtez.xyz/$repo/os/$arch
+Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
+Server = http://ftp.lysator.liu.se/pub/archlinux/$repo/os/$arch
+Server = https://ftp.acc.umu.se/mirror/archlinux/$repo/os/$arch
+Server = http://mirror.neuf.no/archlinux/$repo/os/$arch
+Server = http://arch.yhtez.xyz/$repo/os/$arch
+Server = http://mirror.wuki.li/archlinux/$repo/os/$arch
+Server = https://mirror.srv.fail/archlinux/$repo/os/$arch
+Server = https://mirror.hel.sl-chat.ru/archlinux/$repo/os/$arch
+# Sweden
+Server = https://ftp.lysator.liu.se/pub/archlinux/$repo/os/$arch
+Server = http://ftp.lysator.liu.se/pub/archlinux/$repo/os/$arch
+Server = https://mirror.osbeck.com/archlinux/$repo/os/$arch
+Server = https://ftp.acc.umu.se/mirror/archlinux/$repo/os/$arch
+# Norway
+Server = https://mirror.neuf.no/archlinux/$repo/os/$arch
+Server = http://mirror.neuf.no/archlinux/$repo/os/$arch
+Server = http://mirror.archlinux.no/$repo/os/$arch
+Server = https://mirror.archlinux.no/$repo/os/$arch
+# Finland
+Server = https://mirror.wuki.li/archlinux/$repo/os/$arch
+Server = https://arch.yhtez.xyz/$repo/os/$arch
+Server = https://mirror.hel.sl-chat.ru/archlinux/$repo/os/$arch
+Server = http://arch.mirror.far.fi/$repo/os/$arch
+# Denmark
+Server = https://mirror.safe-con.dk/archlinux/$repo/os/$arch
+Server = http://mirror.one.com/archlinux/$repo/os/$arch
+Server = https://mirror.one.com/archlinux/$repo/os/$arch
+Server = https://mirrors.dotsrc.org/archlinux/$repo/os/$arch

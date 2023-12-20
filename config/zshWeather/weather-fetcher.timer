@@ -1,0 +1,10 @@
+[Unit]
+Description=Run weather-fetcher.service every 10m
+
+[Timer]
+OnBootSec=1m
+OnUnitActiveSec=10m
+Unit=weather-fetcher.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,10 @@
+#!/bin/bash
+mkdir /mnt/conf
+cp /usb/conf/sudoers.tmp /mnt/conf
+cp /usb/conf/locale.gen /mnt/conf
+cp /usb/conf/hosts /mnt/conf
+cp -r /usb/conf/Bashsetup /mnt/conf
+cp /usb/conf/pacman.conf /mnt/conf
+cp /usb/conf/nanorc /mnt/conf
+cp /usb/conf/grub /mnt/conf
+cp /usb/conf/mirrorlist /mnt/conf

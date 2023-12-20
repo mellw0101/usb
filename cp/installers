@@ -1,0 +1,31 @@
+#!/bin/bash
+cp /usb/installers/yayinstall.sh /mnt
+cp /usb/installers/geekbenchinstaller /mnt
+cp /usb/installers/installcorefreq /mnt
+cp /usb/installers/chaotic-aur /mnt
+cp /usb/installers/linux-tkg /mnt
+cp /usb/installers/uplayfix /mnt
+cp /usb/installers/steaminstall /mnt
+cp /usb/installers/usefull /mnt
+cp /usb/installers/google-chrome.sh /mnt
+cp /usb/installers/base-devel.sh /mnt
+cp /usb/installers/kernelbuildpkg /mnt
+cp /usb/installers/qemuinstaller /mnt
+cp /usb/installers/kwin-rounded /mnt
+cp /usb/installers/steaminstall /mnt
+cp /usb/installers/gamemodeinstaller /mnt
+cp /usb/installers/wallpaper /mnt
+cp /usb/installers/lutrisinstaller /mnt
+cp /usb/installers/gamemodeinstaller /mnt
+cp /usb/installers/discoverinstaller /mnt
+cp /usb/installers/mangohudinstaller /mnt
+
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt
+#cp /usb/installers/ /mnt

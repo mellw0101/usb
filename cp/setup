@@ -1,0 +1,3 @@
+#!/bin/bash
+cp /usb/start.sh /mnt
+cp /usb/start2.sh /mnt

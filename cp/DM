@@ -1,0 +1,9 @@
+#!/bin/bash
+mkdir /mnt/DM
+cp /usb/DM/kde.sh /mnt/DM
+cp /usb/DM/kdem.sh /mnt/DM
+cp /usb/DM/gnome.sh /mnt/DM
+cp /usb/DM/hyprland.sh /mnt/DM
+cp /usb/DM/kdem-git.sh /mnt/DM
+cp /usb/DM/lxdm /mnt/DM
+cp /usb/DM/xfce.sh /mnt/DM

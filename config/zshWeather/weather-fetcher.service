@@ -1,0 +1,6 @@
+# /etc/systemd/system/weather-fetcher.service
+[Unit]
+Description=Fetch weather data
+
+[Service]
+ExecStart=/bin/zshWeather

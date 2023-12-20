@@ -1,0 +1,17 @@
+#!/bin/bash
+cp /usb/working-script/usbinstall /mnt
+cp /usb/working-script/driveinstall /mnt
+cp /usb/working-script/grubconf /mnt
+cp /usb/working-script/grubbuild /mnt
+cp /usb/working-script/dxvk-async /mnt
+cp /usb/working-script/endmvfix /mnt
+cp /usb/working-script/sshm /mnt
+cp /usb/working-script/maketarball /mnt
+cp /usb/working-script/mirrorlistrun /mnt
+cp /usb/working-script/raptoreumxm /mnt
+cp /usb/working-script/mirrorlistfull /mnt
+cp /usb/working-script/mirrorlistfast /mnt
+cp /usb/working-script/u /mnt
+
+#cp /usb/working-script/
+
