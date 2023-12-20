@@ -11,6 +11,7 @@
 #define LOG_warning(message)        	Log::WARNING(__FUNCTION__, "]:[", message);
 #define LOG_start()                 	Log::Start("mwm");
 #define log_event_response_typ()		Log::xcb_event_response_type(__func__, e->response_type)
+#define log_info(message)               log.log(INFO, __func__, message)
 
 /* XCB DEFENITIONS */
 #define XCB_map_window(win) xcb.map_window(conn, win, __func__)

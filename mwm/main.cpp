@@ -1,4 +1,3 @@
-#include <cstddef>
 #define main_cpp
 #include "include.hpp"
 
@@ -679,6 +678,8 @@ class Animate {
         static void // Public static method to start the animation
         move(client * & cli, int startX, int startY, int endX, int endY, int time) 
         {
+			log_info(startX);
+			log_info(startY);
             // Ensure any existing animation is stopped
             stopAnimation();
             
@@ -692,6 +693,10 @@ class Animate {
             int steps = time / animationInterval;
             int stepX = (endX - startX) / steps;
             int stepY = (endY - startY) / steps;
+			
+			log_info(steps);
+			log_info(stepX);
+			log_info(stepY);
 
             // Start a new thread for animation
             animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
@@ -710,6 +715,7 @@ class Animate {
         static std::atomic<bool> stopFlag;
         static int currentX;
         static int currentY;
+		// 50, 25 works
         static const int animationInterval = 25;
         static client * & c;
         
