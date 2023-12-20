@@ -848,7 +848,7 @@ class mv_Desktop {
 
 					threads.clear();
 					// HIDE CLIENTS ON CURRENT_DESKTOP
-					for (auto & c : cur_d->current_clients)
+					for (const auto & c : cur_d->current_clients)
 					{
 						if (c)
 						{
@@ -858,7 +858,7 @@ class mv_Desktop {
 
 					cur_d = desktop_list[cur_d->desktop];
 					// SHOW CLIENTS ON NEXT_DESKTOP
-					for (auto & c : cur_d->current_clients)
+					for (const auto & c : cur_d->current_clients)
 					{
 						if (c)
 						{
