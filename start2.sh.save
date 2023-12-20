@@ -1,0 +1,22 @@
+dd if=/dev/zero of=/swapfile bs=1M count=3072 status=progress
+chmod 0600 /swapfile
+mkswap -U clear /swapfile
+swapon /swapfile
+echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+free -m
+useradd -m -g users -G wheel -s /bin/bash mellw
+passwd mellw
+sudo cp /sudoers.tmp /etc
+pacman -Syu
+pacman -S pulseaudio pulseaudio-alsa xorg xorg-xinit xorg-server
+pacman -S xfce4 lightdm lightdm-gtk-greeter
+echo "exec startxfce4" > ~/.xinitrc
+systemctl enable lightdm
+yes y|pacman -S openssh
+systemctl enable sshd.service
+yes y|pacman -S nvidia
+yes y|pacman -S i7z
+yes y|pacman -S bpytop
+
+startx
+

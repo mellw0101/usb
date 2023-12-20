@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo pacman -S python-virtualenv
+cd /home/mellw/source/ml_ev_test
+python -m virtualenv venv
+source venv/bin/activate

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+lolMiner_install() {
+
+    cd /home/$USER/Downloads
+    mkdir gpuMiners
+    cd gpuMiners
+    mkdir lolMiner
+    axel https://github.com/Lolliedieb/lolMiner-releases/releases/download/1.76a/lolMiner_v1.76a_Lin64.tar.gz
+    echo
+    echo "Untaring"
+    echo
+    tar -xvzf lolMiner_v1.76a_Lin64.tar.gz -C lolMiner
+    echo
+    echo "Untaring Done"
+    rm lolMiner_v1.76a_Lin64.tar.gz
+
+}
+
+
+lolMiner_install
+
+
+

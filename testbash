@@ -1,0 +1,824 @@
+#!/bin/bash
+
+WRONG() {
+
+    log WRONG
+    echo " ERROR : MUST BE BETWEEN 1-3"
+
+}
+log() {
+
+  echo "$(date +"%d-%m-%y-%a-%H:%M:%S") $1" >> "$LOG_FILE"
+
+}
+prompt() {
+
+    read -p "  >>  " a
+
+}
+nowdate() {
+
+    a=$(date +"%d-%m-%y-%a-%H:%M:%S")
+
+    nowdate=$a
+
+}
+
+get_uname() {
+
+    u=$(getent passwd 1000 | cut -d: -f1)
+
+}
+
+setup() {
+
+    install_packages() {
+
+        pacman_check() {
+
+            c=$(cat "$PACMAN_CHECK_FILE" 2> /dev/null)
+
+                if [[ $c = "" ]]; then
+
+                    pac_check=1
+
+                else
+
+                    pac_check=0
+
+                fi
+
+        }
+
+        pacman_check
+
+        if [[ $pac_check = 1 ]]; then
+
+            sudo pacman -S --needed reflector rsync
+            echo 1 > "$PACMAN_CHECK_FILE"
+
+        fi
+
+    }
+
+    PROGRAM_DIR="/home/$USER/Programs/mlpick"
+    LOG_FILE="$PROGRAM_DIR/log"
+    PACMAN_CHECK_FILE="$PROGRAM_DIR/pacmancheck"
+    CUSTOM_LISTS_DIR="$PROGRAM_DIR/custom"
+    SAVE_DIR="$PROGRAM_DIR/save"
+
+    install_packages
+
+}
+main_menu() {
+
+    echo
+    echo "    1 = Nvidia" && echo
+    echo "    2 = MlPick" && echo
+    echo "    3 = Geekbench-installer" && echo
+
+}
+
+nv() {
+
+    sensors() {
+
+    while true; do
+
+        clear
+        nvidia-smi
+        sleep 0.2
+
+    done
+
+    }
+    nv_menu() {
+
+        clear
+        echo
+        echo "    NVIDIA"
+        echo
+        echo "     1 = Sensors"
+        echo "     2 = set PWLIMIT"
+        echo
+        echo "    11 = exit"
+        echo
+
+    }
+
+    while true; do
+
+        clear
+        nv_menu
+        prompt
+
+        case "$a" in
+
+            1 )
+                sensors
+                ;;
+
+           11 )
+                break
+                ;;
+
+            * )
+                echo WORNG
+                ;;
+
+        esac
+
+    done
+
+}
+
+mlpick() {
+
+    mlpick_menu() {
+
+        mlpick_custom_check() {
+
+            save1check="/home/$USER/Programs/mlpick/custom/1.save" && save1find=$(find /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null)
+
+            if [[ $save1check = $save1find ]]; then
+
+                S1=" 5 = Custom 1 "
+
+            fi
+
+            save2check="/home/$USER/Programs/mlpick/custom/2.save" && save2find=$(find /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null)
+
+            if [[ $save2check = $save2find ]]; then
+
+                S2=" 6 = Custom 2 "
+
+            fi
+
+            save3check="/home/$USER/Programs/mlpick/custom/3.save" && save3find=$(find /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null)
+
+            if [[ $save3check = $save3find ]]; then
+
+                S3=" 7 = Custom 3 "
+
+            fi
+
+            save4check="/home/$USER/Programs/mlpick/custom/4.save" && save4find=$(find /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null)
+
+            if [[ $save4check = $save4find ]]; then
+
+                S4=" 8 = Custom 4 "
+
+            fi
+
+            save5check="/home/$USER/Programs/mlpick/custom/5.save" && save5find=$(find /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null)
+
+            if [[ $save5check = $save5find ]]; then
+
+                S5=" 9 = Custom 5 "
+
+            fi
+
+
+        }
+
+        mlpick_custom_check
+
+        clear
+        echo
+        echo "     1 = fast"
+        echo "     2 = full"
+        echo "     3 = make custom list"
+        echo " >>  4 = update lists and apply changes"
+        echo
+        echo "    $S1"
+        echo "    $S2"
+        echo "    $S3"
+        echo "    $S4"
+        echo "    $S5"
+        echo
+        echo "    10 = show custom"
+        echo "    11 = exit"
+        echo "    12 = remove custom list"
+        echo
+
+    }
+
+    custom_mirrorlist() {
+
+        echo
+        clear
+        reflector --list-countries
+
+        echo
+        echo "             PICK COUNTRIES"
+        echo
+        echo "    FORMAT = AR,AU,AT,AZ,BD"
+        echo
+        echo "    Press ENTER for no filter"
+        echo
+        read -p '  >>  ' a
+
+        c="-c $a"
+
+        if [[ $a = "" ]]; then
+
+            c=""
+
+        fi
+
+        v1=age && v2=rate && v3=country && v4=score && v5=delay && echo
+
+        echo "             Sort OPTIONS" && echo
+        echo "    1 = age"
+        echo "    2 = rate"
+        echo "    3 = country"
+        echo "    4 = score"
+        echo "    5 = delay"
+        echo
+
+        prompt
+
+        if [[ $a = 1 ]]; then
+            a=$v1
+        fi
+        if [[ $a = 2 ]]; then
+            a=$v2
+        fi
+        if [[ $a = 3 ]]; then
+            a=$v3
+        fi
+        if [[ $a = 4 ]]; then
+            a=$v4
+        fi
+        if [[ $a = 5 ]]; then
+            a=$v5
+        fi
+
+        mlsort="--sort $a" && echo
+
+        echo "    SELECT NUMBER OF HOURS SENSE LAST SYNC" && echo
+
+        read -p '  >>  ' h && echo
+
+        echo "    Do you want to add a minimum completion-percentage y/N" && echo
+        echo "    1 = YES"
+        echo "    2 = NO"
+        echo
+
+        prompt && echo
+
+        if [[ $a = 1 ]]; then echo
+
+            echo "    1-100" && echo
+            echo "    Pick" && echo
+
+            prompt
+
+            comp="--completion-percent $a"
+
+        fi
+
+        hours="-a $h"
+        Dvar="--delay 0.5"
+
+      # Runs reflector with the settings you chose
+
+        reflector --verbose $c $mlsort $hours $Dvar $comp --save /home/$USER/Programs/mlpick/save/listA
+
+        sudo cp /home/$USER/Programs/mlpick/save/listA /etc/pacman.d/mirrorlist
+        save=$(echo reflector --verbose $c $mlsort $hours $Dvar $comp --save /home/$USER/Programs/mlpick/save/listA)
+        saveshow=$(echo reflector --verbose $c $mlsort $hours $Dvar $comp)
+        echo
+        echo "    Do you want to save this y/n"
+        echo
+        echo "    $saveshow"
+        echo
+
+        prompt
+
+        if [[ $a = y ]]; then
+
+            while true; do
+
+            echo
+            echo "  1"
+            echo "  2"
+            echo "  3"
+            echo "  4"
+            echo "  5"
+            echo
+            echo "  Pick custom spot"
+            echo
+
+            read -p '  >>  ' a
+
+
+            if [[ $a = 1 ]]; then
+                echo $save > /home/$USER/Programs/mlpick/custom/1.save
+                break
+            fi
+            if [[ $a = 2 ]]; then
+                echo $save > /home/$USER/Programs/mlpick/custom/2.save
+                break
+            fi
+            if [[ $a = 3 ]]; then
+                echo $save > /home/$USER/Programs/mlpick/custom/3.save
+                break
+            fi
+            if [[ $a = 4 ]]; then
+                echo $save > /home/$USER/Programs/mlpick/custom/4.save
+                break
+            fi
+            if [[ $a = 5 ]]; then
+                echo $save > /home/$USER/Programs/mlpick/custom/5.save
+                break
+            fi
+            if [[ $a > 5 ]]; then
+                echo
+                echo wrong
+            fi
+
+            done
+
+        fi
+
+    }
+
+    custom_1() {
+
+        r=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null | cut -d/ -f1 2> /dev/null)
+        echo
+        $r /home/$USER/Programs/mlpick/save/lists/1.save
+        sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist
+
+    }
+    custom_2() {
+
+        r=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null | cut -d/ -f1 2> /dev/null)
+        echo
+        $r /home/$USER/Programs/mlpick/save/lists/2.save
+        sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist
+
+    }
+    custom_3() {
+
+        r=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null | cut -d/ -f1 2> /dev/null)
+        echo
+        $r /home/$USER/Programs/mlpick/save/lists/3.save
+        sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist
+
+    }
+    custom_4() {
+
+        r=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null | cut -d/ -f1 2> /dev/null)
+        echo
+        $r /home/$USER/Programs/mlpick/save/lists/4.save
+        sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist
+
+    }
+    custom_5() {
+
+        r=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null | cut -d/ -f1 2> /dev/null)
+        echo
+        $r /home/$USER/Programs/mlpick/save/lists/5.save
+        sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist
+
+    }
+
+    update_lists() {
+
+        echo
+        l=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null)
+        $l
+        cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/1.save
+
+        echo
+        l=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null)
+        $l
+        cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/2.save
+
+        echo
+        l=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null)
+        $l
+        cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/3.save
+
+        echo
+        l=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null)
+        $l
+        cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/4.save
+
+        echo
+        l=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null)
+        $l
+        cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/5.save
+
+        echo
+        sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist.1
+        sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist.2
+        sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist.3
+        sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist.4
+        sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist.5
+
+        sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist.1
+        sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist.2
+        sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist.3
+        sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist.4
+        sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist.5
+
+        echo
+        echo "    chose custom list"
+        echo
+        echo "    1"
+        echo "    2"
+        echo "    3"
+        echo "    4"
+        echo "    5"
+        echo
+
+        read -p '  >>  ' a
+
+        if [[ $a = 1 ]]; then
+
+            sudo cp /etc/pacman.d/mirrorlist.1 /etc/pacman.d/mirrorlist
+
+        fi
+
+        if [[ $a = 2 ]]; then
+
+            sudo cp /etc/pacman.d/mirrorlist.2 /etc/pacman.d/mirrorlist
+
+        fi
+
+        if [[ $a = 3 ]]; then
+
+            sudo cp /etc/pacman.d/mirrorlist.3 /etc/pacman.d/mirrorlist
+
+        fi
+
+        if [[ $a = 4 ]]; then
+
+            sudo cp /etc/pacman.d/mirrorlist.4 /etc/pacman.d/mirrorlist
+
+        fi
+
+        if [[ $a = 5 ]]; then
+
+            sudo cp /etc/pacman.d/mirrorlist.5 /etc/pacman.d/mirrorlist
+
+        fi
+
+    }
+
+    show_custom() {
+
+        show_custom_menu() {
+
+            show_custom_menu_check() {
+
+                save1check="/home/$USER/Programs/mlpick/custom/1.save" && save1find=$(find /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null)
+
+                if [[ $save1check = $save1find ]]; then
+
+                    S1=" 1 = Custom 1 "
+
+                fi
+
+                save2check="/home/$USER/Programs/mlpick/custom/2.save" && save2find=$(find /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null)
+
+                if [[ $save2check = $save2find ]]; then
+
+                    S2=" 2 = Custom 2 "
+
+                fi
+
+                save3check="/home/$USER/Programs/mlpick/custom/3.save" && save3find=$(find /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null)
+
+                if [[ $save3check = $save3find ]]; then
+
+                    S3=" 3 = Custom 3 "
+
+                fi
+
+                save4check="/home/$USER/Programs/mlpick/custom/4.save" && save4find=$(find /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null)
+
+                if [[ $save4check = $save4find ]]; then
+
+                    S4=" 4 = Custom 4 "
+
+                fi
+
+                save5check="/home/$USER/Programs/mlpick/custom/5.save" && save5find=$(find /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null)
+
+                if [[ $save5check = $save5find ]]; then
+
+                    S5=" 5 = Custom 5 "
+
+                fi
+
+            }
+
+            show_custom_menu_check
+
+            clear && echo && echo
+
+            echo "    $S1"
+            echo "    $S2"
+            echo "    $S3"
+            echo "    $S4"
+            echo "    $S5"
+
+            echo
+
+            echo "    11 = exit"
+
+            echo
+
+            echo "    Pick"
+
+            echo
+            echo
+
+            prompt
+
+        }
+
+        while true; do
+
+        show_custom_menu
+
+            if [[ $a = 1 ]]; then
+
+                echo
+                echo
+                a=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null)
+                echo "    $a"
+                echo
+                echo
+
+                read -p '  >>  ' a
+
+            fi
+
+            if [[ $a = 2 ]]; then
+
+                echo
+                echo
+                a=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null)
+                echo "    $a"
+                echo
+                echo
+
+                read -p '  >>  ' a
+
+            fi
+
+            if [[ $a = 3 ]]; then
+
+                echo
+                echo
+                a=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null)
+                echo "    $a"
+                echo
+                echo
+
+                read -p '  >>  ' a
+
+            fi
+
+            if [[ $a = 4 ]]; then
+
+                echo
+                echo
+                a=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null)
+                echo "    $a"
+                echo
+                echo
+
+                read -p '  >>  ' a
+
+            fi
+
+            if [[ $a = 5 ]]; then
+
+                echo
+                echo
+                a=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null)
+                echo "    $a"
+                echo
+                echo
+
+                read -p '  >>  ' a
+
+            fi
+
+            if [[ $a = 11 ]]; then
+
+                break
+
+            fi
+
+        done
+
+    }
+
+    # Main mlpick program starts here
+
+    while true; do
+
+        mlpick_menu
+        prompt
+
+        case "$a" in
+
+            3 )
+                custom_mirrorlist
+                ;;
+            4 )
+                update_lists
+                ;;
+            5 )
+                custom_1
+                ;;
+            6 )
+                custom_2
+                ;;
+            7 )
+                custom_3
+                ;;
+            8 )
+                custom_4
+                ;;
+            9 )
+                custom_5
+                ;;
+           10 )
+                show_custom
+                ;;
+           11 )
+                main_menu_show=1
+                break
+                ;;
+            * )
+                WRONG
+                ;;
+        esac
+
+    done
+
+}
+
+gb_installer() {
+
+    gb_menu() {
+
+        clear
+        echo
+        echo "    What version?"
+        echo
+        echo "    Press 11 to exit"
+        prompt
+
+    }
+
+    gb_2() {
+
+        mkdir /home/mellw/Downloads/tmpfiles
+        axel -o /home/mellw/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz https://cdn.geekbench.com/Geekbench-2.4.3-Linux.tar.gz
+        mkdir /home/mellw/Downloads/Geekbench
+        mkdir /home/mellw/Downloads/Geekbench/Geekbench2
+        ar -xvzf /home/mellw/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz -C /home/mellw/Downloads/Geekbench/Geekbench2
+        rm /home/mellw/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz
+        echo "/home/mellw/Downloads/Geekbench/Geekbench2/dist/Geekbench-2.4.3-Linux/geekbench" > /home/mellw/geekbench2
+        sudo chmod +x geekbench2
+        sudo mv /home/mellw/geekbench2 /usr/bin
+
+    }
+    gb_3() {
+
+        mkdir /home/mellw/Downloads/tmpfiles
+        axel -o /home/mellw/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz https://cdn.geekbench.com/Geekbench-3.4.4-Linux.tar.gz
+        mkdir /home/mellw/Downloads/Geekbench
+        tar -xvzf /home/mellw/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz -C /home/mellw/Downloads/Geekbench
+        rm /home/mellw/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz
+        echo "/home/mellw/Downloads/Geekbench/dist/Geekbench-3.4.4-Linux/geekbench" > /home/mellw/geekbench3
+        sudo chmod +x /home/mellw/geekbench3
+        sudo mv /home/mellw/geekbench3 /usr/bin
+
+    }
+    gb_4() {
+
+        mkdir /home/mellw/Downloads/tmpfiles
+        axel -o /home/mellw/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz https://cdn.geekbench.com/Geekbench-4.4.4-Linux.tar.gz
+        mkdir /home/mellw/Downloads/Geekbench
+        tar -xvzf /home/mellw/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz -C /home/mellw/Downloads/Geekbench
+        rm /home/mellw/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz
+        echo "/home/mellw/Downloads/Geekbench/Geekbench-4.4.4-Linux/geekbench4" > /home/mellw/geekbench4
+        sudo chmod +x geekbench4
+        sudo mv /home/mellw/geekbench4 /usr/bin
+
+    }
+    gb_5() {
+
+        mkdir /home/mellw/Downloads/tmpfiles
+        axel -o /home/mellw/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz https://cdn.geekbench.com/Geekbench-5.5.1-Linux.tar.gz
+        mkdir /home/mellw/Downloads/Geekbench
+        tar -xvzf /home/mellw/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz -C /home/mellw/Downloads/Geekbench
+        rm /home/mellw/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz
+        touch geekbench5
+        echo "/home/mellw/Downloads/Geekbench/Geekbench-5.5.1-Linux/geekbench5" > /home/mellw/geekbench5
+        sudo chmod +x geekbench5
+        sudo mv /home/$USER/geekbench5 /usr/bin
+
+    }
+    gb_6() {
+
+        mkdir /home/mellw/Downloads/tmpfiles
+        axel -o /home/mellw/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz https://cdn.geekbench.com/Geekbench-6.1.0-Linux.tar.gz
+        mkdir /home/mellw/Downloads/Geekbench
+        tar -xvzf /home/mellw/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz -C /home/mellw/Downloads/Geekbench
+        rm /home/mellw/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz
+        echo "/home/mellw/Downloads/Geekbench/Geekbench-6.1.0-Linux/geekbench6" > /home/mellw/geekbench6
+        sudo chmod +x geekbench6
+        sudo mv /home/mellw/geekbench6 /usr/bin
+
+    }
+
+    # main gb_installer script starts here
+
+    while true; do
+
+        gb_menu
+
+        case "$a" in
+
+            2 )
+                gb_2
+                ;;
+            3 )
+                gb_3
+                ;;
+            4 )
+                gb_4
+                ;;
+            5 )
+                gb_5
+                ;;
+            6 )
+                gb_6
+                ;;
+           11 )
+                break
+                ;;
+
+        esac
+
+    done
+
+}
+
+# main script starts here
+
+setup
+get_uname
+clear
+
+main_menu_show=1
+
+while true; do
+
+    case "$main_menu_show" in
+
+        1 )
+            main_menu
+            ;;
+
+    esac
+
+
+    prompt
+
+    main_menu_show=0
+
+    case "$a" in
+
+        1 )
+            nv
+            ;;
+        2 )
+            mlpick
+            ;;
+        3 )
+            gb_installer
+            ;;
+       11 )
+            exit
+            ;;
+       gb )
+            gb_installer
+            ;;
+        * )
+            WRONG
+            ;;
+    esac
+
+done

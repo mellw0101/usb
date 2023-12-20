@@ -1,0 +1,63 @@
+libGL.so.X: OpenGL library for graphics rendering. X represents the version number.
+
+libX11.so.X: X Window System library for basic windowing functionality.
+
+libXau.so.X: X Authorization library for X Window System authentication.
+
+libXcursor.so.X: X Window System cursor library for mouse cursor handling.
+
+libXdmcp.so.X: X Display Manager Control Protocol library for X Window System.
+
+libXext.so.X: X Window System Extension library for additional X functionality.
+
+libXfixes.so.X: X Window System Fixes library for cursor clipping.
+
+libXi.so.X: X Input Extension library for enhanced input device support.
+
+libXinerama.so.X: X Window System Xinerama extension library for multi-monitor support.
+
+libXrandr.so.X: X Window System RandR extension library for screen resolution management.
+
+libXrender.so.X: X Window System Render extension library for advanced 2D graphics.
+
+libXtst.so.X: X Window System X Test extension library for XTest extension.
+
+libasound.so.X: ALSA (Advanced Linux Sound Architecture) library for audio support.
+
+libdl.so.X: Dynamic Linking library for loading shared libraries at runtime.
+
+libfontconfig.so.X: Font configuration library for font handling.
+
+libfreetype.so.X: FreeType library for font rendering.
+
+libgpg-error.so.X: GnuPG Error library for error codes and messages.
+
+libidn2.so.X: Internationalized Domain Names (IDN) library.
+
+libnss3.so: Network Security Services library for secure network communication.
+
+libpulse.so.X: PulseAudio library for audio support.
+
+libstdc++.so.X: C++ Standard Library library.
+
+libvulkan.so.X: Vulkan API library for advanced graphics rendering (if supported by the game).
+
+libxcb.so.X: X C Bindings library for X Window System interaction.
+
+libdrm.so.X: Direct Rendering Manager library for graphics rendering management.
+
+libudev.so.X: udev library for dynamic device management.
+
+libevdev.so.X: Event Device library for input device event handling.
+
+libpthread.so.X: POSIX Threads library for multi-threading support.
+
+librt.so.X: Realtime library for real-time clock and timer functionality.
+
+libcrypto.so.X: OpenSSL library for secure network communication.
+
+libcurl.so.X: cURL library for URL transfers (networking).
+
+Please note that the "X" in library names represents the specific version number of that library. The actual library names may vary depending on your Linux distribution and system configuration.
+
+To ensure that you have the required libraries installed for Steam and your games, you should rely on your distribution's package manager to install any missing dependencies. Additionally, the specific libraries required can vary from game to game, so you may encounter additional dependencies for individual title

@@ -1,0 +1,387 @@
+#!/bin/bash
+prompt() {
+
+    read -p '  >>: ' a
+
+}
+ERROR_F() {
+
+    echo "ERROR : FATAL : $1"
+
+}
+ERROR_W() {
+
+    echo "ERROR : WARNING : $1"
+
+}
+SUCCESS() {
+
+    echo "SUCCESS : $1"
+
+}
+fonts_install() {
+
+    sudo pacman -S ttf-dejavu tff-go-nerd tff-opensans
+
+}
+main_drive() {
+    main_drive_main() {
+        main_drive_partition() {
+            echo
+            while true; do
+                read -p 'Do you want to partition the drive? Y/n >>: ' a
+                case "$a" in
+                    Y )
+                        cfdisk /dev/$Xvar && break
+                        ;;
+                    y )
+                        cfdisk /dev/$Xvar && break
+                        ;;
+                    N )
+                        echo && break
+                        ;;
+                    n )
+                        echo && break
+                        ;;
+                lsblk )
+                        lsblk
+                        ;;
+                    * )
+                        ERROR_W "ONLY Y/N"
+                        ;;
+                esac
+            done
+        }
+        lsblk && echo
+        while true; do
+            read -p 'What is the name of the drive you want to INSTALL ARCH on >>: ' Xvar
+            main_drive_check=$(lsblk | cut -d: -f1 | grep $Xvar 2> /mnt/log.txt)
+            case "$main_drive_check" in
+                "" )
+                    ERROR_F "Disk does not exist, TRY AGAIN"
+                    ;;
+                * )
+                    echo
+                    SUCCESS "DISK FOUND" && break
+                    ;;
+            esac
+        done
+        main_drive_partition
+    }
+    main_drive_main
+    Bvar="$Xvar"1
+    Rvar="$Xvar"2
+    Hvar="$Xvar"3
+    yes y | mkfs.fat -F32 /dev/$Bvar
+    yes y | mkfs.ext4 -b 4096 -m 0 /dev/$Rvar ; mount /dev/$Rvar /mnt
+    yes y | mkfs.ext4 -b 4096 -m 0 /dev/$Hvar ; mkdir /mnt/home ; mount /dev/$Hvar /mnt/home
+    echo $Bvar > /mnt/boot.txt
+}
+second_drive() {
+    second_drive_main() {
+        second_drive_mount() {
+
+            while true; do
+
+                while true; do
+
+                    read -p 'Select Letter For Your Drive >>: ' tmp
+
+                    L=${#tmp}
+
+                    case "$L" in
+
+                        1 )
+                            break
+                            ;;
+                        2 )
+                            break
+                            ;;
+                        3 )
+                            break
+                            ;;
+                        0 )
+                            ERROR_F "CANT BE EMPTY"
+                            ;;
+                        * )
+                            ERROR_F "CANT BE MORE THAN three LETTERS"
+                            ;;
+
+                    esac
+
+                done
+
+                a=$(lsblk | cut -d: -f1 | grep $tmp 2> /mnt/log.txt)
+
+                case "$a" in
+
+                    "" )
+                        lsblk_1=2
+                        break
+                        ;;
+                    * )
+                        ERROR_F "Already Taken"
+                        ;;
+
+                esac
+
+            done
+
+            mkdir /mnt/home/$tmp 2> /mnt/log.txt && mount /dev/$Dpvar /mnt/home/$tmp 2> /mnt/log.txt
+
+            a=$(lsblk | grep /mnt/home/$tmp 2> /mnt/log.txt)
+
+            case "$a" in
+
+                "" )
+                    ERROR_F "Did NOT Successfully MOUNT Disk, Please Try Again"
+                    ;;
+                * )
+                    SUCCESS "Disk MOUNTED"
+                    ;;
+
+            esac
+
+        }
+        second_drive_pick() {
+
+            while true; do
+
+                read -p 'Pick >>: ' Dpvar
+
+                a=$(lsblk | cut -d: -f1 | grep $Dpvar 2> /mnt/log.txt)
+
+                case "$a" in
+
+                    "" )
+                        ERROR_F "Disk does not exist"
+                        ;;
+                    * )
+                        SUCCESS "Disk FOUND"
+                        break
+                        ;;
+
+                esac
+
+            done
+
+        }
+        second_drive_pick
+        while true; do
+            read -p 'Do you want to FORMAT the drive, Y/n. >>: ' a
+            case "$a" in
+                Y )
+                    echo
+                    yes y | mkfs.ext4 -b 4096 /dev/$Dpvar
+                    break
+                    ;;
+                y )
+                    echo
+                    yes y | mkfs.ext4 -b 4096 /dev/$Dpvar
+                    break
+                    ;;
+                N )
+                    break
+                    ;;
+                n )
+                    break
+                    ;;
+            lsblk )
+                    lsblk
+                    ;;
+                * )
+                    ERROR_W "ONLY Y/N"
+                    ;;
+            esac
+        done
+        second_drive_mount
+    }
+    lsblk_1=1
+    while true; do
+        case "$lsblk_1" in
+            1 )
+                clear && lsblk && echo
+                ;;
+            2 )
+                echo && lsblk && echo
+                ;;
+        esac
+        lsblk_1=0
+        read -p 'Do you want to add another drive, Y/n >>: ' a
+        case "$a" in
+            y )
+                second_drive_main
+                ;;
+            n )
+                break
+                ;;
+        lsblk )
+                lsblk
+                ;;
+            * )
+                ERROR_W "ONLY Y/N"
+                ;;
+        esac
+    done
+}
+setup() {
+    pacman_conf() {
+        sed -i 's/#UseSyslog/UseSyslog/g' /etc/pacman.conf
+        sed -i 's/#Color/Color/g' /etc/pacman.conf
+        sed -i 's/#VerbosePkgLists/VerbosePkgLists/g' /etc/pacman.conf
+        sed -i 's/#ParallelDownloads = 5/ParallelDownloads = 5/g' /etc/pacman.conf
+        sed -i 's/#[core-testing]/[core-testing]/g' /etc/pacman.conf
+        #   sed -i 's/"#Include = /etc/pacman.d/mirrorlist"/"Include = /etc/pacman.d/mirrorlist"/g' /etc/pacman.conf
+    }
+    echo "start" > /mnt/log.txt
+    pacman_conf
+    cp /usb/conf/mirrorlist /etc/pacman.d/mirrorlist
+    #   cp /usb/conf/pacman.conf.start /etc/pacman.conf
+
+    #   mkdir /mnt/DM
+
+    #   cp /usb/DM/kde.sh /mnt/DM
+    #   cp /usb/DM/kdem.sh /mnt/DM
+    #   cp /usb/DM/gnome.sh /mnt/DM
+    #   cp /usb/DM/hyprland.sh /mnt/DM
+    #   cp /usb/DM/kdem-git.sh /mnt/DM
+    #   cp /usb/DM/lxdm /mnt/DM
+    #   cp /usb/DM/xfce.sh /mnt/DM
+
+    cp /usb/archinstaller2 /mnt
+
+    mkdir /mnt/conf
+
+    cp /usb/conf/sudoers.tmp /mnt/conf
+    cp /usb/conf/locale.gen /mnt/conf
+    cp /usb/conf/hosts /mnt/conf
+    cp -r /usb/conf/Bashsetup /mnt/conf
+    cp /usb/conf/pacman.conf /mnt/conf
+    cp /usb/conf/nanorc /mnt/conf
+    cp /usb/conf/grub /mnt/conf
+    cp /usb/conf/mirrorlist /mnt/conf
+
+    #   cp /usb/installers/yayinstall.sh /mnt
+    cp /usb/installers/geekbenchinstaller /mnt
+    cp /usb/installers/installcorefreq /mnt
+    cp /usb/installers/chaotic-aur /mnt
+    cp /usb/installers/linux-tkg /mnt
+    cp /usb/installers/uplayfix /mnt
+    cp /usb/installers/steaminstall /mnt
+    cp /usb/installers/usefull /mnt
+    #   cp /usb/installers/google-chrome.sh /mnt
+    cp /usb/installers/base-devel.sh /mnt
+    cp /usb/installers/kernelbuildpkg /mnt
+    cp /usb/installers/qemuinstaller /mnt
+    cp /usb/installers/kwin-rounded /mnt
+    cp /usb/installers/steaminstall /mnt
+    cp /usb/installers/gamemodeinstaller /mnt
+    cp /usb/installers/wallpaper /mnt
+    cp /usb/installers/lutrisinstaller /mnt
+    cp /usb/installers/gamemodeinstaller /mnt
+    cp /usb/installers/mangohudinstaller /mnt
+
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+    #   cp /usb/installers/ /mnt
+
+    cp /usb/working-script/usbinstall /mnt
+    cp /usb/working-script/driveinstall /mnt
+    #   cp /usb/working-script/grubconf /mnt
+    #   cp /usb/working-script/grubbuild /mnt
+    #   cp /usb/working-script/dxvk-async /mnt
+    #   cp /usb/working-script/endmvfix /mnt
+    cp /usb/working-script/sshm /mnt
+    cp /usb/working-script/maketarball /mnt
+    cp /usb/working-script/mirrorlistrun /mnt
+    cp /usb/working-script/raptoreumxm /mnt
+    cp /usb/working-script/mirrorlistfull /mnt
+    cp /usb/working-script/mirrorlistfast /mnt
+
+    #   cp /usb/working-script/u /mnt
+
+    #   cp /usb/working-script/
+
+}
+main() {
+    start_1() {
+
+arch-chroot /mnt /bin/bash <<"EOT"
+
+    echo
+    pacman-key --init
+    pacman-key --populate
+    echo
+
+    cp /conf/mirrorlist /etc/pacman.d/mirrorlist
+    cp /conf/pacman.conf /etc/pacman.conf
+    cp /conf/nanorc /etc/nanorc
+    cp /conf/locale.gen /etc
+    locale-gen
+    clear
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf
+    ln -sf /usr/share/zoneinfo/Europe/Stockholm /etc/localtime
+    hwclock --systohc --utc
+    echo archPC > /etc/hostname
+    cp /conf/hosts /etc
+    yes y | pacman -Syyu
+
+    echo
+    yes y | pacman -S networkmanager
+
+    echo
+    systemctl enable NetworkManager
+
+    echo
+    yes y | pacman -S grub efibootmgr
+
+    boot=$(cat /boot.txt)
+
+    mount --mkdir /dev/$boot /boot/efi
+    echo
+    grub-install --target=x86_64-efi --bootloader-id=GRUB --efi-directory=/boot/efi --removable
+    echo
+    grub-mkconfig -o /boot/grub/grub.cfg
+    cp /conf/grub /etc/default/grub
+    echo
+    grub-mkconfig -o /boot/grub/grub.cfg
+    echo
+
+EOT
+
+    mkdir /mnt/etc/systemd/system/getty@tty1.service.d
+    echo "[Service]" > /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf
+    echo "ExecStart=" >> /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf
+    echo "ExecStart=-/sbin/agetty --autologin root -p 225588 --noclear %I 38400 linux" >> /mnt/etc/systemd/system/getty@tty1.service.d/autologin.conf
+
+
+arch-chroot /mnt /bin/passwd
+umount -R /mnt
+
+    }
+
+    echo "root:x:0:0:root:/root:/usr/bin/bash -c /usb/archinstaller2" > /mnt/etc/passwd
+
+    printf '1\nY\nY' | pacstrap -i /mnt base linux linux-firmware sudo nano libmicrohttpd quota-tools systemd-ukify polkit
+    genfstab -U -p /mnt >> /mnt/etc/fstab
+
+    start_1
+
+
+
+}
+
+# main script starts here
+
+clear
+main_drive
+second_drive
+setup
+
+main

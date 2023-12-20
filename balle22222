@@ -1,0 +1,95 @@
+
+void runShellInXTerm(Display* display, Window window, const std::string& programPath) {
+    // Run your shell in the xterm within the shell window
+    std::string command = "xterm -into " + std::to_string(static_cast<unsigned long>(shellWindow)) + " -e " + programPath;
+    int shellExitStatus = system(command.c_str());
+
+    if (shellExitStatus != 0) {
+        std::cerr << "Error: Failed to run the shell." << std::endl;
+        exit(1);
+    }
+}
+
+int main(int argc, char* argv[]) {
+    Display* display = XOpenDisplay(nullptr);
+    if (!display) {
+        return 1;
+    }
+
+    std::string programPath = "/home/SERVER/test";              // Default shell program path
+
+    // Default terminal window size
+    int terminalWidth = 800;
+    int terminalHeight = 600;
+
+    // Process command-line arguments
+    if (argc >= 2) {
+        programPath = argv[1]; // Use the first argument as the program path
+    }
+    if (argc >= 4) {
+        terminalWidth = std::atoi(argv[2]); // Use the second argument as the width
+        terminalHeight = std::atoi(argv[3]); // Use the third argument as the height
+    }
+
+    // Get the root window
+    int screen = DefaultScreen(display);
+    Window rootWindow = RootWindow(display, screen);
+
+    // Create the background window
+    Window background = createBackground(display, rootWindow);
+
+    // Create another window for your terminal
+    Window shellWindow = XCreateSimpleWindow(display, rootWindow, 0, 0, terminalWidth, terminalHeight, 0, 0, BlackPixel(display, screen));
+    XMapWindow(display, shellWindow);
+    setAbove(display, shellWindow);
+    XFlush(display);
+
+    // Run your shell in the xterm within the shell window
+    runShellInXTerm(display, shellWindow, programPath);
+
+    // Event loop to keep the windows open and allow movement
+    XEvent event;
+    bool isMoving = false;
+    int xOffset = 0, yOffset = 0;
+
+    while (1) {
+        XNextEvent(display, &event);
+
+        // Handle events for your terminal window (shellWindow) here...
+
+        if (event.type == ButtonPress && event.xbutton.button == 1) {
+            // Left mouse button press; start moving the shell window
+            isMoving = true;
+            xOffset = event.xbutton.x;
+            yOffset = event.xbutton.y;
+        } else if (event.type == MotionNotify && isMoving) {
+            // Mouse motion while moving; reposition the shell window
+            XMoveWindow(display, shellWindow, event.xmotion.x - xOffset, event.xmotion.y - yOffset);
+        } else if (event.type == ButtonRelease && event.xbutton.button == 1) {
+            // Left mouse button release; stop moving
+            isMoving = false;
+        }
+    // Check for user input to execute and capture output
+        if (event.type == KeyPress) {
+            KeySym key;
+            char text[255];
+            XLookupString(&event.xkey, text, sizeof(text), &key, 0);
+
+            // Assuming Enter key triggers command execution
+            if (key == XK_Return) {
+                // Example command to run
+                const char* commandToRun = "ls -l";
+
+                // Capture the output
+                std::string output = captureShellOutput(commandToRun);
+
+                // Display the captured output
+                std::cout << "Command Output:\n" << output << std::endl;
+            }
+        }
+    }
+
+
+    XCloseDisplay(display);
+    return 0;
+}

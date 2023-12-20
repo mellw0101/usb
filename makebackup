@@ -1,0 +1,5 @@
+#!/bin/bash
+Vvar=$(date +"%d-%m-%y-%a-%H:%M:%S")
+sudo tar -czf /usb.tar.gz --directory=/usb .
+sudo mv /usb.tar.gz /home/$USER/usb-$Vvar.tar.gz
+#sudo mv /usb.tar.gz /usb/usb-$Vvar.tar.gz

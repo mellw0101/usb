@@ -1,0 +1,25 @@
+void runShellInXTerm(Display* display, Window window, const std::string& programPath) {
+        // Run your shell in the xterm within the shell window
+        std::string command = "xterm -into " + std::to_string(static_cast<unsigned long>(window)) + " -e " + programPath;
+        int shellExitStatus = system(command.c_str());
+
+        if (shellExitStatus != 0) {
+            std::cerr << "Error: Failed to run the shell." << std::endl;
+            exit(1);
+        }
+}
+
+
+int main() {
+    Display* display = XOpenDisplay(nullptr);
+    int screen = DefaultScreen(display);
+    Window rootWindow = RootWindow(display, screen);
+
+    // Create the main window
+    Window mainWindow = XCreateSimpleWindow(display, rootWindow, 0, 0, 800, 600, 1,
+                                            BlackPixel(display, screen), WhitePixel(display, screen));
+    runShellInXTerm(display, mainWindow, "/home/SERVER/test");
+
+    XMapWindow(display, mainWindow);
+    XFlush(display);
+}

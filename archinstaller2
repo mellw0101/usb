@@ -1,0 +1,766 @@
+#!/bin/bash
+
+ERROR_F() {
+
+    echo "ERROR : FATAL : $1"
+
+}
+ERROR_W() {
+
+    echo "ERROR : WARNING : $1"
+
+}
+log() {
+
+    echo "ERROR : $1" >> /log.txt
+
+}
+
+DEBUG() {
+
+    echo
+    echo "####DEBUG####"
+    echo
+    prompt
+    echo
+
+}
+prompt() {
+
+    read -p "$u-@>>: " a
+
+}
+update() {
+
+    echo
+    sudo pacman -Syu
+
+}
+setup() {
+
+    add_USER() {
+
+        echo
+        echo "    Pick :< USERNAME >:"
+        echo
+        prompt
+        useradd -m -g users -G wheel -s /bin/bash $a
+        echo
+        passwd $a
+        u=$(getent passwd 1000 | cut -d: -f1)
+
+    }
+    sudoers_edit() {
+
+        sed -i 's/# %wheel ALL=(ALL:ALL) NOPASSWD: ALL/ %wheel ALL=(ALL:ALL) NOPASSWD: ALL/g' /etc/sudoers
+        sed -i 's/# %sudo ALL=(ALL:ALL) ALL/ %sudo ALL=(ALL:ALL) ALL/g' /etc/sudoers
+
+        echo
+        sudo cat /etc/sudoers | sed -n 92p
+        sudo cat /etc/sudoers | sed -n 95p
+
+    }
+    gpu_pick() {
+
+        gpu_pick_menu() {
+
+            echo
+            echo "    1 = Nvidia"
+            echo "    2 = Amd"
+            echo "    3 = Intel"
+            echo "    4 = None"
+            echo
+
+        }
+        nvidia_installer() {
+
+            echo
+            pacman -S nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader lib32-opencl-nvidia
+            echo
+
+        }
+        amd_installer() {
+
+            echo
+            sudo pacman -S --needed lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader
+            echo
+
+        }
+        intel_installer() {
+
+            ERROR_F "not implemented yet"
+
+        }
+
+        gpu_pick_menu
+
+        while true; do
+
+            prompt
+
+            case "$a" in
+
+                1 )
+                    nvidia_installer
+                    break
+                    ;;
+                2 )
+                    amd_installer
+                    break
+                    ;;
+                3 )
+                    intel_installer
+                    ;;
+                4 )
+                    echo
+                    break
+                    ;;
+                * )
+                    ERROR_W "Must be between 1-4"
+                    ;;
+
+            esac
+
+        done
+
+    }
+
+    add_USER
+    sudoers_edit
+    update
+    gpu_pick
+
+}
+main() {
+
+    main_start() {
+
+        xorg_install() {
+
+            xorg_wrong_menu() {
+
+                echo
+                echo "###############################"
+                echo "ERROR : FATAL : Cant Install XORG"
+                echo "PRESS <: ENTER :> TO TRY AGAIN"
+                echo "###############################"
+                echo
+                prompt
+
+            }
+
+            while true; do
+
+                pacman -S pulseaudio pulseaudio-alsa xorg xorg-xinit xorg-server
+
+                a=$(ls /etc/X11/xorg.conf.d)
+
+                case "$a" in
+
+                   "" )
+                        break
+                        ;;
+                    * )
+                        xorg_wrong_menu
+                        ;;
+
+                esac
+
+            done
+
+        }
+        yayinstall() {
+
+            echo "#!/bin/bash" > /usr/bin/yayinstall
+            echo 'u=$(getent passwd 1000 | cut -d: -f1)' >> /usr/bin/yayinstall
+            echo "yes y | sudo pacman -S git base-devel" >> /usr/bin/yayinstall
+            echo "cd /opt" >> /usr/bin/yayinstall
+            echo "sudo git clone https://aur.archlinux.org/yay-git.git" >> /usr/bin/yayinstall
+            echo 'sudo chown -R $u:wheel ./yay-git' >> /usr/bin/yayinstall
+            echo "cd yay-git" >> /usr/bin/yayinstall
+            echo "yes y | makepkg -si" >> /usr/bin/yayinstall
+
+            chmod +x /usr/bin/yayinstall
+            sudo -u $u yayinstall
+
+        }
+        DE_pick() {
+
+            DE_pick_menu() {
+
+                echo
+                echo "    1 = kde-plasma"
+                echo "    2 = Gnome"
+                echo "    3 = hyprland"
+                echo "    4 = kde-minimal"
+                echo "    5 = lxde"
+                echo "    6 = xfce"
+                echo "    7 = kde-nano"
+                echo
+
+            }
+            baloo_disable() {
+
+                balooctl disable
+                sudo -u $u balooctl disable
+                rm /etc/xdg/autostart/baloo_file.desktop
+
+            }
+
+            kde_plasma_installer() {
+
+                kde_check=1
+
+                echo "exec startkde" > ~/.xinitrc
+                sudo pacman -S plasma-meta
+                yes y | sudo pacman -S dolphin
+                yes y | sudo pacman -S yakuake
+                echo
+                sudo systemctl enable NetworkManager
+                sudo systemctl start NetworkManager
+                sudo systemctl enable sddm.service
+
+                baloo_disable
+
+            }
+            gnome_installer() {
+
+                echo "exec gnome-session" > ~/.xinitrc
+                sudo pacman -S gnome
+                sudo pacman -S gnome-tweaks sddm
+                echo
+                sudo systemctl enable NetworkManager
+                sudo systemctl start NetworkManager
+                sudo systemctl enable sddm.service
+
+            }
+            kdem_installer() {
+
+                main_install() {
+
+                    kde_check=1
+                    echo
+                    echo "exec startkde" > ~/.xinitrc
+                    pacman -S plasma-desktop
+
+                }
+                addons_install() {
+
+                    pacman -S plasma-pa dolphin dolphin-plugins konsole yakuake sddm kscreen plasma-wayland-session plasma-wayland-protocols plasma-meta
+                    #lib32-libva-vdpau-driver vala libva-vdpau-driver wayland-utils
+                    echo
+
+                }
+
+                main_install
+                addons_install
+
+                sudo systemctl enable NetworkManager
+                sudo systemctl start NetworkManager
+                sudo systemctl enable sddm.service
+
+                baloo_disable
+
+            }
+            kde_nano_installer() {
+
+                main_install() {
+
+                    kde_check=1
+                    echo
+                    echo "exec startkde" > ~/.xinitrc
+                    pacman -S plasma-nano
+
+                }
+                addons_install() {
+
+                    pacman -S plasma-pa dolphin dolphin-plugins konsole yakuake sddm kscreen plasma-wayland-session
+                    #lib32-libva-vdpau-driver vala libva-vdpau-driver wayland-utils
+                    echo
+
+                }
+
+                main_install
+                addons_install
+
+                sudo systemctl enable NetworkManager
+                sudo systemctl start NetworkManager
+                sudo systemctl enable sddm.service
+
+                baloo_disable
+
+            }
+            hyprland_installer() {
+
+                sudo pacman -S wlroots
+                sudo -u $u yay -S gdb ninja gcc cmake meson libxcb xcb-proto xcb-util xcb-util-keysyms libxfixes libx11 libxcomposite xorg-xinput libxrender pixman wayland-protocols cairo pango seatd libxkbcommon xcb-util-wm xorg-xwayland libinput libliftoff libdisplay-info cpio
+                sudo pacman -S kitty
+                sudo pacman -S hyprland
+                sudo -u $u yay -S waybar-hyprland-git
+                #sudo -u mellw yay -S nwg-shell
+                #nwg-dock
+
+            }
+            lxde_installer() {
+
+                echo "exec startlxde" >> ~/.xinitrc
+                sudo pacman -S lxde-gtk3 sddm
+                echo
+                systemctl enable sddm
+
+            }
+            xfce_installer() {
+
+                pacman -S xfce4 lightdm lightdm-gtk-greeter
+                echo "exec startxfce4" > ~/.xinitrc
+                echo
+                systemctl enable lightdm
+
+            }
+
+            DE_pick_menu
+
+            while true; do
+
+                prompt
+
+                case "$a" in
+
+                    1 )
+                        kde_plasma_installer
+                        break
+                        ;;
+                    2 )
+                        gnome_installer
+                        break
+                        ;;
+                    3 )
+                        hyprland_installer
+                        break
+                        ;;
+                    4 )
+                        kdem_installer
+                        break
+                        ;;
+                    5 )
+                        lxde_installer
+                        break
+                        ;;
+                    6 )
+                        xfce_installer
+                        break
+                        ;;
+                    7 )
+                        kde_nano_installer
+                        break
+                        ;;
+                    * )
+                        ERROR_W "Pick from 1-7"
+                        ;;
+
+                esac
+
+            done
+
+        }
+        bash_setup() {
+
+            cp /conf/Bashsetup/bash.bashrc /etc/bash.bashrc
+            cp /conf/Bashsetup/DIR_COLORS /etc
+            cp /conf/Bashsetup/.bashrc /.bashrc
+            cp /conf/Bashsetup/.bashrc /home/$u/.bashrc
+
+        }
+
+        xorg_install
+        yayinstall
+        DE_pick
+        bash_setup
+
+    }
+    game_pkg() {
+
+        game_pkg_menu() {
+
+            echo
+            echo "    Do you want to install gaming packages? y/n"
+            echo
+
+        }
+        game_pkg_installer() {
+
+            gamemode_installer() {
+
+                pacman -S cmake
+                sudo -u $u yay -S libdlibxx
+                sudo pacman -S --needed meson systemd git dbus libinih
+                cd /home/$u
+                mkdir Programs
+                cd Programs
+                git clone https://github.com/FeralInteractive/gamemode.git
+                cd gamemode
+                ./bootstrap.sh
+
+            }
+            lutris_installer() {
+
+                pacman -S --needed lutris linux-headers
+
+            }
+            wine_installer() {
+
+                pacman -S --needed wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
+                mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error \
+                lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo \
+                sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
+                ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
+                lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
+
+            }
+            steam_installer() {
+
+                pacman -S --needed steam xdg-desktop-portal wget xdotool xxd yad gtk2 gnome-themes-standard lib32-gtk2 lib32-gst-plugins-good lib32-glib-networking lib32-libwebp lib32-libid3tag libspectre libid3tag libheif xorg-fonts-misc samba gtk-engines gnome-themes-standard steam-native-runtime
+
+            }
+
+            gamemode_installer
+            lutris_installer
+            wine_installer
+            steam_installer
+            break
+
+        }
+
+        game_pkg_menu
+
+        while true; do
+
+            prompt
+
+            case "$a" in
+
+                y )
+                    game_pkg_installer
+                    ;;
+                n )
+                    break
+                    ;;
+                * )
+                    echo "ERROR : WARNING : Only Y/n"
+                    ;;
+
+            esac
+
+        done
+
+    }
+    sshd_start() {
+
+        echo
+        systemctl enable sshd.service
+        systemctl start sshd.service
+        echo
+
+    }
+    endmvfix() {
+
+        u_update() {
+
+            echo "#!/bin/bash" > /usr/bin/u
+            echo "" >> /usr/bin/u
+            echo "sudo pacman -Syyu" >> /usr/bin/u
+            echo "yay" >> /usr/bin/u
+            echo "sudo pacman-key --init" >> /usr/bin/u
+            echo "sudo pacman-key --populate" >> /usr/bin/u
+
+            chmod +x /usr/bin/u
+
+        }
+        grubconf_install() {
+
+            echo "#!/bin/bash" > /usr/bin/grubconf
+            echo "" >> /usr/bin/grubconf
+            echo "sudo nano /etc/default/grub" >> /usr/bin/grubconf
+
+            chmod +x /usr/bin/grubconf
+
+        }
+        grubbuild_install() {
+
+            echo "#!/bin/bash" > /usr/bin/grubbuild
+            echo "" >> /usr/bin/grubbuild
+            echo "sudo grub-mkconfig -o /boot/grub/grub.cfg" >> /usr/bin/grubbuild
+
+            chmod + /usr/bin/grubbuild
+
+        }
+        usb_install() {
+
+            echo "#!/bin/bash" > /usr/bin/usb
+            echo 'a=$(lsblk | grep 3.8 | cut -d/ -f2)' >> /usr/bin/usb
+            echo "" >> /usr/bin/usb
+            echo 'case "$a" in' >> /usr/bin/usb
+            echo "" >> /usr/bin/usb
+            echo '  usb )' >> /usr/bin/usb
+            echo '      echo "ALREADY MOUNTED"' >> /usr/bin/usb
+            echo '      exit' >> /usr/bin/usb
+            echo '      ;;' >> /usr/bin/usb
+            echo "" >> /usr/bin/usb
+            echo 'esac' >> /usr/bin/usb
+            echo "" >> /usr/bin/usb
+            echo 'a=$(lsblk | grep 3.8 | cut -d8 -f1)' >> /usr/bin/usb
+            echo ""  >> /usr/bin/usb
+            echo 'sudo mount --mkdir /dev/$a /usb 2> /dev/null' >> /usr/bin/usb
+
+            chmod +x /usr/bin/usb
+
+        }
+        maketarball_install() {
+
+            echo "#!/bin/bash" > /usr/bin/maketarball
+            echo "sudo pacman -S --needed pigz pv" >> /usr/bin/maketarball
+            echo "clear" >> /usr/bin/maketarball
+            echo "ls" >> /usr/bin/maketarball
+            echo "read -p 'Name of directory? ' x" >> usr/bin/maketarball
+            echo "tar cf - $x -P | pv -s $(du -sb $x | awk '{print $1}') | pigz > $x.tar.gz" >> /usr/bin/maketarball
+
+            chmod +x /usr/bin/maketarball
+
+        }
+        corefreq_install() {
+
+            echo "#!/bin/bash" > /usr/bin/corefreqinstaller
+            echo "sudo pacman -S --needed 'linux-headers' 'make'" >> /usr/bin/corefreqinstaller
+            echo 'mkdir /home/$USER/Programs'> /usr/bin/corefreqinstaller
+            echo 'sudo rm -r /home/$USER/Programs/CoreFreq' >> /usr/bin/corefreqinstaller
+            echo 'git clone https://github.com/cyring/CoreFreq.git /home/$USER/Programs/CoreFreq/' >> /usr/bin/corefreqinstaller
+            echo 'cd /home/$USER/Programs/CoreFreq' >> /usr/bin/corefreqinstaller
+            echo 'make' >> /usr/bin/corefreqinstaller
+            echo 'sudo make install' >> /usr/bin/corefreqinstaller
+            echo 'echo "#!/bin/bash
+            sudo modprobe corefreqk
+            sudo corefreqd & \sleep 0.5" > /home/$USER/corefreq
+            echo "corefreq-cli" >> /home/$USER/corefreq' >> /usr/bin/corefreqinstaller
+            echo 'sudo chmod +x /home/$USER/corefreq' >> /usr/bin/corefreqinstaller
+            echo 'sudo mv /home/$USER/corefreq /usr/bin' >> /usr/bin/corefreqinstaller
+
+            chmod +x /usr/bin/corefreqinstaller
+
+        }
+        raptoreumxm_install() {
+
+            echo "#!/bin/bash" > /usr/bin/raptoreumxm
+            echo 'u=$(getent passwd 1000 | cut -d: -f1)' >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo 'sudo -u $u yay -S --needed xmrig-donateless' >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo 'a=$(cat /home/$u/.workername 2> /dev/null)' >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo 'case "$a" in' >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo "  '' )" >> /usr/bin/raptoreumxm
+            echo "        echo" >> /usr/bin/raptoreumxm
+            echo "        read -p ' worker name? >>: ' b" >> /usr/bin/raptoreumxm
+            echo '        echo $b > /home/$USER/.workername' >> /usr/bin/raptoreumxm
+            echo '        ;;' >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo "esac" >> /usr/bin/raptoreumxm
+            echo "" >> /usr/bin/raptoreumxm
+            echo 'sudo xmrig --cpu-priority5 -a gr -o europe.raptoreum.zone:3333 -u RG12XNaxiJWho2zd8kHQDsEHgeNZx5W832.$a --cpu-no-yield' >> /usr/bin/raptoreumxm
+
+            chmod +x /usr/bin/raptoreumxm
+
+        }
+
+        mv /geekbenchinstaller /usr/bin
+        mv /installcorefreq /usr/bin
+        mv /chaotic-aur /usr/bin
+        #       mv /uplayfix /usr/bin
+        #       mv /usbinstall /usr/bin/usb
+        mv /driveinstall /usr/bin/mdrive
+        #       mv /grubconf /usr/bin
+        #       mv /grubbuild /usr/bin
+        mv /qemuinstaller /usr/bin
+        mv /sshm /usr/bin
+        #       mv /maketarball /usr/bin
+        mv /steaminstall /usr/bin
+        mv /mirrorlistrun /usr/bin
+        #       mv /raptoreumxm /usr/bin
+        mv /kwin-rounded /usr/bin
+        mv /steaminstall /usr/bin
+        mv /wallpaper /usr/bin
+        mv /qemuinstaller /usr/bin
+        mv /lutrisinstaller /usr/bin
+        mv /mangohudinstaller /usr/bin
+        mv /mirrorlistfull /usr/bin
+        mv /mirrorlistfast /usr/bin
+        #       mv /u /usr/bin
+
+        u_update
+        grubconf_install
+        grubbuild_install
+        usb_install
+        maketarball_install
+        corefreq_install
+        raptoreumxm_install
+
+    }
+    usefull() {
+
+        must_have() {
+
+            pacman -S axel dnsmasq kate man neofetch rsync reflector wget tldr linux-headers git ktorrent curl base-devel multilib-devel "make" ranger bat bash-language-server dkms gnome-common
+
+        }
+        nice_have() {
+
+            printf y | pacman -S tree bpytop intltool imagemagick grub-customizer
+
+        }
+        python_install() {
+
+            echo
+            pacman -S python-pipx python-pip
+            echo
+            sudo -u $u pipx ensurepath
+            echo
+
+        }
+        discoverinstaller() {
+
+            ## 4 ## y ##
+            printf '4\ny\ny\y' | pacman -S appstream-qt archlinux-appstream-data discount kidletime kirigami2 knewstuff kuserfeedback purpose qt5-graphicaleffects qt5-webview flatpak fwupd packagekit-qt5 extra-cmake-modules plasma-framework
+            yes y | pacman -S discover
+
+        }
+        aur_pkg() {
+
+            sudo -u $u yay -S #gtkdialog toipe python-vdf gconf # easybashgui-git junction-git
+
+        }
+        kernelbuildpkg() {
+
+            pacman -S base-devel bc cpio gettext git libelf pahole perl gcc-objc graphviz python-sphinx texlive-latexextra xmlto kmod inetutils gcc-ada gcc-d gcc-fortran gcc-libs aarch64-linux-gnu-gcc libgccjit avr-gcc coreutils initramfs kmod gobject-introspection ninja bc gtk-doc dbus-glib lib32-glibc
+
+        }
+        google_chrome() {
+
+            printf Y | pacman -S kdialog adwaita-cursors adwaita-icon-theme at-spi2-core desktop-file-utils gtk-update-icon-cache libcloudproviders libcolord tracker3 gtk3 ttf-liberation jsoncpp woff2
+            sudo -u $u yay -S google-chrome
+
+        }
+
+        sddm() {
+
+            sddm_default() {
+
+                echo "[General]" > /etc/sddm.conf
+                echo "" >> /etc/sddm.conf
+                echo "Numlock=on" >> /etc/sddm.conf
+                echo "DisplayServer=x11" >> /etc/sddm.conf
+                echo "" >> /etc/sddm.conf
+                echo "[Autologin]" >> /etc/sddm.conf
+                echo "" >> /etc/sddm.conf
+                echo "User=$u" >> /etc/sddm.conf
+
+            }
+            sddm_pick_menu() {
+
+                echo
+                echo "    0 = X11"
+                echo
+                echo "    1 = Wayland"
+                echo
+                prompt
+
+            }
+            pick_X11() {
+
+                echo "Session=plasma.desktop" >> /etc/sddm.conf
+
+            }
+            pick_Wayland() {
+
+                echo "Session=plasmawayland.desktop" >> /etc/sddm.conf
+
+            }
+
+            sddm_default
+
+            while true; do
+
+                sddm_pick_menu
+
+                case "$a" in
+
+                    0 )
+                        pick_X11
+                        break
+                        ;;
+                    1 )
+                        pick_Wayland
+                        break
+                        ;;
+
+                esac
+
+            done
+
+        }
+        grubfix() {
+
+            echo "if keystatus -s ; then" >> /etc/grub.d/40_custom
+            echo "    timeout=10" >> /etc/grub.d/40_custom
+            echo "else" >> /etc/grub.d/40_custom
+            echo "    boot" >> /etc/grub.d/40_custom
+            echo "fi" >> /etc/grub.d/40_custom
+
+        }
+        uplay_fix() {
+
+            pacman -S --needed dnsmasq
+            echo -e "[main]\ndns=dnsmasq" | tee /etc/NetworkManager/conf.d/dns.conf
+            echo net.ipv4.tcp_mtu_probing=1 | tee /etc/sysctl.d/custom-mtu-probing.conf
+
+            systemctl restart NetworkManager && journalctl --boot 0 --unit NetworkManager --follow
+
+            echo "#!/bin/bash" > /usr/bin/uplayfix
+            echo "sudo pacman -S --needed dnsmasq" >> /usr/bin/uplayfix
+            echo 'echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/dns.conf' >> /usr/bin/uplayfix
+            echo 'echo net.ipv4.tcp_mtu_probing=1 | sudo tee /etc/sysctl.d/custom-mtu-probing.conf' >> /usr/bin/upalyfix
+
+            echo "sudo systemctl restart NetworkManager && journalctl --boot 0 --unit NetworkManager --follow" >> /usr/bin/uplayfix
+
+            chmod +x /usr/bin/uplayfix
+
+        }
+
+        must_have
+        nice_have
+        python_install
+        discoverinstaller
+        #   aur_pkg
+        kernelbuildpkg
+        google_chrome
+
+        sddm
+        grubfix
+        #   uplay_fix
+
+    }
+
+    # # main_ starts here
+
+    main_start
+    game_pkg
+    sshd_start
+    endmvfix
+    usefull
+
+}
+
+# main script starts here
+
+setup
+main
+reboot

@@ -1,0 +1,26 @@
+#!/bin/bash
+echo 'start' >> /home/mellw/result
+echo '  ' >> /home/mellw/result
+echo 'test' >> /home/mellw/tempres
+
+Vvar=1
+N=0
+
+while [ $Vvar = 1 ]; do
+
+	geekbench5 2>&1 | tee /home/mellw/tempres
+
+	echo '(' >> /home/mellw/result
+	cat /home/mellw/tempres 2>&1 | grep GHz | tee -a /home/mellw/result
+	echo '  ' >> /home/mellw/result
+	cat /home/mellw/tempres 2>&1 | grep key= | tee -a /home/mellw/result
+
+	N=$(( $N + 1 ))
+	date=$(date +"%H:%M:%S-%a-%d-%m-%y")
+
+	echo '  ' >> /home/mellw/result
+	echo $date >> /home/mellw/result && echo ')' >> /home/mellw/result
+	echo $N >> /home/mellw/result
+	echo '  ' >> /home/mellw/result
+
+done

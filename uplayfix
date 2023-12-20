@@ -1,0 +1,2 @@
+#!/bin/bash
+echo net.ipv4.tcp_mtu_probing=1

@@ -1,0 +1,6 @@
+i want to be able to format my drive in ext4 with c++ code without relying on any systemcalls or linux commands
+
+can you show me how to use c++ functions to display drive info on an linux system
+
+
+can you show me ways to make linux commands run faster when called by c++ code

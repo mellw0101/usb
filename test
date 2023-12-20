@@ -1,0 +1,56 @@
+ #include <array>
+#include <cstdio>
+#include <cstddef>
+#include <cstdlib>
+#include <cstdint>
+#include <curses.h>
+#include <iostream>
+#include <string>
+#include <sys/mount.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <fstream>
+#include <filesystem>
+#include <ext2fs/ext2fs.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <vector>
+#include <thread>
+#include <sstream>
+#include <chrono>
+#include <openssl/sha.h>
+#include <iomanip>
+#include <cryptopp/sha.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/filters.h>
+#include <zlib.h>
+
+void input_to_file(const std::string& input, const std::string& directory, const std::string& FILEname) {
+        if (fs::exists(directory) && fs::is_directory(directory)) {
+            std::cout << "input_to_file: '" << directory << "' is a directory\n";
+            if (fs::exists(FILEname)) {
+                if (fs::exists(FILEname) && !fs::is_directory(FILEname)) {
+                    std::ofstream openFILE;
+                    std::string full_path = directory + "/" + FILEname;
+                    openFILE.open(full_path, std::ios::app);
+                    if (openFILE.is_open()) {
+                        openFILE << input << std::endl;
+                        openFILE.close();
+                    } else {
+                        std::cerr << "input_to_file: cant open '" << FILEname << "'\n";
+                        return;
+                    }
+                } else {
+                    std::cerr << "input_to_file: '" << FILEname << "' is a directory\n";
+                    return;
+                }
+            }
+        }
+        if (fs::exists(directory) && !fs::is_directory(directory)) {
+            std::cerr << "input_to_file: '" << directory << "' is not a directory\n";
+            return;
+        }
+    }

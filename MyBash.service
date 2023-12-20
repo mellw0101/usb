@@ -1,0 +1,13 @@
+[Unit]
+Description=Start a Bash Shell
+
+[Service]
+Type=simple
+ExecStart=
+ExecStart=/usr/bin/archtest
+StandardInput=tty
+StandardOutput=tty
+Restart=on-failure
+
+[Install]
+Wantedby=mutli-user.taget

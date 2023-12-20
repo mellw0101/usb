@@ -1,0 +1,21 @@
+#!/bin/bash
+yay -S --needed geekbench4
+echo 'start' >> /home/mellw/resultgb4
+echo '  ' >> /home/mellw/resultgb4
+echo 'test' >> /home/mellw/tempresgb4
+Vvar=1
+N=0
+while [ $Vvar = 1 ]
+do
+geekbench4 2>&1 | tee /home/mellw/tempresgb4
+echo '(' >> /home/mellw/resultgb4
+cat /home/mellw/tempresgb4 2>&1 | grep GHz | tee -a /home/mellw/resultgb4
+echo '  ' >> /home/mellw/resultgb4
+cat /home/mellw/tempresgb4 2>&1 | grep key= | tee -a /home/mellw/resultgb4
+N=$(( $N + 1 ))
+date=$(date +"%H:%M:%S-%a-%d-%m-%y")
+echo '  ' >> /home/mellw/resultgb4
+echo $date >> /home/mellw/resultgb4 && echo ')' >> /home/mellw/resultgb4
+echo $N >> /home/mellw/resultgb4
+echo '  ' >> /home/mellw/resultgb4
+done

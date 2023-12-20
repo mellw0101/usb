@@ -1,0 +1,10 @@
+#!/bin/bash
+rm ~/.Xauthority
+touch ~/.Xauthority
+chmod 600 ~/.Xauthority
+xauth add :3.0 . $(mcookie)
+export DISPLAY=:3.0
+echo $DISPLAY
+xauth generate :3.0 . trusted
+sudo usermod -aG video SERVER
+

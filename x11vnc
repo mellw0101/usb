@@ -1,0 +1,21 @@
+#!/bin/bash 
+sudo pacman -S --needed x11vnc
+export DISPLAY=:1
+
+sudo echo "[Unit]" >> /lib/systemd/system/x11vnc.service
+sudo echo "Description=x11vnc service" >>
+sudo echo "After=display-manager.service
+sudo echo "network.target syslog.target
+sudo echo "  "
+sudo echo "[Service]
+Type=simple
+ExecStart=/usr/bin/x11vnc -forever -display :1 -auth guess -passwd 225588
+ExecStop=/usr/bin/killall x11vnc
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+"
+sudo systemctl daemon-reload
+sudo systemctl enable x11vnc.service
+sudo systemctl start x11vnc.service

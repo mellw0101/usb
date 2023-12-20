@@ -1,0 +1,3304 @@
+#include <iostream>
+#include <string>
+#include <thread>
+#include <condition_variable>
+
+bool binaryCompleted = false;
+std::mutex binaryMutex;
+std::condition_variable binaryCondition;
+
+void runBinary(const std::string& binaryPath) {
+    // Place your code to run the binary here
+    // For example:
+    // system(binaryPath.c_str());
+
+    // Simulate binary execution (remove this line in your actual code)
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    // Signal that the binary has completed
+    {
+        std::lock_guard<std::mutex> lock(binaryMutex);
+        binaryCompleted = true;
+    }
+    binaryCondition.notify_one();
+}
+
+int main() {
+    std::string binaryPath = "/path/to/your/binary"; // Replace with the actual binary path
+
+    // Start the binary execution in a separate thread
+    std::thread binaryThread(runBinary, binaryPath);
+
+    // Continue with other work in the main thread
+
+    // Wait for the binary to complete asynchronously
+    {
+        std::unique_lock<std::mutex> lock(binaryMutex);
+        binaryCondition.wait(lock, [] { return binaryCompleted; });
+    }
+
+    // Binary has completed
+    std::cout << "Binary executed successfully." << std::endl;
+
+    // Join the binary thread
+    binaryThread.join();
+
+    return 0;
+}
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <iostream>
+#include <string>
+
+// Define a structure to hold our application state
+struct AppState {
+    Display* display;
+    Window window;
+    GC gc;
+    XFontStruct* fontInfo;
+};
+
+// Function to create an X Window
+void createWindow(AppState& appState) {
+    appState.display = XOpenDisplay(nullptr);
+
+    if (!appState.display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        exit(1);
+    }
+
+    int screen = DefaultScreen(appState.display);
+    appState.window = XCreateSimpleWindow(
+        appState.display,
+        RootWindow(appState.display, screen),
+        10, 10, 400, 200, 1,
+        BlackPixel(appState.display, screen),
+        WhitePixel(appState.display, screen)
+    );
+
+    XSelectInput(appState.display, appState.window, KeyPressMask | KeyReleaseMask | ExposureMask);
+    XMapWindow(appState.display, appState.window);
+
+    // Create a color context with a black foreground and white background
+    XGCValues values;
+    values.foreground = BlackPixel(appState.display, screen);
+    values.background = WhitePixel(appState.display, screen);
+    appState.gc = XCreateGC(appState.display, appState.window, GCForeground | GCBackground, &values);
+
+    // Load a font for drawing text
+    appState.fontInfo = XLoadQueryFont(appState.display, "fixed");
+    if (!appState.fontInfo) {
+        std::cerr << "Error: Could not load font." << std::endl;
+        exit(1);
+    }
+    XSetFont(appState.display, appState.gc, appState.fontInfo->fid);
+}
+
+// Function to draw text in the X Window
+void drawText(AppState& appState, const std::string& text) {
+    XClearWindow(appState.display, appState.window);
+
+    // Set the text position
+    int x = 10;
+    int y = 30;
+
+    XDrawString(appState.display, appState.window, appState.gc, x, y, text.c_str(), text.length());
+}
+
+// Function to handle keyboard input and drawing
+void eventLoop(AppState& appState) {
+    XEvent event;
+    std::string text;
+
+    while (true) {
+        XNextEvent(appState.display, &event);
+
+        if (event.type == KeyPress) {
+            char buffer[32];
+            KeySym key;
+            XLookupString(&event.xkey, buffer, sizeof(buffer), &key, nullptr);
+
+            if (key == XK_Return) {
+                // Print the typed text to the console
+                std::cout << "Typed: " << text << std::endl;
+                text.clear();
+            } else if (key == XK_BackSpace && !text.empty()) {
+                text.pop_back();
+            } else if (key >= XK_space && key <= XK_asciitilde) {
+                text += buffer;
+            }
+
+            // Draw the updated text in the window
+            drawText(appState, text);
+        } else if (event.type == Expose) {
+            // Redraw the window when exposed
+            drawText(appState, text);
+        }
+    }
+}
+
+int main() {
+    AppState appState;
+    createWindow(appState);
+    eventLoop(appState);
+
+    // Clean up and close the X display when the application exits
+    XFreeFontInfo(nullptr, appState.fontInfo, 1);
+    XFreeGC(appState.display, appState.gc);
+    XDestroyWindow(appState.display, appState.window);
+    XCloseDisplay(appState.display);
+
+    return 0;
+}
+
+
+
+
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/keysym.h>
+#include <iostream>
+#include <string>
+
+// Define a structure to hold our application state
+struct AppState {
+    Display* display;
+    Window window;
+    GC gc;
+};
+
+// Function to create an X Window
+void createWindow(AppState& appState) {
+    appState.display = XOpenDisplay(nullptr);
+
+    if (!appState.display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        exit(1);
+    }
+
+    int screen = DefaultScreen(appState.display);
+    appState.window = XCreateSimpleWindow(
+        appState.display,
+        RootWindow(appState.display, screen),
+        10, 10, 400, 200, 1,
+        BlackPixel(appState.display, screen),
+        WhitePixel(appState.display, screen)
+    );
+
+    XSelectInput(appState.display, appState.window, KeyPressMask | KeyReleaseMask | ExposureMask);
+    XMapWindow(appState.display, appState.window);
+
+    appState.gc = XCreateGC(appState.display, appState.window, 0, nullptr);
+    XSetForeground(appState.display, appState.gc, WhitePixel(appState.display, screen));
+}
+
+// Function to handle keyboard input and drawing
+void eventLoop(AppState& appState) {
+    XEvent event;
+    std::string text;
+
+    while (true) {
+        XNextEvent(appState.display, &event);
+
+        if (event.type == KeyPress) {
+            char buffer[32];
+            KeySym key;
+            XLookupString(&event.xkey, buffer, sizeof(buffer), &key, nullptr);
+
+            if (key == XK_Return) {
+                // Print the typed text to the console
+                std::cout << "Typed: " << text << std::endl;
+                text.clear();
+            } else if (key == XK_BackSpace && !text.empty()) {
+                text.pop_back();
+            } else if (key >= XK_space && key <= XK_asciitilde) {
+                text += buffer;
+            }
+        } else if (event.type == Expose) {
+            // Redraw the window
+            XClearWindow(appState.display, appState.window);
+            XDrawString(appState.display, appState.window, appState.gc, 10, 30, text.c_str(), text.length());
+        }
+    }
+}
+
+int main() {
+    AppState appState;
+    createWindow(appState);
+    eventLoop(appState);
+
+    // Clean up and close the X display when the application exits
+    XFreeGC(appState.display, appState.gc);
+    XDestroyWindow(appState.display, appState.window);
+    XCloseDisplay(appState.display);
+
+    return 0;
+}
+
+
+
+
+
+You can change the ownership of files and directories in C++ using the `chown` system call, which is available on Unix-like systems. To use this functionality, you need to include the appropriate headers and call the `chown` function. Here's a basic example of how to do it:
+
+```cpp
+#include <iostream>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+int main() {
+    const char* path = "/path/to/your/file_or_directory";
+    uid_t newOwner = 1000; // Replace with the UID of the new owner
+    gid_t newGroup = 1000; // Replace with the GID of the new group
+
+    // Change ownership of the file or directory
+    if (chown(path, newOwner, newGroup) == 0) {
+        std::cout << "Ownership changed successfully." << std::endl;
+    } else {
+        std::cerr << "Error changing ownership: " << strerror(errno) << std::endl;
+    }
+
+    return 0;
+}
+```
+
+In this example:
+
+1. Include the necessary headers: `<iostream>`, `<cstring>`, `<sys/types.h>`, `<sys/stat.h>`, and `<unistd.h>`.
+
+2. Define the `path` variable with the path to the file or directory whose ownership you want to change.
+
+3. Set `newOwner` and `newGroup` to the UID and GID of the new owner and group, respectively. You can replace these values with the desired values.
+
+4. Use the `chown` function to change the ownership. If successful, it returns 0. If there's an error, you can use `strerror(errno)` to get a description of the error.
+
+Make sure your program has the necessary permissions to change ownership of the specified file or directory. You may need superuser privileges or ownership of the file to perform this operation.
+
+Additionally, please replace `"/path/to/your/file_or_directory"` with the actual path to the file or directory you want to change ownership for, and replace `newOwner` and `newGroup` with the appropriate UID and GID values.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <pty.h>
+#include <string.h>
+#include <sys/select.h>
+#include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h> // Include the ioctl library for terminal control
+
+volatile sig_atomic_t reload_flag = 0;
+
+// Signal handler for Ctrl+C
+void handle_ctrl_c(int signum) {
+    reload_flag = 1;
+}
+
+int main() {
+    int master, slave;
+    char buffer[4096];
+    fflush(stdout);
+
+    // Set up signal handling for Ctrl+C
+    struct sigaction sa;
+    sa.sa_handler = handle_ctrl_c;
+    sa.sa_flags = 0;
+    sigaction(SIGINT, &sa, NULL);
+
+    // Get the current terminal attributes
+    struct termios orig_termios;
+    tcgetattr(STDIN_FILENO, &orig_termios);
+
+    // Disable canonical mode and echo for the terminal
+    struct termios new_termios = orig_termios;
+    new_termios.c_lflag &= ~(ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_termios);
+
+    while (1) {
+        // Open a new PTY
+        if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+            perror("openpty");
+            return 1;
+        }
+
+        // Fork a child process
+        pid_t child = fork();
+
+        if (child == -1) {
+            perror("fork");
+            return 1;
+        } else if (child == 0) {
+            // Child process: Replace standard input/output/error with PTY
+            close(master);
+
+            // Redirect the slave side of PTY to the child's standard input/output/error
+            dup2(slave, STDIN_FILENO);
+            dup2(slave, STDOUT_FILENO);
+            dup2(slave, STDERR_FILENO);
+
+            // Close the slave side of PTY
+            close(slave);
+
+            // Execute a command (e.g., /bin/bash)
+            execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+        } else {
+            // Parent process: Read and write to the PTY
+            close(slave);
+
+            // Use non-blocking I/O
+            int flags = fcntl(master, F_GETFL, 0);
+            fcntl(master, F_SETFL, flags | O_NONBLOCK);
+
+            while (1) {
+                fd_set readfds;
+                FD_ZERO(&readfds);
+                FD_SET(STDIN_FILENO, &readfds);
+                FD_SET(master, &readfds);
+
+                // Use select to monitor both user input and PTY output
+                if (select(master + 1, &readfds, NULL, NULL, NULL) == -1) {
+                    perror("select");
+                    break;
+                }
+
+                if (FD_ISSET(STDIN_FILENO, &readfds)) {
+                    // Read user input
+                    int bytesRead = read(STDIN_FILENO, buffer, sizeof(buffer));
+                    if (bytesRead <= 0) {
+                        break;
+                    }
+
+                    // Check for special key sequences
+                    if (bytesRead == 3 && buffer[0] == 27 && buffer[1] == 91) {
+                        // Handle Up and Down arrow keys (or any other special keys) here
+                        // For example, you can process the key sequences and modify behavior accordingly.
+                        // To maintain command history, you'll need to implement a history mechanism.
+                        // For simplicity, we'll just send the key sequences to the PTY as is.
+                    }
+
+                    // Send the user's command to the PTY
+                    write(master, buffer, bytesRead);
+                }
+
+                if (FD_ISSET(master, &readfds)) {
+                    // Read and display the response from the PTY
+                    int bytesRead = read(master, buffer, sizeof(buffer));
+                    if (bytesRead <= 0) {
+                        break;
+                    }
+                    // Display the response
+                    write(STDOUT_FILENO, buffer, bytesRead);
+                }
+            }
+
+            // Close the master side of PTY
+            close(master);
+
+            // Check if the reload flag is set (Ctrl+C pressed)
+            if (reload_flag) {
+                reload_flag = 0;
+                continue; // Restart the main loop
+            } else {
+                break; // Exit the program
+            }
+        }
+    }
+
+    // Restore the original terminal attributes
+    tcsetattr(STDIN_FILENO, TCSANOW, &orig_termios);
+
+    return 0;
+}
+
+
+#include <iostream>
+#include <mkl.h>
+
+int main() {
+    const int N = 3;
+    double A[N][N] = {{1.0, 2.0, 3.0},
+                      {4.0, 5.0, 6.0},
+                      {7.0, 8.0, 9.0}};
+    double B[N][N] = {{9.0, 8.0, 7.0},
+                      {6.0, 5.0, 4.0},
+                      {3.0, 2.0, 1.0}};
+    double C[N][N];
+
+    // Perform matrix multiplication using Intel MKL
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+                N, N, N, 1.0, &A[0][0], N, &B[0][0], N, 0.0, &C[0][0], N);
+
+    // Print the result
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            std::cout << C[i][j] << " ";
+        }
+        std::cout << std::endl;
+    }
+
+    return 0;
+}
+
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pty.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <cstring>
+#include <cerrno>
+
+#define TEXT_START_Y 20
+#define TEXT_MAX_LINES 20 // Adjust the number of lines to display
+#define MAX_LINE_LENGTH 80 // Adjust this value as needed
+
+// Create a circular buffer to store text lines
+char textBuffer[TEXT_MAX_LINES][MAX_LINE_LENGTH] = {0};
+int currentLine = 0; // Index of the current line in the buffer
+
+
+
+// Function to set the terminal in raw mode
+void setRawMode(int fd) {
+    struct termios term;
+    tcgetattr(fd, &term);
+    term.c_lflag &= ~(ECHO | ICANON);  // Disable echo and canonical mode
+    tcsetattr(fd, TCSAFLUSH, &term);
+}
+
+int main() {
+    int master, slave;
+    char buffer[4096];
+    fflush(stdout);
+    int currentX = 10; // Initialize the current X position
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return 1;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return 1;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Set terminal to raw mode
+        setRawMode(STDIN_FILENO);
+
+        // Initialize X Display and Window
+        Display *display = XOpenDisplay(NULL);
+        if (display == NULL) {
+            fprintf(stderr, "Cannot open display\n");
+            return 1;
+        }
+
+        int screen_num = DefaultScreen(display);
+        Window window = XCreateSimpleWindow(display, RootWindow(display, screen_num), 10, 10, 640, 480, 1,
+                                            BlackPixel(display, screen_num), WhitePixel(display, screen_num));
+
+        // Set the window title to "Terminal Emulator"
+        XStoreName(display, window, "Terminal Emulator");
+
+        // Set the window background to black
+        XSetWindowAttributes window_attributes;
+        window_attributes.background_pixel = BlackPixel(display, screen_num);
+        XChangeWindowAttributes(display, window, CWBackPixel, &window_attributes);
+
+        // Create a font for the terminal text
+        const char* font_name = "fixed"; // Adjust the size here
+        XFontStruct *font_info;
+        font_info = XLoadQueryFont(display, font_name);
+        if (!font_info) {
+            fprintf(stderr, "Cannot load font: %s\n", font_name);
+            return 1;
+        }
+
+        XGCValues gc_values;
+        gc_values.font = font_info->fid;
+        GC gc = XCreateGC(display, window, GCFont, &gc_values);
+        XSetFont(display, gc, font_info->fid);
+
+        XSetForeground(display, gc, WhitePixel(display, screen_num));
+        XSetBackground(display, gc, BlackPixel(display, screen_num));
+
+        // Create a vertical scrollbar
+        Window scrollbar = XCreateSimpleWindow(display, window, 630, 10, 10, 480, 1,
+                                               BlackPixel(display, screen_num), WhitePixel(display, screen_num));
+
+        XSelectInput(display, window, StructureNotifyMask);
+        XMapWindow(display, window);
+        XMapWindow(display, scrollbar);
+
+        XEvent e;
+        while (1) {
+            XNextEvent(display, &e);
+            if (e.type == MapNotify)
+                break;
+        }
+
+        while (1) {
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(STDIN_FILENO, &readfds);
+    FD_SET(master, &readfds);
+
+    // Use select to monitor both user input and PTY output
+    if (select(master + 1, &readfds, NULL, NULL, NULL) == -1) {
+        perror("select");
+        break;
+    }
+
+    if (FD_ISSET(STDIN_FILENO, &readfds)) {
+        // Read user input without echoing
+        ssize_t bytesRead = read(STDIN_FILENO, buffer, sizeof(buffer));
+        if (bytesRead <= 0) {
+            break;
+        }
+
+        // Check for exit condition
+        if (strncmp(buffer, "exit\n", 5) == 0) {
+            break;
+        }
+
+        // Send the user's command to the PTY
+        write(master, buffer, bytesRead);
+    }
+
+    if (FD_ISSET(master, &readfds)) {
+        // Read and display the response from the PTY
+        int bytesRead = read(master, buffer, sizeof(buffer));
+        if (bytesRead <= 0) {
+            break;
+        }
+
+        // Interpret received data as text
+        for (int i = 0; i < bytesRead; i++) {
+            if (buffer[i] == '\n') {
+                // Replace newline character with carriage return and newline
+                XDrawString(display, window, gc, currentX, 20, "\r\n", 2);
+                currentX = 10; // Reset the X position to the beginning of the line
+            } else {
+                // Draw the character
+                XDrawString(display, window, gc, currentX, 20, &buffer[i], 1);
+                currentX += font_info->max_bounds.width;
+            }
+        }
+
+        XFlush(display);
+    }
+}
+
+
+        // Reset terminal to normal mode before exiting
+        struct termios term;
+        tcgetattr(STDIN_FILENO, &term);
+        term.c_lflag |= (ECHO | ICANON);
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &term);
+
+        // Close the master side of PTY
+        close(master);
+
+        // Close the X display
+        XDestroyWindow(display, window);
+        XCloseDisplay(display);
+    }
+
+    return 0;
+}
+
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pty.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <cstring>
+#include <cerrno>
+
+// Function to set the terminal in raw mode
+void setRawMode(int fd) {
+    struct termios term;
+    tcgetattr(fd, &term);
+    term.c_lflag &= ~(ECHO | ICANON);  // Disable echo and canonical mode
+    tcsetattr(fd, TCSAFLUSH, &term);
+}
+
+int main() {
+    int master, slave;
+    char buffer[4096];
+    fflush(stdout);
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return 1;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return 1;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Set terminal to raw mode
+        setRawMode(STDIN_FILENO);
+
+        // Initialize X Display and Window
+        Display *display = XOpenDisplay(NULL);
+        if (display == NULL) {
+            fprintf(stderr, "Cannot open display\n");
+            return 1;
+        }
+
+        int screen_num = DefaultScreen(display);
+        Window window = XCreateSimpleWindow(display, RootWindow(display, screen_num), 10, 10, 640, 480, 1,
+                                            BlackPixel(display, screen_num), WhitePixel(display, screen_num));
+
+        // Set the window title to "Terminal Emulator"
+        XStoreName(display, window, "Terminal Emulator");
+
+        // Create a font for the terminal text
+        const char* font_name = "fixed"; // Adjust the size here
+        XFontStruct *font_info;
+        font_info = XLoadQueryFont(display, font_name);
+        if (!font_info) {
+            fprintf(stderr, "Cannot load font: %s\n", font_name);
+            return 1;
+        }
+
+        XGCValues gc_values;
+        gc_values.font = font_info->fid;
+        GC gc = XCreateGC(display, window, GCFont, &gc_values);
+        XSetFont(display, gc, font_info->fid);
+
+        XSetForeground(display, gc, WhitePixel(display, screen_num));
+        XSetBackground(display, gc, BlackPixel(display, screen_num));
+
+        // Create a vertical scrollbar
+        Window scrollbar = XCreateSimpleWindow(display, window, 630, 10, 10, 480, 1,
+                                               BlackPixel(display, screen_num), WhitePixel(display, screen_num));
+
+        XSelectInput(display, window, StructureNotifyMask);
+        XMapWindow(display, window);
+        XMapWindow(display, scrollbar);
+
+        XEvent e;
+        while (1) {
+            XNextEvent(display, &e);
+            if (e.type == MapNotify)
+                break;
+        }
+
+        while (1) {
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(STDIN_FILENO, &readfds);
+            FD_SET(master, &readfds);
+
+            // Use select to monitor both user input and PTY output
+            if (select(master + 1, &readfds, NULL, NULL, NULL) == -1) {
+                perror("select");
+                break;
+            }
+
+            if (FD_ISSET(STDIN_FILENO, &readfds)) {
+                // Read user input without echoing
+                ssize_t bytesRead = read(STDIN_FILENO, buffer, sizeof(buffer));
+                if (bytesRead <= 0) {
+                    break;
+                }
+
+                // Check for exit condition
+                if (strncmp(buffer, "exit\n", 5) == 0) {
+                    break;
+                }
+
+                // Send the user's command to the PTY
+                write(master, buffer, bytesRead);
+            }
+
+            if (FD_ISSET(master, &readfds)) {
+                // Read and display the response from the PTY
+                int bytesRead = read(master, buffer, sizeof(buffer));
+                if (bytesRead <= 0) {
+                    break;
+                }
+                // Display the response in the X window
+                XDrawImageString(display, window, gc, 10, 20, buffer, bytesRead);
+                XFlush(display);
+            }
+        }
+
+        // Reset terminal to normal mode before exiting
+        struct termios term;
+        tcgetattr(STDIN_FILENO, &term);
+        term.c_lflag |= (ECHO | ICANON);
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &term);
+
+        // Close the master side of PTY
+        close(master);
+
+        // Close the X display
+        XDestroyWindow(display, window);
+        XCloseDisplay(display);
+    }
+
+    return 0;
+}
+
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pty.h>
+#include <unistd.h>
+#include <sys/select.h>
+#include <termios.h>
+#include <cstring>
+
+// Function to set the terminal in raw mode
+void setRawMode(int fd) {
+    struct termios term;
+    tcgetattr(fd, &term);
+    term.c_lflag &= ~(ECHO | ICANON);  // Disable echo and canonical mode
+    tcsetattr(fd, TCSAFLUSH, &term);
+}
+
+int workingttywithxout() {
+    int master, slave;
+    char buffer[4096];
+    fflush(stdout);
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return 1;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return 1;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Set terminal to raw mode
+        setRawMode(STDIN_FILENO);
+
+        // Initialize X Display and Window
+        Display *display = XOpenDisplay(NULL);
+        if (display == NULL) {
+            fprintf(stderr, "Cannot open display\n");
+            return 1;
+        }
+
+        int screen_num = DefaultScreen(display);
+        Window window = XCreateSimpleWindow(display, RootWindow(display, screen_num), 10, 10, 640, 480, 1,
+                                            BlackPixel(display, screen_num), WhitePixel(display, screen_num));
+
+        // Set the window title to "Terminal Emulator"
+        XStoreName(display, window, "Terminal Emulator");
+
+        // Create a font for the terminal text
+        XFontStruct *font_info;
+        font_info = XLoadQueryFont(display, "fixed");
+        if (!font_info) {
+            fprintf(stderr, "Cannot load font\n");
+            return 1;
+        }
+
+        XGCValues gc_values;
+        gc_values.font = font_info->fid;
+        GC gc = XCreateGC(display, window, GCFont, &gc_values);
+        XSetFont(display, gc, font_info->fid);
+
+        XSetForeground(display, gc, WhitePixel(display, screen_num));
+        XSetBackground(display, gc, BlackPixel(display, screen_num));
+
+        XSelectInput(display, window, StructureNotifyMask);
+        XMapWindow(display, window);
+
+        XEvent e;
+        while (1) {
+            XNextEvent(display, &e);
+            if (e.type == MapNotify)
+                break;
+        }
+
+        while (1) {
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(STDIN_FILENO, &readfds);
+            FD_SET(master, &readfds);
+
+            // Use select to monitor both user input and PTY output
+            if (select(master + 1, &readfds, NULL, NULL, NULL) == -1) {
+                perror("select");
+                break;
+            }
+
+            if (FD_ISSET(STDIN_FILENO, &readfds)) {
+                // Read user input without echoing
+                ssize_t bytesRead = read(STDIN_FILENO, buffer, sizeof(buffer));
+                if (bytesRead <= 0) {
+                    break;
+                }
+
+                // Check for exit condition
+                if (strncmp(buffer, "exit\n", 5) == 0) {
+                    break;
+                }
+
+                // Send the user's command to the PTY
+                write(master, buffer, bytesRead);
+            }
+
+            if (FD_ISSET(master, &readfds)) {
+                // Read and display the response from the PTY
+                int bytesRead = read(master, buffer, sizeof(buffer));
+                if (bytesRead <= 0) {
+                    break;
+                }
+                // Display the response in the X window
+                XDrawImageString(display, window, gc, 10, 20, buffer, bytesRead);
+                XFlush(display);
+            }
+        }
+
+        // Reset terminal to normal mode before exiting
+        struct termios term;
+        tcgetattr(STDIN_FILENO, &term);
+        term.c_lflag |= (ECHO | ICANON);
+        tcsetattr(STDIN_FILENO, TCSAFLUSH, &term);
+
+        // Close the master side of PTY
+        close(master);
+
+        // Close the X display
+        XDestroyWindow(display, window);
+        XCloseDisplay(display);
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <pty.h>
+#include <string.h>
+#include <sys/select.h>
+
+int working tty() {
+    int master, slave;
+    char buffer[4096];
+    fflush(stdout);
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return 1;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return 1;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Use non-blocking I/O
+        int flags = fcntl(master, F_GETFL, 0);
+        fcntl(master, F_SETFL, flags | O_NONBLOCK);
+
+        while (1) {
+            fd_set readfds;
+            FD_ZERO(&readfds);
+            FD_SET(STDIN_FILENO, &readfds);
+            FD_SET(master, &readfds);
+
+            // Use select to monitor both user input and PTY output
+            if (select(master + 1, &readfds, NULL, NULL, NULL) == -1) {
+                perror("select");
+                break;
+            }
+
+            if (FD_ISSET(STDIN_FILENO, &readfds)) {
+                // Read user input
+                if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+                    break;
+                }
+
+                // Check for exit condition
+                if (strcmp(buffer, "exit\n") == 0) {
+                    break;
+                }
+
+                // Send the user's command to the PTY
+                write(master, buffer, strlen(buffer));
+            }
+
+            if (FD_ISSET(master, &readfds)) {
+                // Read and display the response from the PTY
+                int bytesRead = read(master, buffer, sizeof(buffer));
+                if (bytesRead <= 0) {
+                    break;
+                }
+                // Display the response
+                write(STDOUT_FILENO, buffer, bytesRead);
+            }
+        }
+
+        // Close the master side of PTY
+        close(master);
+    }
+
+    return 0;
+}
+
+
+if (strstr(buffer, "\x1B[34mShell@\x1B[0m(\x1B[32m")) {
+                char* newline = strchr(buffer, '\n');
+                if (newline != NULL) {
+                    *newline = '\0';
+                }
+            }
+
+chown
+#include <iostream>
+#include <unistd.h>
+
+int main() {
+    const char* directoryPath = "/path/to/your/directory"; // Replace with the actual directory path
+    uid_t newOwnerUID = 1000; // Replace with the UID of the new owner
+    gid_t newOwnerGID = 1000; // Replace with the GID of the new owner
+
+    // Use the chown function to change the ownership of the directory
+    int result = chown(directoryPath, newOwnerUID, newOwnerGID);
+
+    if (result == 0) {
+        std::cout << "Ownership of the directory changed successfully." << std::endl;
+    } else {
+        perror("chown");
+    }
+
+    return 0;
+}
+
+{
+#include <sstream>
+#include <iostream>
+
+int main() {
+    std::string data = "42 3.14 Hello";
+    std::istringstream inputStringStream(data);
+
+    int intValue;
+    double doubleValue;
+    std::string stringValue;
+
+    inputStringStream >> intValue >> doubleValue >> stringValue;
+
+    if (inputStringStream.fail()) {
+        std::cerr << "Error reading from the string." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Int: " << intValue << ", Double: " << doubleValue << ", String: " << stringValue << std::endl;
+
+    return 0;
+}
+Int: 42, Double: 3.14, String: Hello}
+
+{#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+
+struct BlockDevice {
+    std::string name;
+    int major;
+    int minor;
+    long long size; // Size in sectors
+};
+
+std::vector<BlockDevice> getBlockDevices() {
+    std::vector<BlockDevice> devices;
+    std::ifstream partitions("/proc/partitions");
+    if (!partitions.is_open()) {
+        std::cerr << "Failed to open /proc/partitions" << std::endl;
+        return devices;
+    }
+
+    std::string line;
+    std::getline(partitions, line); // Skip the header line
+    while (std::getline(partitions, line)) {
+        std::istringstream iss(line);
+        std::string deviceName;
+        int major, minor;
+        long long size;
+        iss >> major >> minor >> size >> deviceName;
+
+        // Exclude loop devices and other non-block devices if needed
+        if (deviceName.find("loop") == std::string::npos) {
+            BlockDevice device;
+            device.name = deviceName;
+            device.major = major;
+            device.minor = minor;
+            device.size = size;
+            devices.push_back(device);
+        }
+    }
+
+    return devices;
+}
+
+int main() {
+    std::vector<BlockDevice> devices = getBlockDevices();
+    for (const BlockDevice& device : devices) {
+        std::cout << "Device Name: " << device.name << std::endl;
+        std::cout << "Major: " << device.major << ", Minor: " << device.minor << std::endl;
+        std::cout << "Size (sectors): " << device.size << std::endl;
+        std::cout << "--------" << std::endl;
+    }
+    return 0;
+}}
+Using Directives: You're using using namespace directives for both std and other namespaces. Be cautious about using using namespace std as it might lead to naming conflicts. Using specific directives like using std::cout is generally safer.
+
+#include <iostream>
+
+int main() {
+    char input;
+
+    do {
+        std::cerr << "Invalid input. Please press 'y' or 'Y' to continue: ";
+        std::cin >> input;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    } while (input != 'y' && input != 'Y');
+
+    // Rest of the code...
+
+    return 0;
+}
+switch (expression) {
+    case value1:
+        // Code to execute when expression matches value1
+        break; // Optional - exits the switch statement
+    case value2:
+        // Code to execute when expression matches value2
+        break;
+    // Add more cases as needed
+    default:
+        // Code to execute when expression doesn't match any case
+        break;
+}
+
+#include <xcb/xcb.h>                                        // include to be able to create exclusive fullscreen
+#include <xcb/xproto.h>                                     // include to be able to create exclusive fullscreen
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <cstdio>
+#include <cstdlib>
+#include <X11/Xft/Xft.h>                                    // Include Xft for text rendering
+#include <cstring>                                          // Include cstring for strlen
+
+void createInteractiveWindow() {                            // Function to create an interactive X window with a prompt
+    // Check if the DISPLAY environment variable is set
+    char* displayEnv = getenv("DISPLAY");
+    if (displayEnv == NULL) {
+        fprintf(stderr, "DISPLAY environment variable is not set. Please set it and run the program again.\n");
+        return;
+    }
+
+    Display *display;
+    Window window;
+    XEvent event;
+    int screen;
+
+    // Open a connection to the X server
+    display = XOpenDisplay(NULL);
+    if (display == NULL) {
+        fprintf(stderr, "Cannot open display\n");
+        return;
+    }
+
+    // Get the default screen
+    screen = DefaultScreen(display);
+
+    // Create a simple black window
+    window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0,
+                                 DisplayWidth(display, screen), DisplayHeight(display, screen),
+                                 1, BlackPixel(display, screen), WhitePixel(display, screen));
+
+    // Set window properties
+    XSelectInput(display, window, ExposureMask | KeyPressMask);
+    XMapWindow(display, window);
+
+    // Create an Xft font and color for the prompt
+    XftFont* font;
+    XftColor promptColor;
+    XftDraw* xftDraw = XftDrawCreate(display, window, DefaultVisual(display, screen), DefaultColormap(display, screen));
+    const char* fontName = "Monospace-12"; // You can adjust the font and size
+    font = XftFontOpenName(display, screen, fontName);
+    XftColorAllocName(display, DefaultVisual(display, screen), DefaultColormap(display, screen), "white", &promptColor);
+
+    // configure things here
+    char mainMenu[3][20] = {
+        "Exit",
+        "1",
+        "2"
+    };
+
+    // select starting value for variabels
+    int selectedItem = 0;
+    bool menuOpen = true;
+    bool installMessage = false;
+
+    // Event loop
+    char inputBuffer[256] = "";
+    int inputIndex = 0;
+
+    while (1) {
+        XNextEvent(display, &event);
+        if (event.type == Expose) {
+            XFillRectangle(display, window, DefaultGC(display, screen), 0, 0,
+                           DisplayWidth(display, screen), DisplayHeight(display, screen));
+
+            if (menuOpen) {
+                const char* menuTitle = "Select: ";
+                XftDrawString8(xftDraw, &promptColor, font, 10, 20, (XftChar8*)menuTitle, strlen(menuTitle));
+                for (int i = 0; i < 3; i++) {
+                    if (i == selectedItem) {
+                        XftDrawString8(xftDraw, &promptColor, font, 10, 40 + i * 20, (XftChar8*)"> ", 2);
+                    }
+                    XftDrawString8(xftDraw, &promptColor, font, 30, 40 + i * 20, (XftChar8*)mainMenu[i], strlen(mainMenu[i]));
+                }
+            } else {
+                const char* promptText = "Enter a command: ";
+                XftDrawString8(xftDraw, &promptColor, font, 10, 20, (XftChar8*)promptText, strlen(promptText));
+                XftDrawString8(xftDraw, &promptColor, font, 170, 20, (XftChar8*)inputBuffer, strlen(inputBuffer));
+
+                if (installMessage) {
+                    const char* message = "Starting INSTALL";
+                    XftDrawString8(xftDraw, &promptColor, font, 10, 60, (XftChar8*)message, strlen(message));
+                }
+            }
+
+            XFlush(display);
+        }
+
+        if (event.type == KeyPress) {
+            char key[256];
+            KeySym keysum;
+            XLookupString(&event.xkey, key, sizeof(key), &keysum, NULL);
+
+            if (menuOpen) {
+                if (keysum == XK_q) {
+                    break;
+                } else if (keysum == XK_Up && selectedItem > 0) {
+                    selectedItem--;
+                } else if (keysum == XK_Down && selectedItem < 2) {
+                    selectedItem++;
+                } else if (keysum == XK_Return) {           // if user presses enter it checks where that was
+                    if (selectedItem == 0) {
+                        printf("you selected exit\n");
+                        //menuOpen = false;
+                    } else if (selectedItem == 1) {
+                        printf("you selected option 1\n");
+                    } else if (selectedItem == 2) {
+                        printf("you selected option 2\n");
+                    }
+                }
+            } else {
+                if (keysum == XK_q) {
+                    break;
+                } else if (keysum == XK_Return) {
+                    printf("Entered command: %s\n", inputBuffer);
+
+                    if (strcmp(inputBuffer, "install") == 0) {
+                        installMessage = true;
+                        printf("starting install\n");
+                    } else {
+                        installMessage = false;
+                    }
+                    memset(inputBuffer, 0, sizeof(inputBuffer));
+                    inputIndex = 0;
+                } else {
+                    if (inputIndex < sizeof(inputBuffer) - 1) {
+                        inputBuffer[inputIndex++] = key[0];
+                    }
+                }
+                XClearArea(display, window, 150, 20, 0, 0, True);
+            }
+        }
+    }
+
+    // Clean up and close the X server connection
+    XftFontClose(display, font);
+    XftDrawDestroy(xftDraw);
+    XDestroyWindow(display, window);
+    XCloseDisplay(display);
+}
+
+int main() {
+    createInteractiveWindow();
+    return 0;
+}
+#include <ncurses.h>
+#include <vector>
+#include <array>
+#include <cstdio>
+#include <cstddef>
+#include <cstdlib>
+#include <cstdint>
+#include <iostream>
+#include <string>
+#include <sys/mount.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <fstream>
+#include <filesystem>
+#include <ext2fs/ext2fs.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <vector>
+#include <thread>
+#include <sstream>
+#include <chrono>
+#include <openssl/sha.h>
+#include <iomanip>
+#include <cryptopp/sha.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/filters.h>
+#include <zlib.h>
+void displayList(std::vector<std::string> items) {
+    initscr();          // Initialize ncurses
+    noecho();           // Don't echo keypresses to the screen
+    cbreak();           // Disable line buffering
+    keypad(stdscr, TRUE); // Enable function keys, arrow keys, etc.
+    curs_set(FALSE);    // Hide the cursor
+
+    int selected = 0;
+    int currentState = 0;  // This variable stores the current state
+
+    while (1) {
+        clear(); // Clear the screen
+
+        if (currentState == 0) {
+            // Display the first list
+            for (int i = 0; i < items.size(); ++i) {
+                if (i == selected) {
+                    attron(A_REVERSE); // Highlight the selected item
+                }
+                mvprintw(i + 1, 1, "%s", items[i].c_str());
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        } else if (currentState == 1) {
+            // Display a different list or item
+            // Modify this section to display the new list or item as needed
+            mvprintw(1, 1, "item 1");
+        } else if (currentState == 2) {
+            // Display a different list or item
+            // Modify this section to display the new list or item as needed
+            mvprintw(1, 1, "item 2");
+        } else if (currentState == 3) {
+            // Display a different list or item
+            // Modify this section to display the new list or item as needed
+            mvprintw(1, 1, "item 3");
+        }
+
+        // Get user input
+        int ch = getch();
+        switch (ch) {
+            case KEY_UP:                                    // when KEY_UP is pressed
+                if (selected > 0) {
+                    selected--;                             // subtract one from selected
+                }
+                break;
+            case KEY_DOWN:                                  // when KEY_DOWN is pressed
+                if (selected < items.size() - 1) {
+                    selected++;                             // add 1 to selected
+                }
+                break;
+            case '\n':                                      // Enter key
+                if (selected == 0) {                        // if enter is pressed with item 1 highlighted do this
+                    if (currentState == 0) {                // enters item 1 if user presses enter from main Menu
+                        currentState = 1;
+                    } else if (currentState == 1) {         // if user presses enter from item 1 it will return user to main menu
+                        currentState = 0;
+                    }
+                }
+                if (selected == 1) {                        // if enter is pressed with item 2 highlighted do this
+                    if (currentState == 0) {                // enters item 2 if user presses enter from main Menu
+                        currentState = 2;
+                    } else if (currentState == 2) {         // if user presses enter from item 2 it will return user to main menu
+                        currentState = 0;
+                    }
+                }
+                if (selected == 2) {                        // if enter is pressed with item 3 highlighted do this
+                    if (currentState == 0) {                // enters item 3 if user presses enter from main Menu
+                        currentState = 3;
+                    } else if (currentState == 3) {         // if user presses enter from item 2 it will return user to main menu
+                        currentState = 0;
+                    }
+                }
+                break;
+            case 'q':
+            case 'Q':
+                endwin(); // Terminate ncurses
+                return;
+        }
+
+        refresh(); // Update the screen
+    }
+
+    endwin(); // Terminate ncurses
+}
+
+
+int main() {
+    std::vector<std::string> items = {"Item 1", "Item 2", "Item 3"};
+    displayList(items);
+
+    return 0;
+}
+ //ofstream username_add("/mnt/username.txt");            // add username to file
+    //if (username_add.is_open()) {
+     //   username_add << Username_start << endl;
+       // username_add.close();
+    //} else {cout << "Failed to open file" << endl;}
+    //ofstream pass_add("/mnt/pass.txt");                    // add pass to file
+    //if (pass_add.is_open()) {
+     //   pass_add << pass_start << endl;
+      //  pass_add.close();
+   // } else {cout << "Failed to open file" << endl;}
+    //ofstream gpu_add("/mnt/gpu.txt");                      // add gpu pick to file
+   // if (gpu_add.is_open()) {
+    //    gpu_add << gpu_pick << endl;
+     //   gpu_add.close();
+    //} else {cout << "Failed to open file" << endl;}
+   // ofstream de_add("/mnt/de.txt");                        // add de pick to file
+   // if (de_add.is_open()) {
+   //     de_add << de_pick << endl;
+    //    de_add.close();
+   // } else {cout << "Failed to open file" << endl;}
+
+void executeCommand(const std::vector<std::string>& args) {                  //  basic shell
+    // Convert the vector of arguments to an array of C-style strings
+    std::vector<char*> argv;
+    for (const std::string& arg : args) {
+        argv.push_back(const_cast<char*>(arg.c_str()));
+    }
+    argv.push_back(nullptr);  // Null-terminate the array
+
+    // Fork a child process
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        // Forking failed
+        perror("fork");
+    } else if (pid == 0) {
+        // This is the child process
+        // Execute the command
+        if (execvp(argv[0], argv.data()) == -1) {
+            perror("execvp");
+            exit(EXIT_FAILURE);
+        }
+    } else {
+        // This is the parent process
+        // Wait for the child to finish
+        int status;
+        if (waitpid(pid, &status, 0) == -1) {
+            perror("waitpid");
+        }
+    }
+}
+
+#include <array>
+#include <cstdio>
+#include <cstddef>
+#include <cstdlib>
+#include <cstdint>
+#include <curses.h>
+#include <iostream>
+#include <ostream>
+#include <string>
+#include <sys/mount.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <fstream>
+#include <filesystem>
+#include <ext2fs/ext2fs.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <vector>
+#include <thread>
+#include <sstream>
+#include <chrono>
+#include <openssl/sha.h>
+#include <iomanip>
+#include <cryptopp/sha.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/filters.h>
+#include <zlib.h>
+#include <regex>
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sstream>
+#include <unistd.h>
+#include <sys/wait.h>
+std::vector<std::string> commandHistory;
+int historyIndex = -1;
+
+namespace fs = std::filesystem;
+void error_message(const std::string& program, const std::string& message) {
+    std::cerr << program + ": ERROR: " << message << " (press enter to continiue)";
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    return;
+}
+void input_to_file(const std::string& input, const std::string& directory, const std::string& FILEname) {
+    std::string full_path = directory + "/" + FILEname;
+    if (fs::exists(directory) && fs::is_directory(directory)) {
+        std::cout << "input_to_file: Directory: '" << directory << "' is a directory\n";
+        if (fs::exists(full_path) && fs::is_directory(full_path)) {
+            error_message("input_to_file", "target file '" + FILEname + "' is a directory");
+            return;
+        }
+        if (fs::exists(full_path)) {
+            std::cout << "input_to_file: target file '" << full_path << "' exists\n";
+            std::ofstream openFILE;
+            openFILE.open(full_path, std::ios::app);
+            if (openFILE.is_open()) {
+                openFILE << input << std::endl;
+                openFILE.close();
+                std::cout << "input_to_file: successfully appended '" << input << "' to '" << full_path << "'\n";
+            } else {
+                error_message("input_to_file", "cant open '" + FILEname + "'");
+                return;
+            }
+        } else {
+            error_message("input_to_file", "target file '" + full_path + "' does not exist");
+            return;
+        }
+    } else if (fs::exists(directory)) {
+        error_message("input_to_file", "'" + directory + "' is not a directory it is a file");
+        return;
+    }
+    else {
+        error_message("input_to_file", "Directory '" + directory + "' does not exist");
+        return;
+    }
+}
+void create_file(const std::string& full_PATH_to_file) {
+    if (fs::exists(full_PATH_to_file)) {
+        if (fs::is_directory(full_PATH_to_file)) {
+            error_message("create_file", "target file '" + full_PATH_to_file + "' is a directory");
+            return;
+        } else {
+            error_message("create_file", "target file '" + full_PATH_to_file + "' already exist");
+            return;
+        }
+    } else {
+        std::ofstream outFile;
+        outFile.open(full_PATH_to_file, std::ios::out | std::ios::trunc);
+        if (!outFile.is_open()) {
+            error_message("create_file", "Failed to create new file at target '" + full_PATH_to_file + "'");
+            return;
+        } else {
+            outFile.close();
+            std::cout << "create_file: created empty file at '" << full_PATH_to_file << "'\n";
+            return;
+        }
+    }
+}
+void export_from_file(const std::string& FILEname, std::string& evar) {
+    if (fs::exists(FILEname)) {                         // if target file exist
+        if (!fs::is_directory(FILEname)) {              // if target file is not a directory
+            if (!fs::is_empty(FILEname)) {              // if target file is not empty
+                std::ifstream inFile;
+                inFile.open(FILEname);
+                if (inFile.is_open()) {                 // if function was able to open file
+                    std::cout << "export_from_file: successfully opened target file '" + FILEname + "'\n";
+                    std::string var;
+                    std::stringstream buffer;
+                    while (getline(inFile, var)) {
+                        buffer << var << '\n';
+                    }
+                    evar = buffer.str();
+                    if (!evar.empty()) {
+                        std::cout << "export_from_file: successfully read file '" + FILEname + "'\n";
+                    }
+                    inFile.close();
+                } else {                                // if function was unable to open file
+                    error_message("export_from_file", "cant open '" + FILEname + "'");
+                }
+            } else {                                    // if target file is empty
+                error_message("export_from_file", "target file '" + FILEname + "' is empty");
+            }
+        } else {                                        // if target file is a directory
+            error_message("export_from_file", "target file '" + FILEname + "' is a directory");
+        }
+    } else {                                            // if target file does not exist
+        error_message("export_from_file", "target file '" + FILEname + "' does not exist");
+    }
+}
+bool search_string(std::string& targetstring, const std::string& wordToFind) {
+
+    // Create a regular expression pattern to match the whole word
+    std::regex wordPattern("\\b" + wordToFind + "\\b");
+
+    // Search for the whole word in the string
+    std::smatch match;
+    if (std::regex_search(targetstring, match, wordPattern)) {
+        std::cout << "search_string: Word '" << wordToFind << "' found at position " << match.position() << std::endl;
+        return true;
+    } else {
+        std::cout << "search_string: Word '" << wordToFind << "' not found" << std::endl;
+        return false;
+    }
+}
+void addToHistory(const std::string& command) {
+    commandHistory.push_back(command);
+    historyIndex = commandHistory.size() - 1;
+}
+void displayHistory() {
+    std::cout << "Command History:" << std::endl;
+    for (const std::string& cmd : commandHistory) {
+        std::cout << cmd << std::endl;
+    }
+}
+void executeStoredCommand(const std::string& command);
+
+void executeCommand(const std::vector<std::string>& args) {
+    if (args.empty()) {
+        return;  // No command to execute
+    }
+
+    addToHistory(args[0]); // Add the command to history
+
+    // Check for custom commands
+    if (args[0] == "history") {
+        displayHistory();
+    } else if (args[0] == "!!") {
+        if (historyIndex >= 0 && historyIndex < static_cast<int>(commandHistory.size())) {
+            executeStoredCommand(commandHistory[historyIndex]);
+        }
+    } else if (args[0][0] == '!' && args[0].size() > 1) {
+        int commandNumber = std::stoi(args[0].substr(1));
+        if (commandNumber >= 1 && commandNumber <= static_cast<int>(commandHistory.size())) {
+            executeStoredCommand(commandHistory[commandNumber - 1]);
+        }
+    } else if (args[0] == "create_file") {
+        if (args.size() == 2) {
+            create_file(args[1]);
+        } else {
+            std::cout << "Usage: create_file <filename>" << std::endl;
+        }
+    } else if (args[0] == "export_from_file") {
+        if (args.size() == 2) {
+            std::string content;
+            export_from_file(args[1], content);
+            std::cout << "File content: " << content << std::endl;
+        } else {
+            std::cout << "Usage: export_from_file <filename>" << std::endl;
+        }
+    } else if (args[0] == "search_string") {
+        if (args.size() == 3) {
+            std::string targetstring = args[1];
+            std::string wordToFind = args[2];
+            search_string(targetstring, wordToFind);
+        } else {
+            std::cout << "Usage: search_string <targetstring> <wordToFind>" << std::endl;
+        }
+    } else {
+        // Convert the vector of arguments to an array of C-style strings
+        std::vector<char*> argv;
+        for (const std::string& arg : args) {
+            argv.push_back(const_cast<char*>(arg.c_str()));
+        }
+        argv.push_back(nullptr);  // Null-terminate the array
+
+        // Fork a child process
+        pid_t pid = fork();
+
+        if (pid == -1) {
+            // Forking failed
+            perror("fork");
+        } else if (pid == 0) {
+            // This is the child process
+            // Execute the command
+            if (execvp(argv[0], argv.data()) == -1) {
+                perror("execvp");
+                exit(EXIT_FAILURE);
+            }
+        } else {
+            // This is the parent process
+            // Wait for the child to finish
+            int status;
+            if (waitpid(pid, &status, 0) == -1) {
+                perror("waitpid");
+            }
+        }
+    }
+}
+void executeStoredCommand(const std::string& command) {
+    // Implement the execution of stored commands here
+    std::vector<std::string> storedArgs;
+    std::istringstream iss(command);
+    std::string token;
+    while (iss >> token) {
+        storedArgs.push_back(token);
+    }
+
+    executeCommand(storedArgs);
+}
+int main() {
+    while (true) {
+        std::cout << "Shell> ";
+
+        std::string userInput;
+        std::getline(std::cin, userInput);
+
+        // Split the user input into tokens
+        std::vector<std::string> args;
+        std::istringstream iss(userInput);
+        std::string token;
+        while (iss >> token) {
+            args.push_back(token);
+        }
+
+        if (!args.empty()) {
+            if (args[0] == "exit") {
+                // Exit the shell
+                break;
+            } else {
+                // Execute the command
+                executeCommand(args);
+            }
+        }
+    }
+
+    return 0;
+}
+int main() {
+    // Initialize Readline
+    rl_bind_key('\t', rl_insert);  // Tab key to insert
+    using_history();  // Enable command history
+
+    while (true) {
+        char* userInput = readline("Shell> ");
+        if (userInput == nullptr) {
+            // User pressed Ctrl+D or encountered an error (e.g., end of input)
+            break;
+        }
+
+        // Convert userInput to std::string
+        std::string inputStr(userInput);
+        free(userInput);
+
+        // Split the user input into tokens
+        std::vector<std::string> args;
+        std::istringstream iss(inputStr);
+        std::string token;
+        while (iss >> token) {
+            args.push_back(token);
+        }
+
+        if (!args.empty()) {
+            if (args[0] == "exit") {
+                // Exit the shell
+                break;
+            } else {
+                // Execute the command
+                executeCommand(args);
+            }
+        }
+    }
+
+    return 0;
+}
+else {
+        // Convert the vector of arguments to an array of C-style strings
+        std::vector<char*> argv;
+        for (const std::string& arg : args) {
+            argv.push_back(const_cast<char*>(arg.c_str()));
+        }
+        argv.push_back(nullptr);  // Null-terminate the array
+
+        // Fork a child process
+        pid_t pid = fork();
+
+        if (pid == -1) {
+            // Forking failed
+            perror("fork");
+        } else if (pid == 0) {
+            // This is the child process
+            // Execute the command
+            if (execvp(argv[0], argv.data()) == -1) {
+                perror("execvp");
+                exit(EXIT_FAILURE);
+            }
+        } else {
+            // This is the parent process
+            // Wait for the child to finish
+            int status;
+            if (waitpid(pid, &status, 0) == -1) {
+                perror("waitpid");
+            }
+        }
+    }
+    // Update the prompt after executing a command
+    mellwscommands::updatePrompt();
+}
+Here are some common operations and functions you can perform with a std::vector<std::string> like args:
+
+Accessing Elements:
+
+args[index]: Access the element at a specific index.
+args.at(index): Access the element at a specific index with bounds checking (throws an exception if out of bounds).
+Iterating Through Elements:
+
+You can use a range-based for loop or iterators to iterate through the elements of the vector.
+cpp
+Copy code
+for (const std::string& arg : args) {
+    // Do something with arg
+}
+Size and Capacity:
+
+args.size(): Get the number of elements in the vector.
+args.empty(): Check if the vector is empty.
+args.capacity(): Get the current capacity of the vector (how many elements it can hold without reallocation).
+Adding and Removing Elements:
+
+args.push_back(element): Add an element to the end of the vector.
+args.pop_back(): Remove the last element from the vector.
+args.insert(iterator, element): Insert an element at a specific position.
+args.erase(iterator): Remove an element at a specific position.
+Sorting and Searching:
+
+std::sort(args.begin(), args.end()): Sort the vector.
+std::find(args.begin(), args.end(), value): Find an element in the vector.
+std::count(args.begin(), args.end(), value): Count occurrences of a value in the vector.
+Joining and Splitting:
+
+You can join the elements of the vector into a single string using a loop or std::accumulate.
+You can split a string into a vector of strings using a delimiter and a loop.
+These are some common operations you can perform on a vector of strings like args. The specific operations you need to perform will depend on the requirements of your program and how you use the args vector in your code.
+#include <iostream>
+#include <cstdio>
+
+int main() {
+    FILE* pipe = popen("ls -l", "r");
+    if (pipe) {
+        char buffer[128];
+        while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+            std::cout << buffer;
+        }
+        pclose(pipe);
+    }
+    return 0;
+}
+In C++, #include <fcntl.h> is a preprocessor directive that includes the C library header file fcntl.h. This header file provides various constants and function prototypes related to file control operations. The fcntl.h header is often used when working with low-level file I/O and file descriptor manipulation.
+
+Some common things you can do with fcntl.h include:
+
+File Descriptor Manipulation: You can use functions like fcntl to manipulate file descriptors, such as duplicating them, changing their properties, or closing them.
+
+File Locking: fcntl.h provides constants and functions for file locking, allowing you to implement file locking mechanisms to prevent multiple processes from simultaneously accessing the same file.
+
+Changing File Status Flags: You can use fcntl to change the status flags of a file descriptor, such as making it non-blocking or changing its access mode.
+
+Setting File Descriptor Ownership: You can use fcntl to set the ownership of a file descriptor, which can be useful in situations involving interprocess communication (IPC).
+
+Here's a simple example of using fcntl.h to set the file descriptor to non-blocking mode:
+
+cpp
+Copy code
+#include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
+
+int main() {
+    int fd = open("example.txt", O_RDONLY);
+
+    if (fd == -1) {
+        std::cerr << "Failed to open file." << std::endl;
+        return 1;
+    }
+
+    // Set the file descriptor to non-blocking mode
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) {
+        std::cerr << "Failed to get file descriptor flags." << std::endl;
+        close(fd);
+        return 1;
+    }
+
+    flags |= O_NONBLOCK;
+    if (fcntl(fd, F_SETFL, flags) == -1) {
+        std::cerr << "Failed to set non-blocking mode." << std::endl;
+        close(fd);
+        return 1;
+    }
+
+    // Now, you can perform non-blocking reads on the file descriptor
+
+    close(fd);
+    return 0;
+}
+Keep in mind that fcntl.h is a low-level library, and its usage is often associated with systems programming and situations where you need fine-grained control over file operations and file descriptors. Most high-level C++ file I/O can be achieved using standard C++ libraries like <iostream> and <fstream>.
+
+Redirecting Standard I/O:
+
+You can use dup2 to redirect standard input, output, or error to a file descriptor.
+Example in C (redirecting stdout to a file):
+c
+Copy code
+int outFile = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+dup2(outFile, STDOUT_FILENO);
+
+#include <libudev.h>
+#include <iostream>
+
+int main() {
+    // Create a udev context
+    struct udev *udev;
+    udev = udev_new();
+    if (!udev) {
+        std::cerr << "Failed to create udev context." << std::endl;
+        return 1;
+    }
+
+    // Create a udev enumerator
+    struct udev_enumerate *enumerate;
+    enumerate = udev_enumerate_new(udev);
+    if (!enumerate) {
+        std::cerr << "Failed to create udev enumerator." << std::endl;
+        udev_unref(udev);
+        return 1;
+    }
+
+    // Add match rules (e.g., match all devices)
+    udev_enumerate_add_match_subsystem(enumerate, "block");
+    udev_enumerate_scan_devices(enumerate);
+
+    // Get a list of devices
+    struct udev_list_entry *devices = udev_enumerate_get_list_entry(enumerate);
+    struct udev_list_entry *entry;
+
+    udev_list_entry_foreach(entry, devices) {
+        const char *path = udev_list_entry_get_name(entry);
+
+        // Create a udev device object
+        struct udev_device *device = udev_device_new_from_syspath(udev, path);
+        if (!device) {
+            continue;
+        }
+
+        // Get device properties
+        const char *devnode = udev_device_get_devnode(device);
+        const char *sysname = udev_device_get_sysname(device);
+
+        // Print device information
+        std::cout << "Device Node: " << devnode << std::endl;
+        std::cout << "Sysname: " << sysname << std::endl;
+
+        // Don't forget to unreference the device
+        udev_device_unref(device);
+    }
+
+    // Clean up
+    udev_enumerate_unref(enumerate);
+    udev_unref(udev);
+
+    return 0;
+}
+#include <iostream>
+#include <thread>
+#include <vector>
+#include <queue>
+#include <functional>
+#include <mutex>
+#include <condition_variable>
+#include <chrono>
+
+class ThreadPool {
+public:
+    ThreadPool(size_t numThreads) : stop(false) {
+        for (size_t i = 0; i < numThreads; ++i) {
+            threads.emplace_back([this] {
+                while (true) {
+                    std::function<void()> task;
+                    {
+                        std::unique_lock<std::mutex> lock(queueMutex);
+                        condition.wait(lock, [this] { return stop || !tasks.empty(); });
+                        if (stop && tasks.empty()) {
+                            return;
+                        }
+                        task = std::move(tasks.front());
+                        tasks.pop();
+                    }
+                    task();
+                }
+            });
+        }
+    }
+
+    ~ThreadPool() {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            stop = true;
+        }
+        condition.notify_all();
+        for (std::thread &thread : threads) {
+            thread.join();
+        }
+    }
+
+    template<typename F>
+    void enqueue(F&& func) {
+        {
+            std::unique_lock<std::mutex> lock(queueMutex);
+            tasks.emplace(std::forward<F>(func));
+        }
+        condition.notify_one();
+    }
+
+private:
+    std::vector<std::thread> threads;
+    std::queue<std::function<void()>> tasks;
+    std::mutex queueMutex;
+    std::condition_variable condition;
+    bool stop;
+};
+
+// Function to perform Geekbench or any other task
+int runTask(const std::string& program) {
+    // Implement the task you want to run here
+    // For Geekbench, use your existing runGeekbench function
+    // Replace the following line with your Geekbench execution code
+    std::cout << "Running task: " << program << std::endl;
+    // Simulate a task execution
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    return 0; // Replace with the actual result of your task
+}
+
+// Function to run Geekbench asynchronously with a thread pool
+void runParallelTasks(const std::string& program) {
+    // Create a thread pool with the number of available CPU cores
+    unsigned int numThreads = std::thread::hardware_concurrency();
+    ThreadPool pool(numThreads);
+
+    // Function to run the specified program asynchronously
+    auto runProgramAsync = [&pool, program]() {
+        int result = runTask(program);
+        if (result == 0) {
+            std::cout << "Thread completed successfully." << std::endl;
+        } else {
+            std::cerr << "Thread failed with result: " << result << std::endl;
+        }
+    };
+
+    // Enqueue the program execution tasks to the thread pool
+    for (unsigned int i = 0; i < numThreads; ++i) {
+        pool.enqueue(runProgramAsync);
+    }
+
+    // Sleep to allow threads to finish (you can implement more sophisticated synchronization)
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+}
+
+int main() {
+    std::string program = "geekbench"; // Replace with the actual path to Geekbench
+    runParallelTasks(program);
+    return 0;
+}
+std::istringstream iss(inputStr);
+        char delimiter = ' ';
+        std::string token;
+        while (iss >> token) {
+            args.push_back(token);
+        }
+while (true) {
+        // Get the current directory
+        char* currentDirCStr = get_current_dir_name();
+        std::string currentDir = "";
+        currentDir = currentDirCStr;
+        free(currentDirCStr);
+
+        // Add colors using ANSI escape codes
+        std::string newPrompt = "\x1B[34mShell@\x1B[0m(\x1B[32m" + currentDir + "\x1B[0m)> ";
+        const char* prompt = newPrompt.c_str();             // Convert to a C-style string
+
+        // Read User Input
+        char* userInput = readline(prompt);
+
+        // Save command history to a file
+        //saveCommandHistory();
+
+        if (userInput == nullptr) {
+            // User pressed Ctrl+D or encountered an error (e.g., end of input)
+            break;
+        }
+        if (userInput[0] != '\0') {
+            std::string commandHistory = "";
+            addToHistory(userInput);
+        }
+
+
+        // Convert userInput to std::string
+        std::string inputStr(userInput);
+        free(userInput);
+
+        // Split the user input into tokens
+        std::vector<std::string> args;
+        std::istringstream iss(inputStr);
+        char delimiter = ' ';
+        std::string token;
+        while (iss >> token) {
+            args.push_back(token);
+        }
+
+        if (!args.empty()) {
+            if (args[0] == "exit") {
+                // Exit the shell
+                saveCommandHistory();
+                break;
+            } else {
+                // Execute the command
+                saveCommandHistory();
+                executeCommand(args);
+            }
+        }
+    }
+    return 0;
+}
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <cerrno>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+// Translate Windows API CreateFile function to POSIX open
+int TranslateCreateFileToOpen(const char* filename, DWORD desiredAccess, DWORD shareMode,
+                              LPSECURITY_ATTRIBUTES securityAttributes, DWORD creationDisposition,
+                              DWORD flagsAndAttributes, HANDLE templateFile)
+{
+#ifdef _WIN32
+    // Translate desiredAccess flags
+    int posixFlags = 0;
+    if (desiredAccess & GENERIC_READ)
+        posixFlags |= O_RDONLY;
+    if (desiredAccess & GENERIC_WRITE)
+        posixFlags |= O_WRONLY;
+
+    // Translate creationDisposition flags
+    int posixCreationFlags = 0;
+    if (creationDisposition == CREATE_NEW)
+        posixCreationFlags = O_CREAT | O_EXCL;
+    else if (creationDisposition == CREATE_ALWAYS)
+        posixCreationFlags = O_CREAT | O_TRUNC;
+    else if (creationDisposition == OPEN_ALWAYS)
+        posixCreationFlags = O_CREAT;
+    else if (creationDisposition == TRUNCATE_EXISTING)
+        posixCreationFlags = 0;
+
+    // Translate flagsAndAttributes flags
+    // Note: You may need to adjust these based on your specific requirements.
+    if (flagsAndAttributes & FILE_FLAG_WRITE_THROUGH)
+        posixFlags |= O_SYNC;
+    if (flagsAndAttributes & FILE_FLAG_NO_BUFFERING)
+        posixFlags |= O_DIRECT;
+
+    // Translate file share mode
+    // Note: This translation is simplified and may not cover all cases.
+    if (shareMode == FILE_SHARE_READ)
+        posixFlags |= O_RDONLY;
+    else if (shareMode == FILE_SHARE_WRITE)
+        posixFlags |= O_WRONLY;
+    else if (shareMode == FILE_SHARE_DELETE)
+        posixFlags |= O_RDWR;
+
+    // Open the file using POSIX open function
+    int fd = open(filename, posixFlags, 0666);
+
+    if (fd == -1) {
+        std::cerr << "Error opening file: " << strerror(errno) << std::endl;
+        return -1;
+    }
+
+    return fd;
+#else
+    // If not on Windows, this function is not applicable.
+    std::cerr << "This function is only applicable on Windows." << std::endl;
+    return -1;
+#endif
+}
+
+int main()
+{
+#ifdef _WIN32
+    // Example usage of TranslateCreateFileToOpen on Windows
+    const char* filename = "example.txt";
+    HANDLE hFile = CreateFile(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL,
+        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if (hFile == INVALID_HANDLE_VALUE) {
+        std::cerr << "Error creating file handle: " << GetLastError() << std::endl;
+        return 1;
+    }
+
+    int fd = TranslateCreateFileToOpen(filename, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ,
+        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    // Close the POSIX file descriptor when done
+    if (fd != -1) {
+        close(fd);
+    }
+
+    // Close the Windows file handle when done
+    CloseHandle(hFile);
+#else
+    std::cerr << "This example is for Windows only." << std::endl;
+    return 1;
+#endif
+
+    return 0;
+}
+#include <iostream>
+#include <string>
+#include <Poco/Net/HTTPClientSession.h>
+#include <Poco/Net/HTTPRequest.h>
+#include <Poco/Net/HTTPResponse.h>
+#include <Poco/StreamCopier.h>
+#include <Poco/URI.h>
+
+// Function to fetch HTML content from a URL using Poco
+std::string fetchHtmlFromUrl(const std::string& url) {
+    Poco::URI uri(url);
+    Poco::Net::HTTPClientSession session(uri.getHost(), uri.getPort());
+    std::string path(uri.getPathAndQuery());
+
+    if (path.empty()) {
+        path = "/";
+    }
+
+    Poco::Net::HTTPRequest request(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
+    Poco::Net::HTTPResponse response;
+
+    try {
+        session.sendRequest(request);
+        std::istream& rs = session.receiveResponse(response);
+
+        std::string htmlContent;
+        Poco::StreamCopier::copyToString(rs, htmlContent);
+
+        return htmlContent;
+    } catch (Poco::Exception& ex) {
+        std::cerr << "Poco error: " << ex.displayText() << std::endl;
+        return "";
+    }
+}
+
+int main() {
+    // URL of the website to fetch HTML content from
+    std::string url = "https://example.com";
+
+    // Fetch HTML content from the URL using Poco
+    std::string htmlContent = fetchHtmlFromUrl(url);
+
+    // Print the HTML content
+    std::cout << "HTML Content from " << url << ":\n" << htmlContent << std::endl;
+
+    return 0;
+}
+#include <curl/curl.h>
+        #include <curl/easy.h>
+        namespace tools {
+            std::string stripHtmlTags(const std::string& html) {
+                std::regex regex("<.*?>");
+                return std::regex_replace(html, regex, "");
+            }
+            // Callback function to write the received data to a string
+            size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
+                size_t totalSize = size * nmemb;
+                output->append(static_cast<char*>(contents), totalSize);
+                return totalSize;
+            }
+            // Function to fetch HTML content from a URL
+            std::string fetchHtmlFromUrl(const std::string& url) {
+                CURL* curl;
+                CURLcode res;
+                std::string htmlContent;
+
+                // Initialize cURL
+                curl = curl_easy_init();
+                if (curl) {
+                    // Set the URL to fetch
+                    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+                    // Specify the callback function to handle the received data
+                    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+                    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &htmlContent);
+
+                    // Perform the HTTP GET request
+                    res = curl_easy_perform(curl);
+
+                    // Check for errors
+                    if (res != CURLE_OK) {
+                        std::cerr << "cURL error: " << curl_easy_strerror(res) << std::endl;
+                    }
+
+                    // Clean up cURL
+                    curl_easy_cleanup(curl);
+                }
+
+                return htmlContent;
+            }
+        }
+        int main_html() {
+            // URL of the website to fetch HTML content from
+            std::string url = "https://example.com";
+
+            // Fetch HTML content from the URL
+            std::string htmlContent = tools::fetchHtmlFromUrl(url);
+
+            // Print the HTML content
+            std::cout << "HTML Content from " << url << ":\n" << htmlContent << std::endl;
+            return 0;
+        }
+#include <iostream>
+#include <vector>
+#include <string>
+
+// Define an Application class
+class Application {
+public:
+    Application(const std::string& name, const std::string& description)
+        : name(name), description(description) {}
+
+    void run() {
+        std::cout << "Running " << name << "..." << std::endl;
+    }
+
+    std::string getName() const {
+        return name;
+    }
+
+private:
+    std::string name;
+    std::string description;
+};
+
+// Function to display the list of applications
+void displayApplications(const std::vector<Application>& apps) {
+    std::cout << "Available Applications:" << std::endl;
+    for (size_t i = 0; i < apps.size(); ++i) {
+        std::cout << i + 1 << ". " << apps[i].getName() << std::endl;
+    }
+    std::cout << "0. Exit" << std::endl;
+}
+
+int main() {
+    // Create a vector of applications
+    std::vector<Application> applications;
+    applications.emplace_back("Calculator", "A simple calculator");
+    applications.emplace_back("Text Editor", "A basic text editor");
+    applications.emplace_back("File Browser", "A simple file browser");
+
+    while (true) {
+        // Display the list of applications
+        displayApplications(applications);
+
+        // Prompt for user input
+        int choice;
+        std::cout << "Select an application (0 to exit): ";
+        std::cin >> choice;
+
+        if (choice == 0) {
+            std::cout << "Goodbye!" << std::endl;
+            break;
+        } else if (choice > 0 && static_cast<size_t>(choice) <= applications.size()) {
+            // Run the selected application
+            applications[choice - 1].run();
+        } else {
+            std::cout << "Invalid choice. Please try again." << std::endl;
+        }
+    }
+
+    return 0;
+}
+#include <iostream>
+#include <string>
+#include <regex>
+#include <map>
+#include <cstring>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+struct HttpResponse {
+    int statusCode;
+    std::map<std::string, std::string> headers;
+    std::string content;
+};
+
+// Function to parse HTTP response into HttpResponse struct
+HttpResponse parseHttpResponse(const std::string& httpResponse) {
+    HttpResponse response;
+    std::smatch match;
+
+    // Regular expression to match the HTTP response status line.
+    std::regex statusLineRegex(R"(HTTP/\d\.\d (\d+) .*)");
+    if (std::regex_search(httpResponse, match, statusLineRegex)) {
+        response.statusCode = std::stoi(match[1]);
+    } else {
+        // Failed to parse the status line.
+        response.statusCode = -1;
+    }
+
+    // Regular expression to split the response into headers and content.
+    std::regex headerContentRegex(R"(.*?\r\n\r\n(.*)$)");
+    if (std::regex_search(httpResponse, match, headerContentRegex)) {
+        // Extract headers and content.
+        std::string headersText = httpResponse.substr(0, match.position(1));
+        response.content = match[1].str();
+
+        // Parse headers.
+        std::regex headerLineRegex(R"(([^:\r\n]+): ([^\r\n]+))");
+        auto headerBegin = std::sregex_iterator(headersText.begin(), headersText.end(), headerLineRegex);
+        auto headerEnd = std::sregex_iterator();
+
+        for (auto it = headerBegin; it != headerEnd; ++it) {
+            std::string key = (*it)[1];
+            std::string value = (*it)[2];
+            response.headers[key] = value;
+        }
+    }
+
+    return response;
+}
+
+// Constants for the HTTP server
+const std::string SERVER_PORT = "80";
+const std::string REQUEST_PATH = "/";
+
+// Maximum buffer size for receiving data
+const int MAX_BUFFER_SIZE = 1024;
+
+// Function to create and connect a socket to the given host
+int createAndConnectSocket(const std::string& host) {
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        perror("Error creating socket");
+        return -1;
+    }
+
+    struct hostent* server = gethostbyname(host.c_str());
+    if (server == nullptr) {
+        perror("Error resolving host");
+        close(sockfd);
+        return -1;
+    }
+
+    struct sockaddr_in serv_addr;
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_port = htons(std::atoi(SERVER_PORT.c_str()));
+    std::memcpy(&serv_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+
+    if (connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+        perror("Error connecting to server");
+        close(sockfd);
+        return -1;
+    }
+
+    return sockfd;
+}
+
+// Function to strip HTML tags from a string
+std::string stripHtmlTags(const std::string& html) {
+    std::regex regex("<.*?>");
+    return std::regex_replace(html, regex, "");
+}
+
+// Function to send an HTTP GET request to the server
+bool sendHttpGetRequest(int sockfd, const std::string& host, const std::string& path) {
+    std::string request = "GET " + path + " HTTP/1.1\r\n";
+    request += "Host: " + host + "\r\n";
+    request += "Connection: close\r\n\r\n";
+
+    if (send(sockfd, request.c_str(), request.length(), 0) < 0) {
+        perror("Error sending request");
+        return false;
+    }
+
+    return true;
+}
+
+// Function to receive and print the HTTP response from the server
+void receiveAndPrintHttpResponse(int sockfd) {
+    char buffer[MAX_BUFFER_SIZE];
+    ssize_t bytes_received;
+    while ((bytes_received = recv(sockfd, buffer, sizeof(buffer), 0)) > 0) {
+        std::cout.write(buffer, bytes_received);
+    }
+
+    if (bytes_received < 0) {
+        perror("Error receiving response");
+    }
+}
+
+// Function to extract visible links from HTML content using libxml2
+void extractVisibleLinks(const std::string& html) {
+    // Initialize libxml2 parser
+    htmlDocPtr doc = htmlReadMemory(html.c_str(), html.length(), nullptr, nullptr, HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
+    if (doc == nullptr) {
+        std::cerr << "Error parsing HTML" << std::endl;
+        return;
+    }
+
+    // Create an XPath context
+    xmlXPathContextPtr context = xmlXPathNewContext(doc);
+    if (context == nullptr) {
+        std::cerr << "Error creating XPath context" << std::endl;
+        xmlFreeDoc(doc);
+        return;
+    }
+
+    // Define an XPath expression to select visible links
+    const char* xpathExpr = "//a[@href]";
+    xmlXPathObjectPtr result = xmlXPathEvalExpression(BAD_CAST xpathExpr, context);
+
+    // Process the result
+    if (result != nullptr && result->type == XPATH_NODESET) {
+        xmlNodeSetPtr nodes = result->nodesetval;
+        for (int i = 0; i < nodes->nodeNr; ++i) {
+            xmlNodePtr node = nodes->nodeTab[i];
+            xmlChar* href = xmlGetProp(node, BAD_CAST "href");
+            if (href != nullptr) {
+                std::cout << "Link: " << href << std::endl;
+                xmlFree(href);
+            }
+        }
+    }
+
+    // Clean up
+    xmlXPathFreeObject(result);
+    xmlXPathFreeContext(context);
+    xmlFreeDoc(doc);
+}
+
+int main() {
+    std::string host = "www.google.com"; // Specify the host
+    std::string path = "/"; // Specify the path (you can change it as needed)
+
+    int sockfd = createAndConnectSocket(host);
+    if (sockfd < 0) {
+        return 1;
+    }
+
+    if (!sendHttpGetRequest(sockfd, host, path)) {
+        close(sockfd);
+        return 1;
+    }
+
+    // Create a buffer to store received data
+    char buffer[MAX_BUFFER_SIZE];
+    std::string htmlContent; // To store the HTML content
+
+    // Loop to read and print the response while saving it
+    while (true) {
+        ssize_t bytes_received = recv(sockfd, buffer, sizeof(buffer), 0);
+        if (bytes_received > 0) {
+            // Print the received data
+            std::cout.write(buffer, bytes_received);
+            // Save the received data to the HTML content
+            htmlContent.append(buffer, bytes_received);
+        } else if (bytes_received == 0) {
+            // Connection closed
+            std::cout << "Connection closed by the server." << std::endl;
+            break;
+        } else {
+            // Error receiving data
+            perror("Error receiving response");
+            break;
+        }
+    }
+
+    // Extract visible links from the HTML content
+    extractVisibleLinks(htmlContent);
+
+    close(sockfd);
+
+    return 0;
+}
+
+
+
+working displlat
+#include <X11/Xlib.h>
+#include <iostream>
+#include <cstdlib>
+
+int main() {
+    Display* display = XOpenDisplay(NULL);
+    if (!display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        return 1;
+    }
+
+    int screen_num = DefaultScreen(display);
+    int screen_width = DisplayWidth(display, screen_num);
+    int screen_height = DisplayHeight(display, screen_num);
+
+    Window root_window = RootWindow(display, screen_num);
+
+    Window window = XCreateSimpleWindow(display, root_window, 0, 0, screen_width, screen_height, 0, 0, 0);
+    XMapWindow(display, window);
+
+    XEvent event;
+    while (1) {
+        XNextEvent(display, &event);
+    }
+
+    XCloseDisplay(display);
+    return 0;
+}
+
+#include <X11/Xlib.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+
+int main(int argc, char* argv[]) {
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <width> <height>" << std::endl;
+        return 1;
+    }
+
+    int screen_width = std::atoi(argv[1]);
+    int screen_height = std::atoi(argv[2]);
+
+    Display* display = XOpenDisplay(NULL);
+    if (!display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        return 1;
+    }
+
+    Window root_window = RootWindow(display, DefaultScreen(display));
+
+    // Create a black window with no border
+    Window window = XCreateSimpleWindow(display, root_window, 0, 0, 1, 1, 0, 0, 0);
+    XMapWindow(display, window);
+
+    // Request exclusive fullscreen mode
+    XEvent xev;
+    Atom wm_state = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+    memset(&xev, 0, sizeof(xev));
+    xev.type = ClientMessage;
+    xev.xclient.window = window;
+    xev.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", False);
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = 1;  // _NET_WM_STATE_ADD
+    xev.xclient.data.l[1] = wm_state;
+    XSendEvent(display, DefaultRootWindow(display), False,
+               SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+    // Resize the window to fullscreen
+    XResizeWindow(display, window, screen_width, screen_height);
+
+    XFlush(display);
+
+    XEvent event;
+    while (1) {
+        XNextEvent(display, &event);
+    }
+
+    XCloseDisplay(display);
+    return 0;
+}
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+// Function to open the shell or any other program
+void openProgram(const char* programPath) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        // This code runs in the child process
+        execlp(programPath, programPath, NULL);
+        std::cerr << "Error: Could not open the program. Error code: " << strerror(errno) << std::endl;
+        exit(1);
+    } else if (pid > 0) {
+        // This code runs in the parent process
+        int status;
+        waitpid(pid, &status, 0);
+    } else {
+        std::cerr << "Error: Fork failed. Error code: " << strerror(errno) << std::endl;
+    }
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <width> <height> <program_path>" << std::endl;
+        return 1;
+    }
+
+    int screen_width = std::atoi(argv[1]);
+    int screen_height = std::atoi(argv[2]);
+    const char* programPath = argv[3];
+
+    // Initialize Xlib thread support
+    XInitThreads();
+
+    Display* display = XOpenDisplay(NULL);
+    if (!display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        return 1;
+    }
+
+    Window root_window = RootWindow(display, DefaultScreen(display));
+
+    // Create a black window with no border
+    Window window = XCreateSimpleWindow(display, root_window, 0, 0, screen_width, screen_height, 0, 0, 0);
+    XMapWindow(display, window);
+
+    // Request exclusive fullscreen mode (optional)
+    Atom wm_state = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+    XEvent xev;
+    memset(&xev, 0, sizeof(xev));
+    xev.type = ClientMessage;
+    xev.xclient.window = window;
+    xev.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", False);
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = 1;  // _NET_WM_STATE_ADD
+    xev.xclient.data.l[1] = wm_state;
+    XSendEvent(display, DefaultRootWindow(display), False,
+               SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+    XFlush(display);
+
+    // Open and display the specified program
+    openProgram(programPath);
+
+    XEvent event;
+    while (1) {
+        XNextEvent(display, &event);
+    }
+
+    XCloseDisplay(display);
+    return 0;
+}
+ // Grab the 'q' key to capture its press event
+    KeyCode q_keycode = XKeysymToKeycode(display, XK_q);
+    XGrabKey(display, q_keycode, Mod1Mask, root_window, False, GrabModeAsync, GrabModeAsync);
+
+
+    Window window2 = XCreateSimpleWindow(display, root_window, 0, 0, 400, 200, 0, 0, BlackPixel(display, DefaultScreen(display)));
+    XMapWindow(display, window2);
+
+    GC gc = XCreateGC(display, window2, 0, NULL);
+
+    // Create a loop to handle events
+    XEvent event;
+    while (1) {
+        XNextEvent(display, &event);
+        if (event.type == Expose) {
+            // Redraw the window including the rectangle
+            drawRectangle(display, window, gc);
+        } if (event.type == KeyPress && event.xkey.keycode == q_keycode) {
+            // 'q' key is pressed, open another window
+            openProgram(programPath); // Replace with the program you want to open
+        }
+    }
+
+
+    XCloseDisplay(display);
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+
+// Function to start and display a program in an XTerm window
+void startProgramInXTerm(Display* display, Window window, const char* programPath) {
+    // Construct the command to run in XTerm
+    std::string command = "xterm -into " + std::to_string(window) + " -e " + programPath;
+
+    // Fork a child process to execute the XTerm command
+    pid_t pid = fork();
+    if (pid == 0) {
+        // This code runs in the child process
+        execl("/bin/sh", "/bin/sh", "-c", command.c_str(), NULL);
+        std::cerr << "Error: Could not execute the program. Error code: " << strerror(errno) << std::endl;
+        exit(1);
+    } else if (pid > 0) {
+        // This code runs in the parent process
+        int status;
+        waitpid(pid, &status, 0);
+    } else {
+        std::cerr << "Error: Fork failed. Error code: " << strerror(errno) << std::endl;
+    }
+}
+
+// Function to open the shell or any other program
+void openProgram(const char* programPath) {
+    pid_t pid = fork();
+    if (pid == 0) {
+        // This code runs in the child process
+        execlp(programPath, programPath, NULL);
+        std::cerr << "Error: Could not open the program. Error code: " << strerror(errno) << std::endl;
+        exit(1);
+    } else if (pid > 0) {
+        // This code runs in the parent process
+        int status;
+        waitpid(pid, &status, 0);
+    } else {
+        std::cerr << "Error: Fork failed. Error code: " << strerror(errno) << std::endl;
+    }
+}
+
+void drawRectangle(Display* display, Window window, GC gc) {
+    XSetForeground(display, gc, WhitePixel(display, DefaultScreen(display))); // Set the foreground color to white
+    XFillRectangle(display, window, gc, 50, 50, 200, 100); // Draw a white rectangle
+    XFlush(display);
+}
+
+int main(int argc, char* argv[]) {
+    if (argc != 4) {
+        std::cerr << "Usage: " << argv[0] << " <width> <height> <program_path>" << std::endl;
+        return 1;
+    }
+
+    int screen_width = std::atoi(argv[1]);
+    int screen_height = std::atoi(argv[2]);
+    const char* programPath = argv[3];
+
+    // Initialize Xlib thread support
+    XInitThreads();
+
+    Display* display = XOpenDisplay(NULL);
+    if (!display) {
+        std::cerr << "Error: Could not open X display." << std::endl;
+        return 1;
+    }
+
+    Window root_window = RootWindow(display, DefaultScreen(display));
+
+    // Create a black window with no border
+    Window window = XCreateSimpleWindow(display, root_window, 0, 0, screen_width, screen_height, 0, 0, 0);
+    XMapWindow(display, window);
+
+    // Request exclusive fullscreen mode (optional)
+    Atom wm_state = XInternAtom(display, "_NET_WM_STATE_FULLSCREEN", False);
+    XEvent xev;
+    memset(&xev, 0, sizeof(xev));
+    xev.type = ClientMessage;
+    xev.xclient.window = window;
+    xev.xclient.message_type = XInternAtom(display, "_NET_WM_STATE", False);
+    xev.xclient.format = 32;
+    xev.xclient.data.l[0] = 1;  // _NET_WM_STATE_ADD
+    xev.xclient.data.l[1] = wm_state;
+    XSendEvent(display, DefaultRootWindow(display), False,
+               SubstructureRedirectMask | SubstructureNotifyMask, &xev);
+
+    XFlush(display);
+
+    Window window2 = XCreateSimpleWindow(display, root_window, 0, 0, 400, 200, 0, 0, BlackPixel(display, DefaultScreen(display)));
+    XMapWindow(display, window2);
+
+    // Start and display the specified program in an XTerm window
+    startProgramInXTerm(display, window2, programPath);
+
+    XEvent event;
+    while (1) {
+        XNextEvent(display, &event);
+    }
+
+    XCloseDisplay(display);
+    return 0;
+}
+
+
+void createTextInputWindow(Display* display) {
+        int screen = DefaultScreen(display);
+
+        // Create the main window
+        Window mainWindow = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, 400, 100, 1,
+                                                BlackPixel(display, screen), WhitePixel(display, screen));
+
+        XSelectInput(display, mainWindow, StructureNotifyMask);
+        XMapWindow(display, mainWindow);
+
+        // Create a form widget to contain the text input field and a button
+        Widget form = XtVaCreateManagedWidget("form", formWidgetClass, mainWindow, nullptr);
+
+        // Create a label for the prompt
+        Widget label = XtVaCreateManagedWidget("label", labelWidgetClass, form,
+                                            XtNlabel, "Enter Text:",
+                                            XtNx, 10,
+                                            XtNy, 10,
+                                            nullptr);
+
+        // Create a text input field
+        Widget textInput = XtVaCreateManagedWidget("textInput", asciiTextWidgetClass, form,
+                                                XtNx, 100,
+                                                XtNy, 10,
+                                                XtNwidth, 200,
+                                                nullptr);
+
+        // Create a button for submission
+        Widget submitButton = XtVaCreateManagedWidget("submitButton", commandWidgetClass, form,
+                                                    XtNx, 310,
+                                                    XtNy, 10,
+                                                    XtNlabel, "Submit",
+                                                    nullptr);
+
+        XtRealizeWidget(mainWindow);
+
+        // Event loop
+        XEvent event;
+        while (1) {
+            XNextEvent(display, &event);
+            if (event.type == MapNotify)
+                break;
+        }
+
+        // Main loop to handle events
+        while (1) {
+            XNextEvent(display, &event);
+
+            // Handle button click event
+            if (XtAppProcessEvent(XtWidgetToApplicationContext(form), XtLastTimestampProcessed(display)) == False) {
+                // Handle other X events here if needed
+            }
+
+            // Handle submission button click
+            if (event.type == ButtonPress && event.xbutton.window == XtWindow(submitButton)) {
+                char* text = XawTextGetString(textInput);
+                if (text != nullptr) {
+                    // Process the input text (you can replace this with your desired action)
+                    std::cout << "Input Text: " << text << std::endl;
+
+                    // Free the memory allocated for the input text
+                    XtFree(text);
+                }
+            }
+        }
+    }
+#include <iostream>
+#include <pty.h>
+#include <unistd.h>
+#include <string>
+#include <sstream>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <curses.h>
+#include <readline/chardefs.h>
+#include <spawn.h>
+#include <string>
+#include <iostream>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <vector>
+#include <fstream>
+#include <iostream>  // Include the header for std::cout
+#include <sstream>   // Include the header for std::ostringstream
+#include <cstdlib>
+#include <ncurses.h>
+#include <X11/extensions/Xrandr.h>
+#include <X11/Xutil.h>
+#include <cstring>
+#include <X11/keysym.h>
+#include <iostream>
+#include <pty.h>
+#include <unistd.h>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <pty.h>
+#include <string.h>
+
+
+void RunPTY(const std::string& command, const std::string& input, std::string& output) {
+    int master, slave;
+    char buffer[4096];
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute the specified command
+        execl(command.c_str(), command.c_str(), NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Send input to the PTY
+        write(master, input.c_str(), input.size());
+
+        output.clear();
+
+        while (1) {
+            int bytesRead = read(master, buffer, sizeof(buffer));
+            if (bytesRead <= 0) {
+                break;
+            }
+
+            // Append the data read from the PTY to the output
+            output.append(buffer, bytesRead);
+        }
+
+        // Close the master side of PTY
+        close(master);
+    }
+}
+void SendInputToPTY(int master, const std::string& input) {
+    // Write the input data to the master side of PTY
+    write(master, input.c_str(), input.size());
+}
+
+std::string PTy(std::string input){
+    int master, slave;
+    char buffer[4096];
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return "";
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return "";
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        //execl("/bin/bash", "/bin/bash", NULL);
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Send input to the PTY (e.g., "ls\n")
+        SendInputToPTY(master, input.c_str());
+
+        while (1) {
+            int bytesRead = read(master, buffer, sizeof(buffer));
+            if (bytesRead <= 0) {
+                break;
+            }
+
+            // Handle the data read from the PTY as needed (e.g., print it)
+            write(STDOUT_FILENO, buffer, bytesRead);
+            if (getcwd(buffer, sizeof(buffer)) != NULL) {
+            return std::string(buffer); // Convert the C-string to a C++ string
+        } else {
+            std::cerr << "Error getting current working directory: " << strerror(errno) << std::endl;
+            return ""; // Return an empty string on error
+        }
+        }
+
+        // Close the master side of PTY
+        close(master);
+    }
+    return "";
+}
+
+
+void displayText(Display* display, Window window, const char* text) {
+    XClearWindow(display, window);
+    XDrawString(display, window, DefaultGC(display, DefaultScreen(display)), 10, 30, text, strlen(text));
+    XFlush(display);
+}
+void displayOutput(Display* display, Window window, const std::string& output) {
+    displayText(display, window, output.c_str());
+}
+
+// Function to split a single string into lines
+std::vector<std::string> SplitStringIntoLines(const std::string& input, int lineLength) {
+    std::vector<std::string> lines;
+    std::istringstream iss(input);
+    std::string line;
+
+    while (std::getline(iss, line)) {
+        if (line.length() > static_cast<size_t>(lineLength)) {
+            // If a line is longer than the specified lineLength, split it into multiple lines
+            size_t startPos = 0;
+            while (startPos < line.length()) {
+                lines.push_back(line.substr(startPos, lineLength));
+                startPos += lineLength;
+            }
+        } else {
+            lines.push_back(line);
+        }
+    }
+
+    return lines;
+}
+// Overloaded version to split a vector of strings into lines
+std::vector<std::string> SplitStringIntoLines(const std::vector<std::string>& input, int lineLength) {
+    std::vector<std::string> lines;
+    for (const std::string& str : input) {
+        std::vector<std::string> subLines = SplitStringIntoLines(str, lineLength);
+        lines.insert(lines.end(), subLines.begin(), subLines.end());
+    }
+    return lines;
+}
+
+// Overloaded version to split a char* (C-string) into lines
+std::vector<std::string> SplitStringIntoLines(const char* input, int lineLength) {
+    std::string str(input);
+    return SplitStringIntoLines(str, lineLength);
+}
+
+
+int main() {
+    std::string input;
+    int master, slave;
+    char buffer[4096];
+
+    // Open a new PTY
+    if (openpty(&master, &slave, NULL, NULL, NULL) == -1) {
+        perror("openpty");
+        return 1;
+    }
+
+    // Fork a child process
+    pid_t child = fork();
+
+    if (child == -1) {
+        perror("fork");
+        return 1;
+    } else if (child == 0) {
+        // Child process: Replace standard input/output/error with PTY
+        close(master);
+
+        // Redirect the slave side of PTY to the child's standard input/output/error
+        dup2(slave, STDIN_FILENO);
+        dup2(slave, STDOUT_FILENO);
+        dup2(slave, STDERR_FILENO);
+
+        // Close the slave side of PTY
+        close(slave);
+
+        // Execute a command (e.g., /bin/bash)
+        execl("/home/SERVER/test", "/home/SERVER/test", NULL);
+
+        //execl("/bin/bash", "/bin/bash", NULL);
+    } else {
+        // Parent process: Read and write to the PTY
+        close(slave);
+
+        // Send input to the PTY (e.g., "ls\n")
+        //SendInputToPTY(master, input);
+
+        while (1) {
+            // Read user input
+            //printf("Enter a command: ");
+            fflush(stdout);
+            fgets(buffer, sizeof(buffer), stdin);
+
+
+            // Send the user's command to the PTY
+
+            if (strcmp(buffer, "exit\n") == 0) {
+                break;
+            }
+            write(master, buffer, strlen(buffer));
+
+            // Read and display the response from the PTY
+            int bytesRead = read(master, buffer, sizeof(buffer));
+            if (bytesRead <= 0) {
+                break;
+            }
+
+            // Display the response
+            write(STDOUT_FILENO, buffer, bytesRead);
+
+        }
+
+        // Close the master side of PTY
+        close(master);
+    }
+
+    return 0;
+}

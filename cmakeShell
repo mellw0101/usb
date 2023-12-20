@@ -1,0 +1,17 @@
+# CMakeLists.txt
+
+cmake_minimum_required(VERSION 3.10)
+project(MyProject)
+
+# Compile source files into object files
+add_executable(Shell-0.1/Shell.o Shell-0.1/Shell.cpp)
+add_library(c_cp OBJECT Shell-0.1/c_cp.cpp)
+
+# Link the object files with -lz, -lncurses, and -lreadline
+target_link_libraries(c_cp PRIVATE -lz -lncurses -lreadline)
+
+# Create a static library from the object files
+add_library(mylibrary STATIC $<TARGET_OBJECTS:c_cp>)
+
+# Link the executable with the static library
+target_link_libraries(Shell-0.1/Shell.o PRIVATE mylibrary)
