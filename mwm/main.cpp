@@ -717,7 +717,7 @@ class Animate {
         static int currentX;
         static int currentY;
 		// 50, 25 works
-        static const int animationInterval = 25;
+        static const int animationInterval = 5;
         static client * & c;
         
         static void // Static method for the animation thread
