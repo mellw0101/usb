@@ -1,0 +1,4 @@
+#!/bin/bash
+systemctl stop dwm
+systemctl stop dwm-X
+sudo systemctl restart getty@tty2
