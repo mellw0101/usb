@@ -701,8 +701,7 @@ class Animate {
 
             // Stop the animation
             stopAnimation();
-
-            std::cout << "Animation stopped!\n";
+			wm::update_client(c);
         }
 
     private:
@@ -711,7 +710,7 @@ class Animate {
         static std::atomic<bool> stopFlag;
         static int currentX;
         static int currentY;
-        static const int animationInterval = 40;
+        static const int animationInterval = 50;
         static client * & c;
         
         static void // Static method for the animation thread
@@ -1764,7 +1763,7 @@ class Event {
 			 && (e->state & SUPER))
 			{
 				client * c = get::client_from_win(& e->event);
-				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 2000);
+				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 400);
 			}
         }
 
