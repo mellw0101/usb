@@ -823,7 +823,7 @@ class mv_Desktop {
 			{
 				case NEXT:
 				{
-					Next_Desktop();
+					Next_Desktop give_me_a_name;
 					break;
 				}
 				case PREV:
@@ -837,66 +837,55 @@ class mv_Desktop {
 	private:
 		class Next_Desktop {
 			public:
-				Next_Desktop()
-				{
-					if (cur_d->desktop == desktop_list.size())
-					{
+				Next_Desktop() {
+					if (cur_d->desktop == desktop_list.size()) {
 						return;
 					}
-					
+
 					std::vector<std::thread> threads;
 
-					threads.clear();
 					// HIDE CLIENTS ON CURRENT_DESKTOP
-					for (auto & c : cur_d->current_clients)
-					{
-						if (c)
-						{
-							h = std::thread(&hide, this, std::ref(c));
-							threads.push_back(h);
+					for (auto &c : cur_d->current_clients) {
+						if (c) {
+							threads.emplace_back(&Next_Desktop::hide, this, std::ref(c));
 						}
 					}
 
-					
 					cur_d = desktop_list[cur_d->desktop];
+
 					// SHOW CLIENTS ON NEXT_DESKTOP
-					for (auto & c : cur_d->current_clients)
-					{
-						if (c)
-						{
-						 	h = std::thread(&show, this, std::ref(c));
-							threads.push_back(h);
+					for (auto &c : cur_d->current_clients) {
+						if (c) {
+							threads.emplace_back(&Next_Desktop::show, this, std::ref(c));
 						}
 					}
 
-					for (auto & thread : threads)
-					{
+					for (auto &thread : threads) {
 						thread.join();
 					}
 				}
 
 			private:
-				static std::thread h;
-				static void
-				hide(client * & c)
-				{
+				std::mutex mtx; // Added for thread safety
+				std::thread h;
+
+				void hide(client *&c) {
+					std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 					show_hide_client(c, HIDE);
 				}
 
-				static void
-				show(client * & c)
-				{
-					if (c->x < screen->width_in_pixels) 
-					{
+				void show(client *&c) {
+					std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
+					if (c->x < screen->width_in_pixels) {
 						c->x = c->x + screen->width_in_pixels;
 					}
 					show_hide_client(c, SHOW);
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 				}
-		};
+			};
 
 		class Prev_Desktop {
 			public:
