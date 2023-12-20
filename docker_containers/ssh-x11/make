@@ -1,0 +1,6 @@
+#!/bin/bash
+
+sudo docker build -t ssh-x11 .
+
+# sudo docker build -t xephyr-window-manager .
+# sudo docker build -t xserver-container .

@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "exec startlxde" >> ~/.xinitrc
+sudo pacman -S lxde-gtk3 sddm
+systemctl enable sddm

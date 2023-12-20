@@ -1,0 +1,33 @@
+#!/bin/bash
+
+sudo docker run --env="DISPLAY" -v /tmp/.X11-unix/X0:/tmp/.X11-unix/X0 --volume="$HOME/.Xauthority:/root/.Xauthority:rw" -p 2222:22 -d ssh-x11
+
+# sudo docker run --rm -it --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw" xephyr-window-manager
+
+# sudo docker run -it --rm \
+#     -e DISPLAY=$DISPLAY \
+#     -v /tmp/.X11-unix:/tmp/.X11-unix \
+#     --name xserver-container \
+#     xserver-container
+
+# sudo docker start ubuntu
+# sudo docker exec -it ubuntu /bin/bash 
+# sudo docker run -it --name ubuntu ubuntu_test
+
+# printf 'Starting up pihole container '
+# for i in $(seq 1 20); do
+#     if [ "$(docker inspect -f "{{.State.Health.Status}}" ubuntu)" == "healthy" ] ; then
+#         printf ' OK'
+#         echo -e "\n$(docker logs pihole 2> /dev/null | grep 'password:') use 'http://pi.hole/admin/' to connect to server : configured pass should be '225588'"
+#         exit 0
+#     else
+#         sleep 3
+#         printf '.'
+#     fi
+
+#     if [ $i -eq 20 ] ; then
+#         echo -e "\nTimed out waiting for Pi-hole start, consult your container logs for more info (\`docker logs pihole\`)"
+#         exit 1
+#     fi
+# done;
+

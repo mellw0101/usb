@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo docker run --rm -it --net=host --env="DISPLAY" --volume="$HOME/.Xauthority:/root/.Xauthority:rw" \
+    -v /var/run/libvirt/virtqemud-sock:/var/run/libvirt/virtqemud-sock \
+    -v /tmp/.X11-unix:/tmp/.X11-unix \
+    xserver-arch-container 
+
+# sudo docker run -it --rm \
+#     -e DISPLAY=:0 \
+#     -v /tmp/.X11-unix:/tmp/.X11-unix \
+#     --name xserver-arch-container \
+#     xserver-arch-container
+
+    # docker run -it --rm -e DISPLAY=:0 -v /tmp/.X11-unix:/tmp/.X11-unix your_image_name

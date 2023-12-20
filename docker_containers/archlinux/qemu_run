@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Define variables
+IMAGE_PATH="./ubuntu_image.qcow2"
+IMAGE_SIZE="10G"
+ISO_PATH="./ubuntu_iso.iso"
+
+# Create a virtual hard drive (10GB)
+qemu-img create -f qcow2 $IMAGE_PATH $IMAGE_SIZE
+
+# Download the Ubuntu ISO if not already present
+if [ ! -f "$ISO_PATH" ]; then
+    wget -O $ISO_PATH https://enterprise.proxmox.com/iso/proxmox-ve_8.1-1.iso
+    # wget -O $ISO_PATH http://releases.ubuntu.com/20.04.3/ubuntu-20.04.3-desktop-amd64.iso
+fi
+
+# Run QEMU with the created drive and ISO
+qemu-system-x86_64 \
+  -drive file=$IMAGE_PATH,format=qcow2 \
+  -cdrom $ISO_PATH \
+  -m 2G \
+  -enable-kvm \
+  -display sdl
+
+# Cleanup: Remove the virtual hard drive if desired
+# Uncomment the next line if you want to remove the drive after closing the VM
+# rm $IMAGE_PATH
