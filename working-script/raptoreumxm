@@ -1,0 +1,20 @@
+#!/bin/bash
+u=$(getent passwd 1000 | cut -d: -f1)
+
+sudo -u $u yay -S --needed xmrig-donateless
+
+a=$(cat /home/$USER/.workername 2> /dev/null)
+
+case "$a" in
+
+   "" )
+        echo
+        read -p ' worker name? >>: ' b
+        echo $b > /home/$USER/.workername
+        ;;
+
+esac
+
+
+sudo xmrig --cpu-priority=5 -a gr -o europe.raptoreum.zone:3333 -u RG12XNaxiJWho2zd8kHQDsEHgeNZx5W832.$a --cpu-no-yield
+

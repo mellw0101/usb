@@ -1,0 +1,9 @@
+#!/bin/bash
+sudo rm /home/$USER/.ssh/known_hosts 2> /dev/null
+
+echo
+read -p '    192.168.' a
+echo
+read -p "    192.168.$a." b
+
+ssh root@192.168.$a.$b

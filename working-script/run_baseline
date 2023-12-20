@@ -1,0 +1,4 @@
+#!/bin/bash
+a=$(ls ~/arch/baseline_dir/out)
+cd ~/arch/baseline_dir/out
+run_archiso -u -i $a

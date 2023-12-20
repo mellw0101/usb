@@ -1,0 +1,2 @@
+#!/bin/bash
+clear && lsblk && echo && echo "    NAME ??" && echo && read -p '  >>   ' a && sudo mount --mkdir /dev/$a /usb && echo

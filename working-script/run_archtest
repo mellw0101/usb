@@ -1,0 +1,2 @@
+#!/bin/bash
+run_archiso -u -i /home/SERVER/archiso/out/archlinux-2023.09.10-x86_64.iso
