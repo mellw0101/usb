@@ -822,19 +822,17 @@ move_to_next_desktop()
         return;
     }
 
-    // move_desktop(cur_d->desktop + 1);
+	// HIDE CLIENTS ON CURRENT_DESKTOP
 	for (const auto & c : cur_d->current_clients)
     {
         if (c)
         {
-            if (c->desktop == cur_d->desktop)
-            {
-                show_hide_client(c, HIDE);
-            }
+			show_hide_client(c, HIDE);
         }
     }
 
     cur_d = desktop_list[cur_d->desktop];
+	// SHOW CLIENTS ON NEXT DESKTOP
     for (const auto & c : cur_d->current_clients)
     {
         if (c)
