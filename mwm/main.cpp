@@ -850,7 +850,8 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-			next_hide(c);
+			std::thread t(next_hide, c);
+			t.detach();
 		}
 	}
 
@@ -861,14 +862,9 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-			next_show(c);
+			std::thread t(next_show, c);
+			t.detach();
 		}
-	}
-
-	// Wait for all futures to finish
-	for (auto & t : threads)
-	{
-		t.join();
 	}
 }
 
