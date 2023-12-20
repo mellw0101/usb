@@ -839,15 +839,18 @@ class mv_Desktop {
 		class Next_Desktop {
 			public:
 				Next_Desktop() {
-					if (cur_d->desktop == desktop_list.size()) {
+					if (cur_d->desktop == desktop_list.size()) 
+					{
 						return;
 					}
 
 					std::vector<std::future<void>> futures;
 
 					// HIDE CLIENTS ON CURRENT_DESKTOP
-					for (auto &c : cur_d->current_clients) {
-						if (c) {
+					for (auto & c : cur_d->current_clients) 
+					{
+						if (c) 
+						{
 							futures.emplace_back(std::async(std::launch::async, [this, &c] { hide(c); }));
 						}
 					}
@@ -855,27 +858,35 @@ class mv_Desktop {
 					cur_d = desktop_list[cur_d->desktop];
 
 					// SHOW CLIENTS ON NEXT_DESKTOP
-					for (auto &c : cur_d->current_clients) {
-						if (c) {
+					for (auto & c : cur_d->current_clients)
+					{
+						if (c) 
+						{
 							futures.emplace_back(std::async(std::launch::async, [this, &c] { show(c); }));
 						}
 					}
 
 					// Wait for all futures to finish
-					for (auto &future : futures) {
+					for (auto & future : futures)
+					{
 						future.get();
 					}
 				}
 
 			private:
-				void hide(client *&c) {
+				void 
+				hide(client * & c) 
+				{
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 					show_hide_client(c, HIDE);
 				}
 
-				void show(client *&c) {
-					if (c->x < screen->width_in_pixels) {
+				void 
+				show(client * & c) 
+				{
+					if (c->x < screen->width_in_pixels) 
+					{
 						c->x = c->x + screen->width_in_pixels;
 					}
 					show_hide_client(c, SHOW);
