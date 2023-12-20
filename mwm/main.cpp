@@ -769,7 +769,7 @@ class resize_client {
             I CANNOT CALL THIS CLASS LIKE THIS 'resize_client(c)' 
             INSTEAD I WOULD HAVE TO CALL IT LIKE THIS 'resize_client rc(c)'
             AND NOW WITH THE 'retard_int' I CAN CALL IT LIKE THIS 'resize_client(c, 0)'
-            */
+         */
         resize_client(client * & c , int retard_int) 
         : c(c) 
         {
@@ -857,7 +857,6 @@ class resize_client {
             // WINDOW TO WINDOW SNAPPING 
             for (const auto & cli : cur_d->current_clients)
             {
-                
                 // SNAP WINSOW TO 'LEFT' BORDER OF 'NON_CONTROLLED' WINDOW
                 if ((x > cli->x - N && x < cli->x + N) 
                  && (y + c->height > cli->y && y < cli->y + cli->height))
