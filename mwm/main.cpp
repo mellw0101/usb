@@ -1,4 +1,5 @@
 #include "structs.hpp"
+#include <xcb/xcb.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -671,6 +672,100 @@ class mv_client {
             return false; /*
                 RETURN FALSE IF NOT ENOUGH TIME HAS PASSED
              */ 
+        }
+};
+
+class Animate {
+    public:
+        static void // Public static method to start the animation
+        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
+        {
+            // Ensure any existing animation is stopped
+            stopAnimation();
+            
+            c = cli;
+
+            // Set initial coordinates
+            currentX = startX;
+            currentY = startY;
+
+            // Calculate step size based on time
+            int steps = time / animationInterval;
+            int stepX = (endX - startX) / steps;
+            int stepY = (endY - startY) / steps;
+
+            // Start a new thread for animation
+            animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
+
+            // Wait for the animation to complete
+            std::this_thread::sleep_for(std::chrono::milliseconds(time));
+
+            // Stop the animation
+            stopAnimation();
+
+            std::cout << "Animation stopped!\n";
+        }
+
+    private:
+        // Static member variables
+        static std::thread animationThread;
+        static std::atomic<bool> stopFlag;
+        static int currentX;
+        static int currentY;
+        static const int animationInterval = 50; // Milliseconds
+        static client * & c;
+        
+        static void // Static method for the animation thread
+        animateThread(int endX, int endY, int stepX, int stepY, int steps) 
+        {
+            for (int i = 0; i < steps; ++i) {
+                // Perform animation step
+                move(stepX, stepY);
+
+                // Sleep for the animation interval
+                std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+
+                // Check if animation should stop
+                if (stopFlag.load()) {
+                    return;
+                }
+            }
+
+            // Ensure final position is reached
+            move(endX - currentX, endY - currentY);
+        }
+
+        static void // Static method to move the coordinates
+        move(int deltaX, int deltaY) 
+        {
+            currentX += deltaX;
+            currentY += deltaY;
+
+            xcb_configure_window
+            (
+                conn,
+                c->win,
+                XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+                (const uint32_t[2])
+                {
+                    static_cast<const uint32_t>(currentX), 
+                    static_cast<const uint32_t>(currentY)
+                }
+            );
+            xcb_flush(conn);
+        }
+
+        static void // Static method to stop the animation
+        stopAnimation() 
+        {
+            if (animationThread.joinable()) {
+                // Signal the thread to exit
+                stopFlag.store(true);
+                // Wait for the thread to finish
+                animationThread.join();
+                // Reset the stop flag
+                stopFlag.store(false);
+            }
         }
 };
 

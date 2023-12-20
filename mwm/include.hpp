@@ -33,6 +33,10 @@
     #include <sys/wait.h>
     #include <unistd.h>
     #include <fcntl.h>
+    #include <iostream>
+    #include <thread>
+    #include <chrono>
+    #include <atomic>
 
     #include "structs.hpp"
     #include "Log.hpp"
