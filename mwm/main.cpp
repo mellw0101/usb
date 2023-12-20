@@ -1,3 +1,4 @@
+#include <cstddef>
 #define main_cpp
 #include "include.hpp"
 
@@ -772,6 +773,7 @@ std::thread Animate::animationThread;
 std::atomic<bool> Animate::stopFlag(false);
 int Animate::currentX;
 int Animate::currentY;
+client * & Animate::c = focused_client;
 
 void 
 move_desktop(const uint8_t & n)
