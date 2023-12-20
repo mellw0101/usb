@@ -846,7 +846,8 @@ class mv_Desktop {
 
 					// HIDE CLIENTS ON CURRENT_DESKTOP
 					for (auto &c : cur_d->current_clients) {
-						if (c) {
+						if (c) 
+						{
 							threads.emplace_back(&Next_Desktop::hide, this, std::ref(c));
 						}
 					}
@@ -855,7 +856,8 @@ class mv_Desktop {
 
 					// SHOW CLIENTS ON NEXT_DESKTOP
 					for (auto &c : cur_d->current_clients) {
-						if (c) {
+						if (c) 
+						{
 							threads.emplace_back(&Next_Desktop::show, this, std::ref(c));
 						}
 					}
@@ -866,18 +868,18 @@ class mv_Desktop {
 				}
 
 			private:
-				// std::mutex mtx; // Added for thread safety
-				// std::thread h;
+				static std::mutex hideMutex; // Separate mutex for each operation
+				static std::mutex showMutex;
 
-				void hide(client *&c) {
-					// std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
+				static void hide(client *&c) {
+					std::lock_guard<std::mutex> lock(hideMutex); // Lock the mutex for this operation
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 					show_hide_client(c, HIDE);
 				}
 
-				void show(client *&c) {
-					// std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
+				static void show(client *&c) {
+					std::lock_guard<std::mutex> lock(showMutex); // Lock the mutex for this operation
 					if (c->x < screen->width_in_pixels) {
 						c->x = c->x + screen->width_in_pixels;
 					}
