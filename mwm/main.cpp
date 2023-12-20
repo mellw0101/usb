@@ -822,7 +822,26 @@ move_to_next_desktop()
         return;
     }
 
-    move_desktop(cur_d->desktop + 1);
+    // move_desktop(cur_d->desktop + 1);
+	for (const auto & c : cur_d->current_clients)
+    {
+        if (c)
+        {
+            if (c->desktop == cur_d->desktop)
+            {
+                show_hide_client(c, HIDE);
+            }
+        }
+    }
+
+    cur_d = desktop_list[cur_d->desktop];
+    for (const auto & c : cur_d->current_clients)
+    {
+        if (c)
+        {
+            show_hide_client(c, SHOW);           
+        }
+    }
 }
 
 void
