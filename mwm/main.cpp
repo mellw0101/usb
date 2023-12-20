@@ -836,7 +836,8 @@ next_show(client * & c)
 }
 
 void
-Next_Desktop() {
+Next_Desktop() 
+{
 	if (cur_d->desktop == desktop_list.size()) 
 	{
 		return;
@@ -849,8 +850,7 @@ Next_Desktop() {
 	{
 		if (c) 
 		{
-			std::thread t(next_hide, c);
-			threads.push_back(std::move(t));
+			next_hide(c);
 		}
 	}
 
@@ -861,8 +861,7 @@ Next_Desktop() {
 	{
 		if (c) 
 		{
-			std::thread t(next_show, c);
-			threads.push_back(std::move(t));
+			next_show(c);
 		}
 	}
 
@@ -872,7 +871,6 @@ Next_Desktop() {
 		t.join();
 	}
 }
-
 
 void
 Prev_Desktop()
