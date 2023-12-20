@@ -846,6 +846,7 @@ class mv_Desktop {
 					
 					std::vector<std::thread> threads;
 
+					threads.clear();
 					// HIDE CLIENTS ON CURRENT_DESKTOP
 					for (auto & c : cur_d->current_clients)
 					{
