@@ -839,7 +839,10 @@ move_to_next_desktop()
     {
         if (c)
         {
-			c->x = c->x + screen->width_in_pixels;
+			if (c->x < screen->width_in_pixels) 
+			{
+				c->x = c->x + screen->width_in_pixels;
+			}
 			show_hide_client(c, SHOW);
 			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 			wm::update_client(c);
@@ -862,6 +865,7 @@ move_to_previus_desktop()
         if (c)
         {
 			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
 			show_hide_client(c, HIDE);
         }
     }
@@ -872,9 +876,13 @@ move_to_previus_desktop()
     {
         if (c)
         {
-			c->x = c->x - screen->width_in_pixels;
+			if (c->x > 0)
+			{
+				c->x = c->x - screen->width_in_pixels;
+			}
 			show_hide_client(c, SHOW);
 			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
 		}
     }
 }
