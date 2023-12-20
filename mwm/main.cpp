@@ -866,18 +866,18 @@ class mv_Desktop {
 				}
 
 			private:
-				std::mutex mtx; // Added for thread safety
-				std::thread h;
+				// std::mutex mtx; // Added for thread safety
+				// std::thread h;
 
 				void hide(client *&c) {
-					std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
+					// std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 					show_hide_client(c, HIDE);
 				}
 
 				void show(client *&c) {
-					std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
+					// std::lock_guard<std::mutex> lock(mtx); // Lock to ensure thread safety
 					if (c->x < screen->width_in_pixels) {
 						c->x = c->x + screen->width_in_pixels;
 					}
