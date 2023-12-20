@@ -767,6 +767,12 @@ class Animate {
         }
 };
 
+// Initialization of static member variables
+std::thread Animate::animationThread;
+std::atomic<bool> Animate::stopFlag(false);
+int Animate::currentX;
+int Animate::currentY;
+
 void 
 move_desktop(const uint8_t & n)
 {
