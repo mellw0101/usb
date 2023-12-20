@@ -1,3 +1,4 @@
+#include "structs.hpp"
 #include <string>
 #define main_cpp
 #include "include.hpp"
@@ -813,79 +814,108 @@ move_desktop(const uint8_t & n)
     }
 }
 
-void
-move_to_next_desktop()
-{
-    LOG_func
-    if (cur_d->desktop == desktop_list.size())
-    {
-        return;
-    }
-
-	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (auto & c : cur_d->current_clients)
-    {
-        if (c)
-        {
-			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-			wm::update_client(c);
-			show_hide_client(c, HIDE);
-        }
-    }
-
-    cur_d = desktop_list[cur_d->desktop];
-	// SHOW CLIENTS ON NEXT_DESKTOP
-    for (auto & c : cur_d->current_clients)
-    {
-        if (c)
-        {
-			if (c->x < screen->width_in_pixels) 
+class mv_Desktop {
+	public:
+		mv_Desktop(Direction Direction)
+		{
+			switch (Direction) 
 			{
-				c->x = c->x + screen->width_in_pixels;
+				case NEXT:
+				{
+					Next_Desktop::move();
+				}
+				case PREV:
+				{
+					Prev_Desktop::move();
+				}
 			}
-			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-			wm::update_client(c);
 		}
-    }
-}
 
-void
-move_to_previus_desktop()
-{
-    LOG_func
-    if (cur_d->desktop == 1)
-    {
-        return;
-    }
+	private:
+		class Next_Desktop {
+			public:
+				static void
+				move()
+				{
+					LOG_func
+					if (cur_d->desktop == desktop_list.size())
+					{
+						return;
+					}
 
-    // HIDE CLIENTS ON CURRENT_DESKTOP
-	for (auto & c : cur_d->current_clients)
-    {
-        if (c)
-        {
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
-			wm::update_client(c);
-			show_hide_client(c, HIDE);
-        }
-    }
+					// HIDE CLIENTS ON CURRENT_DESKTOP
+					for (auto & c : cur_d->current_clients)
+					{
+						if (c)
+						{
+							Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+							wm::update_client(c);
+							show_hide_client(c, HIDE);
+						}
+					}
 
-    cur_d = desktop_list[cur_d->desktop - 2];
-	// SHOW CLIENTS ON NEXT_DESKTOP
-    for (auto & c : cur_d->current_clients)
-    {
-        if (c)
-        {
-			if (c->x > 0)
-			{
-				c->x = c->x - screen->width_in_pixels;
-			}
-			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
-			wm::update_client(c);
-		}
-    }
-}
+					cur_d = desktop_list[cur_d->desktop];
+					// SHOW CLIENTS ON NEXT_DESKTOP
+					for (auto & c : cur_d->current_clients)
+					{
+						if (c)
+						{
+							if (c->x < screen->width_in_pixels) 
+							{
+								c->x = c->x + screen->width_in_pixels;
+							}
+							show_hide_client(c, SHOW);
+							Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+							wm::update_client(c);
+						}
+					}
+				}
+
+			private:
+		};
+
+		class Prev_Desktop {
+			public:
+				static void
+				move()
+				{
+					LOG_func
+					if (cur_d->desktop == 1)
+					{
+						return;
+					}
+
+					// HIDE CLIENTS ON CURRENT_DESKTOP
+					for (auto & c : cur_d->current_clients)
+					{
+						if (c)
+						{
+							Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+							wm::update_client(c);
+							show_hide_client(c, HIDE);
+						}
+					}
+
+					cur_d = desktop_list[cur_d->desktop - 2];
+					// SHOW CLIENTS ON NEXT_DESKTOP
+					for (auto & c : cur_d->current_clients)
+					{
+						if (c)
+						{
+							if (c->x > 0)
+							{
+								c->x = c->x - screen->width_in_pixels;
+							}
+							show_hide_client(c, SHOW);
+							Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+							wm::update_client(c);
+						}
+					}
+				}
+
+			private:
+		};	
+};
 
 void
 move_to_next_desktop_w_app()
@@ -1682,9 +1712,9 @@ class Event {
         xcb_keycode_t t{}, q{}, f{}, f11{}, n_1{}, n_2{}, n_3{}, n_4{}, n_5{}, r_arrow{}, l_arrow{}, tab{}, k{}; 
         
         void 
-        key_press_handler(const xcb_generic_event_t * ev)
+        key_press_handler(const xcb_generic_event_t * & ev)
         {
-            const auto * e = reinterpret_cast<const xcb_key_press_event_t *>(ev);
+            const auto * e = reinterpret_cast<const xcb_key_press_event_t * &>(ev);
             
             /*
                 CHECK IF 'ALT+CTRL+T' WAS PRESSED
@@ -1789,7 +1819,7 @@ class Event {
                     move_to_next_desktop_w_app();
                     return;
                 }
-                move_to_next_desktop();
+				mv_Desktop to(NEXT);
             }
 
             /*
@@ -1805,7 +1835,7 @@ class Event {
                     move_to_previus_desktop_w_app();
                     return;
                 }
-                move_to_previus_desktop();
+                mv_Desktop to(PREV);
             }
 
             /*

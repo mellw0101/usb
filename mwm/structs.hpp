@@ -11,6 +11,12 @@ enum {
      */
 };
 
+enum Direction {
+    NEXT,
+    PREV
+};
+
+
 struct size_pos {
     uint16_t x, y, width, height;
 };
