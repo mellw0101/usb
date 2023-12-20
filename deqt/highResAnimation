@@ -1,0 +1,35 @@
+#include <QAbstractAnimation>
+#include <chrono>
+#include <functional>
+
+class HighResAnimation : public QAbstractAnimation {
+    Q_OBJECT
+
+    std::chrono::high_resolution_clock::time_point startTime;
+    int durationMs;
+    std::function<void(int)> onKeyframe;
+
+public:
+    HighResAnimation(int duration, std::function<void(int)> keyframeCallback, QObject *parent = nullptr)
+        : QAbstractAnimation(parent), durationMs(duration), onKeyframe(keyframeCallback) {
+    }
+
+    int duration() const override {
+        return durationMs;
+    }
+
+protected:
+    void updateCurrentTime(int currentTime) override {
+        // This is where you handle the logic for each keyframe
+        if (onKeyframe) {
+            onKeyframe(currentTime);
+        }
+    }
+};
+
+// Usage
+HighResAnimation *animation = new HighResAnimation(1000, [](int keyframeTime) {
+    // Emit signal or perform action at each keyframe
+    emit yourCustomSignal(keyframeTime);
+}, this);
+animation->start();
