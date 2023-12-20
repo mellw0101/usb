@@ -852,7 +852,7 @@ class mv_Desktop {
 					{
 						if (c)
 						{
-							std::thread h = std::thread(&hide, this, std::ref(c));
+							h = std::thread(&hide, this, std::ref(c));
 							threads.push_back(h);
 						}
 					}
@@ -869,8 +869,8 @@ class mv_Desktop {
 					{
 						if (c)
 						{
-							std::thread s = std::thread(&show, this, std::ref(c));
-							threads.push_back(s);
+						 	h = std::thread(&show, this, std::ref(c));
+							threads.push_back(h);
 						}
 					}
 
@@ -881,6 +881,7 @@ class mv_Desktop {
 				}
 
 			private:
+				static std::thread h;
 				static void
 				hide(client * & c)
 				{
