@@ -755,8 +755,8 @@ class Animate {
                 XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
                 (const uint32_t[2])
                 {
-                    static_cast<const uint32_t>(currentX), 
-                    static_cast<const uint32_t>(currentY)
+                    static_cast<const uint32_t &>(currentX), 
+                    static_cast<const uint32_t &>(currentY)
                 }
             );
             xcb_flush(conn);
