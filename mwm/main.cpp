@@ -711,7 +711,7 @@ class Animate {
         static std::atomic<bool> stopFlag;
         static int currentX;
         static int currentY;
-        static const int animationInterval = 50; // Milliseconds
+        static const int animationInterval = 1000 / 120;
         static client * & c;
         
         static void // Static method for the animation thread
@@ -1765,6 +1765,7 @@ class Event {
 			{
 				client * c = get::client_from_win(& e->event);
 				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 2000);
+				wm::update_client(c);
 			}
         }
 
