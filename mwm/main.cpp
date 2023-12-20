@@ -827,7 +827,7 @@ move_to_next_desktop()
     {
         if (c)
         {
-			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 2000);
+			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 			show_hide_client(c, HIDE);
         }
     }
@@ -840,7 +840,7 @@ move_to_next_desktop()
         {
 			c->x = c->x + screen->width_in_pixels;
 			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 2000);
+			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 		}
     }
 }
@@ -854,7 +854,27 @@ move_to_previus_desktop()
         return;
     }
 
-    move_desktop(cur_d->desktop - 1);
+    // HIDE CLIENTS ON CURRENT_DESKTOP
+	for (auto & c : cur_d->current_clients)
+    {
+        if (c)
+        {
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			show_hide_client(c, HIDE);
+        }
+    }
+
+    cur_d = desktop_list[cur_d->desktop - 2];
+	// SHOW CLIENTS ON NEXT_DESKTOP
+    for (auto & c : cur_d->current_clients)
+    {
+        if (c)
+        {
+			c->x = c->x - screen->width_in_pixels;
+			show_hide_client(c, SHOW);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+		}
+    }
 }
 
 void
