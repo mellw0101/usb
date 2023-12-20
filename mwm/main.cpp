@@ -1,5 +1,6 @@
 #include "structs.hpp"
 #include <string>
+#include <thread>
 #define main_cpp
 #include "include.hpp"
 
@@ -822,12 +823,12 @@ class mv_Desktop {
 			{
 				case NEXT:
 				{
-					Next_Desktop::move();
+					Next_Desktop();
 					break;
 				}
 				case PREV:
 				{
-					Prev_Desktop::move();
+					Prev_Desktop();
 					break;
 				}
 			}
@@ -836,23 +837,21 @@ class mv_Desktop {
 	private:
 		class Next_Desktop {
 			public:
-				static void
-				move()
+				Next_Desktop()
 				{
-					LOG_func
 					if (cur_d->desktop == desktop_list.size())
 					{
 						return;
 					}
+					
+					std::vector<std::thread> threads;
 
 					// HIDE CLIENTS ON CURRENT_DESKTOP
 					for (auto & c : cur_d->current_clients)
 					{
 						if (c)
 						{
-							Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-							wm::update_client(c);
-							show_hide_client(c, HIDE);
+							threads.emplace_back(&Next_Desktop::hide, this, std::ref(c));
 						}
 					}
 
@@ -862,24 +861,41 @@ class mv_Desktop {
 					{
 						if (c)
 						{
-							if (c->x < screen->width_in_pixels) 
-							{
-								c->x = c->x + screen->width_in_pixels;
-							}
-							show_hide_client(c, SHOW);
-							Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-							wm::update_client(c);
+							threads.emplace_back(&Next_Desktop::show, this, std::ref(c));
 						}
+					}
+
+					for (auto & thread : threads)
+					{
+						thread.join();
 					}
 				}
 
 			private:
+				void
+				hide(client * & c)
+				{
+					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+					wm::update_client(c);
+					show_hide_client(c, HIDE);
+				}
+
+				void
+				show(client * & c)
+				{
+					if (c->x < screen->width_in_pixels) 
+					{
+						c->x = c->x + screen->width_in_pixels;
+					}
+					show_hide_client(c, SHOW);
+					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+					wm::update_client(c);
+				}
 		};
 
 		class Prev_Desktop {
 			public:
-				static void
-				move()
+				Prev_Desktop()
 				{
 					LOG_func
 					if (cur_d->desktop == 1)
