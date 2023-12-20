@@ -1,3 +1,4 @@
+#include <string>
 #define main_cpp
 #include "include.hpp"
 
@@ -678,8 +679,8 @@ class Animate {
         static void // Public static method to start the animation
         move(client * & cli, int startX, int startY, int endX, int endY, int time) 
         {
-			log_info(startX);
-			log_info(startY);
+			log_info("startX = " + std::to_string(startX));
+			log_info("startY = " + std::to_string(startY));
             // Ensure any existing animation is stopped
             stopAnimation();
             
@@ -694,9 +695,9 @@ class Animate {
             int stepX = (endX - startX) / steps;
             int stepY = (endY - startY) / steps;
 			
-			log_info(steps);
-			log_info(stepX);
-			log_info(stepY);
+			log_info("steps = " + std::to_string(steps));
+			log_info("stepX = " + std::to_string(stepX));
+			log_info("stepY = " + std::to_string(stepY));
 
             // Start a new thread for animation
             animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
@@ -742,6 +743,8 @@ class Animate {
         static void // Static method to move the coordinates
         move(int deltaX, int deltaY) 
         {
+			log_info("currentX = " + std::to_string(currentX));
+			log_info("currentY = " + std::to_string(currentY));
             currentX += deltaX;
             currentY += deltaY;
 
