@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /home/$USER
+mkdir Programs
+cd Programs
+clear
+git clone https://aur.archlinux.org/find-the-command.git
+cd find-the-command
+makepkg -si

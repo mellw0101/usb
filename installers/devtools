@@ -1,0 +1,9 @@
+#!/bin/bash
+sudo pacman -S --needed arch-install-scripts awk bash binutils coreutils diffutils fakeroot findutils grep jq ncurses openssh parallel rsync sed systemd util-linux bzr git mercurial subversion asciidoc make shellcheck
+cd /home/$USER
+mkdir Programs
+cd Programs
+sudo rm -r devtools
+git clone https://github.com/archlinux/devtools.git
+cd devtools
+BUILDTOOLVER="${pkgver}-${pkgrel}-${arch}" make all

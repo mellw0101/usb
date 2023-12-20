@@ -1,0 +1,17 @@
+#!/bin/bash
+sudo pacman -S --needed python-mako glslang nlohmann-json fmt glew spdlog cmocka
+clear
+cd /home/$USER
+mkdir Programs
+cd Programs
+sudo rm -r MangoHud
+clear
+git clone --recurse-submodules https://github.com/flightlessmango/MangoHud.git
+cd MangoHud
+./build.sh build
+./build.sh install
+#meson build
+#ninja -C build install
+rm -r /home/$USER/.config/MangoHud
+mkdir /home/$USER/.config/MangoHud
+cp /usr/local/share/doc/mangohud/MangoHud.conf.example /home/$USER/.config/MangoHud/MangoHud.conf

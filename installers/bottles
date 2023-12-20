@@ -1,0 +1,2 @@
+#!/bin/bash
+yay -S bottles lib32-gtk2 gtk2 libnm libvdpau lib32-libvdpau

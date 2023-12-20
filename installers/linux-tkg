@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo pacman -S --needed schedtool
+cd /home/$USER/Downloads
+git clone https://github.com/Frogging-Family/linux-tkg.git
+cd linux-tkg
+makepkg -si

@@ -1,0 +1,297 @@
+#!/bin/bash
+x=54
+cd /home/$USER
+rm -r .Wallpapers
+mkdir .Wallpapers
+cd .Wallpapers
+clear
+
+echo 1 of $x
+axel https://stsci-opo.org/STScI-01GA6KKWG229B16K4Q38CH3BXS.png
+sudo mv STScI-01GA6KKWG229B16K4Q38CH3BXS.png /home/$USER/Pictures
+clear
+
+echo 2 of $x
+axel https://stsci-opo.org/STScI-01G8GZJC3HYRHKABTQZAJFHB6P.png
+sudo mv STScI-01G8GZJC3HYRHKABTQZAJFHB6P.png /home/$USER/Pictures
+clear
+
+echo 3 of $x
+axel https://stsci-opo.org/STScI-01G8H49RQ0E48YDM8WKW9PP5XS.png
+sudo mv STScI-01G8H49RQ0E48YDM8WKW9PP5XS.png /home/$USER/Pictures
+clear
+
+echo 4 of $x
+axel https://stsci-opo.org/STScI-01GTYAME8Q4353E2WQQH2965S5.png
+sudo mv STScI-01GTYAME8Q4353E2WQQH2965S5.png /home/$USER/Pictures
+clear
+
+echo 5 of $x
+axel https://stsci-opo.org/STScI-01GNYMD5RCRF1S01A8M2S5M0Z1.png
+sudo mv STScI-01GNYMD5RCRF1S01A8M2S5M0Z1.png /home/$USER/Pictures
+clear
+
+echo 6 of $x
+axel https://stsci-opo.org/STScI-01GKMKDPJJ8SFNCHP3EVQPJJE2.png
+sudo mv STScI-01GKMKDPJJ8SFNCHP3EVQPJJE2.png /home/$USER/Pictures
+clear
+
+echo 7 of $x
+axel https://stsci-opo.org/STScI-01GK2KMYS6HADS6ND8NRHG53RP.png
+sudo mv STScI-01GK2KMYS6HADS6ND8NRHG53RP.png /home/$USER/Pictures
+clear
+
+echo 8 of $x
+axel https://stsci-opo.org/STScI-01GGWD12YEES5K5163RJFYQT20.png
+sudo mv STScI-01GGWD12YEES5K5163RJFYQT20.png /home/$USER/Pictures
+clear
+
+echo 9 of $x
+axel https://stsci-opo.org/STScI-01GA76Q01D09HFEV174SVMQDMV.png
+sudo mv STScI-01GA76Q01D09HFEV174SVMQDMV.png /home/$USER/Pictures
+clear
+
+echo 10 of $x
+axel https://stsci-opo.org/STScI-01G9G4J23CDPVNGCYDJRZTTJQN.png
+sudo mv STScI-01G9G4J23CDPVNGCYDJRZTTJQN.png /home/$USER/Pictures
+clear
+
+echo 11 of $x
+axel https://stsci-opo.org/STScI-01F0SWZT0KHFG43JBWPCXVC0ZR.png
+sudo mv STScI-01F0SWZT0KHFG43JBWPCXVC0ZR.png /home/$USER/Pictures
+clear
+
+echo 12 of $x
+axel https://esahubble.org/media/archives/images/original/heic2017a.tif
+magick heic2017a.tif heic2017a.png
+rm heic2017a.tif
+sudo mv heic2017a.png /home/$USER/Pictures
+clear
+
+echo 13 of $x
+axel https://wallpapercave.com/download/super-ultrawide-wallpapers-wp8432913
+sudo mv wp8432913-super-ultrawide-wallpapers.jpg /home/$USER/Pictures
+clear
+
+echo 14 of $x
+axel https://wallpapercave.com/download/8k-desktop-hd-wallpapers-wp5823332
+sudo mv wp5823332-8k-desktop-hd-wallpapers.jpg /home/$USER/Pictures
+clear
+
+echo 15 of $x
+axel https://wallpapercave.com/download/super-ultra-wide-wallpapers-wp8606850
+sudo mv wp8606850-super-ultra-wide-wallpapers.jpg /home/$USER/Pictures
+clear
+
+echo 16 of $x
+axel https://wallpapercave.com/download/ultrawide-8k-wallpapers-wp8964760
+sudo mv wp8964760-ultrawide-8k-wallpapers.jpg /home/$USER/Pictures
+clear
+
+echo 17 of $x
+axel https://wallpapercave.com/download/macbook-4k-wallpapers-wp8030548
+sudo mv wp8030548-macbook-4k-wallpapers.jpg /home/$USER/Pictures
+clear
+
+echo 18 of $x
+axel https://i.redd.it/mfpvicjoxdbb1.jpg
+sudo mv mfpvicjoxdbb1.jpg /home/$USER/Pictures
+clear
+
+echo 19 of $x
+axel https://stsci-opo.org/STScI-01H44AVB69N1P8RAEJ12NW2RB2.png
+sudo mv STScI-01H44AVB69N1P8RAEJ12NW2RB2.png /home/$USER/Pictures
+clear
+
+echo 20 of $x
+axel https://i.redd.it/putc1r9jl6ab1.jpg
+sudo mv putc1r9jl6ab1.jpg /home/$USER/Pictures
+clear
+
+echo 21 of $x
+axel https://i.postimg.cc/DnzNPd3X/1.png?dl=1
+sudo mv 1.png /home/$USER/Pictures
+clear
+
+echo 22 of $x
+axel https://i.postimg.cc/KmksdGzc/2.png?dl=1
+sudo mv 2.png /home/$USER/Pictures
+clear
+
+echo 23 of $x
+axel https://i.postimg.cc/xfyZt6dK/3.png?dl=1
+sudo mv 3.png /home/$USER/Pictures
+clear
+
+echo 24 of $x
+axel https://stsci-opo.org/STScI-01GFRYYRTCTMX197BY86MBFCR9.png
+sudo mv STScI-01GFRYYRTCTMX197BY86MBFCR9.png /home/$USER/Pictures
+clear
+
+echo 25 of $x
+axel https://stsci-opo.org/STScI-01H44AVB69N1P8RAEJ12NW2RB2.png
+sudo mv STScI-01H44AVB69N1P8RAEJ12NW2RB2.png /home/$USER/Pictures
+clear
+
+echo 26 of $x
+axel https://stsci-opo.org/STScI-01H2TX9HDRY87KFD082A74YADF.jpg
+sudo mv STScI-01H2TX9HDRY87KFD082A74YADF.jpg /home/$USER/Pictures
+clear
+
+echo 27 of $x
+axel https://stsci-opo.org/STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png
+sudo mv STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png /home/$USER/Pictures
+clear
+
+echo 28 of $x
+axel https://i.redd.it/frfi84w0dx8b1.jpg
+sudo mv frfi84w0dx8b1.jpg /home/$USER/Pictures
+clear
+
+echo 29 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/alley-in-japan-5120x1440.jpg
+sudo mv alley-in-japan-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 30 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/foggy-statue-of-liberty-5120x1440.jpg
+sudo mv foggy-statue-of-liberty-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 31 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/blinding-view-5120x1440.jpg
+sudo mv blinding-view-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 32 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/mountain-sunset-5120x1440.jpg
+sudo mv mountain-sunset-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 33 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/cotton-candy-view-5120x1440.jpg
+sudo mv cotton-candy-view-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 34 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/morning-hike-5120x1440.jpg
+sudo mv morning-hike-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 35 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/iceland-caps-5120x1440.jpg
+sudo mv iceland-caps-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 36 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2018/10/rolling-fog-5120x1440.jpg
+sudo mv rolling-fog-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 37 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/tiger-wall-art-5120x1440.jpg
+sudo mv tiger-wall-art-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 38 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/nyc-at-night-5120x1440.jpg
+sudo mv nyc-at-night-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 39 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/cliff-town-5120x1440.jpg
+sudo mv cliff-town-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 40 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2019/07/night-time-chills-5120x1440.jpg
+sudo mv night-time-chills-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 41 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2019/07/sun-peak-5120x1440.jpg
+sudo mv sun-peak-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 42 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2020/01/fiji-5120x1440.jpg
+sudo mv fiji-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 43 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2020/04/foggy-view-5120x1440.jpg
+sudo mv foggy-view-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 44 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/scenic-coastal-town-5120x1440.jpg
+sudo mv scenic-coastal-town-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 45 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/foggy-downtown-5120x1440.jpg
+sudo mv foggy-downtown-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 46 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/grand-library-5120x1440.jpg
+sudo mv grand-library-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 47 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/white-coast-5120x1440.jpg
+sudo mv white-coast-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 48 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/snow-town-5120x1440.jpg
+sudo mv snow-town-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 49 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/alpine-at-night-5120x1440.jpg
+sudo mv alpine-at-night-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 50 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/orange-field-5120x1440.jpg
+sudo mv orange-field-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 51 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/red-fireworks-5120x1440.jpg
+sudo mv red-fireworks-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 52 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/scenic-communication-tower-5120x1440.jpg
+sudo mv scenic-communication-tower-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 53 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/shanghai-at-night-5120x1440.jpg
+sudo mv shanghai-at-night-5120x1440.jpg /home/$USER/Pictures
+clear
+
+echo 54 of $x
+axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/daruma-5120x1440.jpg
+sudo mv daruma-5120x1440.jpg /home/$USER/Pictures
+clear
+
+
+#echo 13
+#axel https://images.pexels.com/photos/1366919/pexels-photo-1366919.jpeg?cs=srgb&dl=pexels-eberhard-grossgasteiger-1366919.jpg&fm=jpg&_gl=1*dxci6o*_ga*Nzc2ODY5Njk4LjE2ODkxNDc5MTY.*_ga_8JE65Q40S6*MTY4OTE0NzkxNi4xLjEuMTY4OTE0Nzk0NS4wLjAuMA..
+#sudo mv pexels-photo-1366919.jpeg /home/$USER/Pictures
+#clear
+
+#echo 14
+#axel https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?cs=srgb&dl=pexels-eberhard-grossgasteiger-1624496.jpg&fm=jpg&_gl=1*ijoirp*_ga*Nzc2ODY5Njk4LjE2ODkxNDc5MTY.*_ga_8JE65Q40S6*MTY4OTE0NzkxNi4xLjEuMTY4OTE0Nzk0NS4wLjAuMA..
+#sudo mv pexels-photo-1624496.jpeg /home/$USER/Pictures
+#clear
+
+#echo 13
+#axel https://pds.lroc.asu.edu/data/LRO-L-LROC-5-RDR-V1.0/LROLRC_2001/EXTRAS/BROWSE/WAC_GLOBAL/WAC_GLOBAL_O000N0000_256P.TIF
+#magick WAC_GLOBAL_O000N0000_256P.TIF WAC_GLOBAL_O000N0000_256P.png
+#clear
+
+echo DONE

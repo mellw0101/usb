@@ -1,0 +1,1 @@
+sudo pacman -S --needed base-devel archlinux-keyring autoconf automake binutils bison debugedit fakeroot file findutils flex gawk gcc gettext 'grep' groff gzip libtool m4 'make' patch pkgconf 'sed' texinfo which

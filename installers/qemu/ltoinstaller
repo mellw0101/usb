@@ -1,0 +1,11 @@
+#!/bin/bash
+sudo pacman -S --needed svn libelf
+cd /home/$USER
+mkdir Programs
+cd Programs
+sudo rm -r lto
+mkdir lto
+cd lto
+svn co svn://gcc.gnu.org/svn/gcc/branches/lto
+mkdir bld && cd bld
+sudo ../lto/configure --enable-lto && make all -j 72

@@ -1,0 +1,11 @@
+#!/bin/bash
+mkdir /home/$USER/kernelbuild
+cd /home/$USER/kernelbuild
+echo 'What LINUX-KERNEL version do you want to DOWNLOAD?'
+read -p '(JUST NUMBERS) ' Vvar
+sudo wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-$Vvar.tar.xz
+unxz linux-$Vvar.tar.xz
+tar -xvf linux-$Vvar.tar
+sudo chown -R $USER:wheel linux-$Vvar
+cd linux-$Vvar
+make mrproper

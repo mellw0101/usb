@@ -1,0 +1,10 @@
+#!/bin/bash
+cd /home/$USER/Downloads
+mkdir .tmp
+cd .tmp
+axel https://github.com/gardotd426/proton-tkg/releases/download/bf4/proton_tkg_6.21.r0.g63c3baa9.bf4-1.tar.gz
+mkdir protontkg
+tar -xvzf proton_tkg_6.21.r0.g63c3baa9.bf4-1.tar.gz -C protontkg
+sudo rm proton_tkg_6.21.r0.g63c3baa9.bf4-1.tar.gz
+cd protontkg
+./installproton.sh

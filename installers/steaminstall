@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo pacman -S --needed steam xdg-desktop-portal wget xdotool xxd yad gtk2 gnome-themes-standard lib32-gtk2 lib32-gst-plugins-good lib32-glib-networking lib32-libwebp lib32-libid3tag libspectre libid3tag libheif xorg-fonts-misc samba gtk-engines gnome-themes-standard steam-native-runtime
+#aarch64-linux-gnu-glibc
+clear
+echo DONE

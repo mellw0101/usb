@@ -1,0 +1,29 @@
+#!/bin/bash
+sudo pacman -S --needed libiscsi libslirp vde2 libaio lib32-libaio sndio spice-protocol spice virglrenderer brltty sdl2_image vte3 vte4 mingw-w64-winpthreads lib32-libevent schedtool kcov valgrind libvirt python-capng yaml-cpp perl-yaml-pp capstone python-capstone gengetopt sparse acpica libgcrypt15 lib32-libgcrypt lib32-libgpg-error lib32-libgcrypt15 lto-dump sqlite-doc cargo-c gcovr lcov mingw-w64-headers mingw-w64-binutils mingw-w64-gcc cfitsio ccfits python-pandocfilters strip-nondeterminism indent multipath-tools rdma-core lib32-nettle gtk-vnc liburing libnfs glusterfs rng-tools virt-manager ovmf python-sphinx
+yay -S --needed lzfse-git libselinux fdt-viewer-git makepkg-optimize
+#sphinx-bin
+#netmap
+#maybe lib32-util-linux qemu-pr-helper sysfsutils syslinux libselinux-python2
+cd /home/$USER
+mkdir Programs
+cd Programs
+
+#sudo pacman -S --needed svn libelf
+#mkdir lto
+#cd lto
+#svn co svn://gcc.gnu.org/svn/gcc/branches/lto
+#mkdir bld && cd bld
+#../lto/configure --enable-lto && make
+
+cd /home/$USER/Programs
+sudo rm -r qemu
+git clone https://github.com/qemu/qemu.git
+cd qemu
+mkdir build
+cd build
+../configure --enable-lto
+make -j 72
+sudo make install
+
+sudo systemctl enable libvirtd
+sudo systemctl start libvirtd

@@ -1,0 +1,10 @@
+#!/bin/bash
+u=$(getent passwd 1000 | cut -d: -f1)
+sudo -u $u yay -S libdlibxx
+sudo pacman -S --needed meson systemd git dbus libinih
+cd /home/$USER
+mkdir Programs
+cd Programs
+git clone https://github.com/FeralInteractive/gamemode.git
+cd gamemode
+./bootstrap.sh

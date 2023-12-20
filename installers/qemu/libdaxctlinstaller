@@ -1,0 +1,10 @@
+#!/bin/bash
+sudo pacman -S --needed ndctl pandoc
+cd /home/$USER
+mkdir Programs
+cd Programs
+sudo rm -r pmdk
+git clone https://github.com/pmem/pmdk
+cd pmdk
+make -j 72
+sudo make install

@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo pacman -S lib32-opencl-nvidia lib32-opencl-mesa lib32-libva-mesa-driver

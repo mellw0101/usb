@@ -1,0 +1,21 @@
+#!/bin/bash
+sudo pacman -S --needed git cmake extra-cmake-modules base-devel
+clear
+yay -S --needed qt5-tools
+clear
+read -p 'USERname? ' Vvar
+clear
+cd /home/$Vvar/Downloads
+mkdir .tmp
+cd .tmp
+git clone https://github.com/matinlotfali/KDE-Rounded-Corners
+clear
+cd KDE-Rounded-Corners
+mkdir build
+cd build
+cmake ..
+make -j 72
+clear
+sudo make install
+clear
+echo DONE

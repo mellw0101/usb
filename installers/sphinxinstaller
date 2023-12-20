@@ -1,0 +1,5 @@
+#!/bin/bash
+cd /home/$USER
+mkdir Programs
+cd Programs
+git clone https://github.com/sphinx-doc/sphinx.git

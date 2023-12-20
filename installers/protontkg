@@ -1,0 +1,8 @@
+#!/bin/bash
+cd /home/$USER
+mkdir Programs
+cd Programs
+git clone https://github.com/Frogging-Family/wine-tkg-git.git
+cd wine-tkg-git
+cd proton-tkg
+./proton-tkg.sh

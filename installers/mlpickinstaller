@@ -1,0 +1,5 @@
+#!/bin/bash
+cd /home/$USER && mkdir Programs && cd Programs && mkdir mlpick && cd mlpick
+mkdir custom && mkdir main && mkdir save
+cd save && mkdir lists
+#cd ..

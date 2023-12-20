@@ -1,0 +1,25 @@
+#!/bin/bash
+sudo pacman -S --needed kate bash-language-server gobject-introspection gnome-common intltool gtk-doc dbus-glib bpytop rsync reflector python-pipx man python-pip neofetch bat imagemagick ranger ninja bc wget dkms tldr linux-headers git axel dnsmasq lib32-glibc ktorrent curl base-devel multilib-devel "make"
+
+u=$(getent passwd 1000 | cut -d: -f1)
+sudo -u $u yay -S gtkdialog toipe python-vdf gconf easybashgui-git junction-git
+sudo -u $u pipx ensurepath
+
+/kernelbuildpkg
+
+sh /google-chrome.sh
+
+x=$(getent passwd 1000 | cut -d: -f1)
+echo "[General]" > /etc/sddm.conf
+echo "Numlock=on" >> /etc/sddm.conf
+echo "DisplayServer=x11" >> /etc/sddm.conf
+echo "[Autologin]" >> /etc/sddm.conf
+echo "User=$x" >> /etc/sddm.conf
+
+echo "if keystatus -s ; then" >> /etc/grub.d/40_custom
+echo "    timeout=10" >> /etc/grub.d/40_custom
+echo "else" >> /etc/grub.d/40_custom
+echo "    boot" >> /etc/grub.d/40_custom
+echo "fi" >> /etc/grub.d/40_custom
+
+#falkon

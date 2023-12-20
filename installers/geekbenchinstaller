@@ -1,0 +1,136 @@
+#!/bin/bash
+
+gb_6() {
+
+    gb_6_dl() {
+
+        echo
+        mkdir /home/$USER/Downloads/tmpfiles 2> /dev/null
+        axel -o /home/$USER/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz https://cdn.geekbench.com/Geekbench-6.1.0-Linux.tar.gz
+        echo
+        echo "DOWNLOAD DONE"
+
+    }
+
+    gb_6_dl
+
+    mkdir /home/$USER/Downloads/Geekbench 2> /dev/null
+    echo
+    tar -xvzf /home/$USER/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz -C /home/$USER/Downloads/Geekbench
+    rm /home/$USER/Downloads/tmpfiles/Geekbench-6.1.0-Linux.tar.gz
+    echo '/home/$USER/Downloads/Geekbench/Geekbench-6.1.0-Linux/geekbench6' > /home/$USER/geekbench6
+    sudo chmod +x geekbench6
+    sudo mv /home/$USER/geekbench6 /usr/bin
+
+}
+gb_5() {
+
+    echo
+    mkdir /home/$USER/Downloads/tmpfiles 2> /dev/null
+    axel -o /home/$USER/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz https://cdn.geekbench.com/Geekbench-5.5.1-Linux.tar.gz
+    mkdir /home/$USER/Downloads/Geekbench 2> /dev/null
+    echo
+    tar -xvzf /home/$USER/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz -C /home/$USER/Downloads/Geekbench
+    rm /home/$USER/Downloads/tmpfiles/Geekbench-5.5.1-Linux.tar.gz
+    echo '/home/$USER/Downloads/Geekbench/Geekbench-5.5.1-Linux/geekbench5' > /home/$USER/geekbench5
+    sudo chmod +x /home/$USER/geekbench5
+    sudo mv /home/$USER/geekbench5 /usr/bin
+
+}
+gb_4() {
+
+    echo
+    mkdir /home/$USER/Downloads/tmpfiles 2> /dev/null
+    axel -o /home/$USER/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz https://cdn.geekbench.com/Geekbench-4.4.4-Linux.tar.gz
+    mkdir /home/$USER/Downloads/Geekbench 2> /dev/null
+    echo
+    tar -xvzf /home/$USER/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz -C /home/$USER/Downloads/Geekbench
+    rm /home/$USER/Downloads/tmpfiles/Geekbench-4.4.4-Linux.tar.gz
+    echo '/home/$USER/Downloads/Geekbench/Geekbench-4.4.4-Linux/geekbench4' > /home/$USER/geekbench4
+    sudo chmod +x /home/$USER/geekbench4
+    sudo mv /home/$USER/geekbench4 /usr/bin
+
+}
+gb_3() {
+
+    echo
+    mkdir /home/$USEE/Downloads/tmpfiles 2> /dev/null
+    axel -o /home/$USER/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz https://cdn.geekbench.com/Geekbench-3.4.4-Linux.tar.gz
+    mkdir /home/$USER/Downloads/Geekbench 2> /dev/null
+    echo
+    tar -xvzf /home/$USER/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz -C /home/$USER/Downloads/Geekbench
+    rm /home/$USER/Downloads/tmpfiles/Geekbench-3.4.4-Linux.tar.gz
+    echo '/home/$USER/Downloads/Geekbench/dist/Geekbench-3.4.4-Linux/geekbench' > /home/$USER/geekbench3
+    sudo chmod +x /home/$USER/geekbench3
+    sudo mv /home/$USER/geekbench3 /usr/bin
+
+}
+gb_2() {
+
+    echo
+    mkdir /home/$USER/Downloads/tmpfiles 2> /dev/null
+    axel -o /home/$USER/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz https://cdn.geekbench.com/Geekbench-2.4.3-Linux.tar.gz
+    mkdir /home/$USER/Downloads/Geekbench 2> /dev/null
+    mkdir /home/$USER/Downloads/Geekbench/Geekbench2 2> /dev/null
+    echo
+    tar -xvzf /home/$USER/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz -C /home/$USER/Downloads/Geekbench/Geekbench2
+    rm /home/$USER/Downloads/tmpfiles/Geekbench-2.4.3-Linux.tar.gz
+    echo '/home/$USER/Downloads/Geekbench/Geekbench2/dist/Geekbench-2.4.3-Linux/geekbench' > /home/$USER/geekbench2
+    sudo chmod +x /home/$USER/geekbench2
+    sudo mv /home/$USER/geekbench2 /usr/bin
+
+}
+all() {
+
+    gb_6
+    gb_5
+    gb_4
+    gb_3
+    gb_2
+
+}
+
+menu() {
+
+    echo
+    echo "    6 = Geekbench-6.1.0"
+    echo "    5 = Geekbench-5.5.1"
+    echo "    4 = Geekbench-4.4.4"
+    echo "    3 = Geekbench-3.4.4"
+    echo "    2 = Geekbench-2.4.3"
+    echo
+    echo "  all = all"
+    echo
+    read -p ' >> ' a
+
+}
+
+
+while true; do
+
+    menu
+
+    case "$a" in
+
+        6 )
+            gb_6
+            ;;
+        5 )
+            gb_5
+            ;;
+        4 )
+            gb_4
+            ;;
+        3 )
+            gb_3
+            ;;
+        2 )
+            gb_2
+            ;;
+      all )
+            all
+            ;;
+
+    esac
+
+done

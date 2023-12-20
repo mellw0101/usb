@@ -1,0 +1,9 @@
+#!/bin/bash
+sudo pacman -S --needed gcc glslang spirv-headers vulkan-headers
+cd /home/mellw/Downloads
+mkdir .tmp
+cd .tmp
+git clone https://github.com/DadSchoorse/vkBasalt.git
+cd vkBasalt
+meson setup --buildtype=release --prefix=/usr builddir
+ninja -C builddir install

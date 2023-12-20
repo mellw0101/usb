@@ -1,0 +1,6 @@
+#!/bin/bash
+pipx install gdown
+sudo pacman -S --needed tar wget curl git appmenu-gtk-module
+git clone https://github.com/YoungFellow-le/photoshop-22-linux.git
+cd photoshop-22-linux
+./main-menu.sh

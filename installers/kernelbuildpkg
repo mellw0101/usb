@@ -1,0 +1,8 @@
+#!/bin/bash
+sudo pacman -S --needed base-devel bc cpio gettext git libelf pahole perl gcc-objc graphviz imagemagick python-sphinx texlive-latexextra xmlto kmod inetutils gcc-ada gcc-d gcc-fortran gcc-libs aarch64-linux-gnu-gcc libgccjit avr-gcc coreutils initramfs kmod
+#sudo pacman -S --needed coreutils initramfs kmod
+
+# Custom kernel
+# Ensure your kernel has CONFIG_DRM_SIMPLEDRM=y, and if using CONFIG_DEBUG_INFO_BTF then this is needed in the PKGBUILD (since kernel 5.16):
+
+#install -Dt "$builddir/tools/bpf/resolve_btfids" tools/bpf/resolve_btfids/resolve_btfids

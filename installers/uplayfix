@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo pacman -S --needed dnsmasq
+echo -e "[main]\ndns=dnsmasq" | sudo tee /etc/NetworkManager/conf.d/dns.conf
+echo net.ipv4.tcp_mtu_probing=1 | sudo tee /etc/sysctl.d/custom-mtu-probing.conf
+
+sudo systemctl restart NetworkManager && journalctl --boot 0 --unit NetworkManager --follow

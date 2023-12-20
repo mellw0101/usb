@@ -1,0 +1,4 @@
+#!/bin/bash
+yes y |sudo pacman -S vulkan-headers vulkan-validation-layers vulkan-html-docs vulkan-extra-tools vulkan-extra-layers spirv-tools qt6-shadertools lib32-vkd3d vkd3d vulkan-mesa-layers vulkan-swrast lib32-vulkan-mesa-layers lib32-vulkan-validation-layers lib32-vkd3d
+
+

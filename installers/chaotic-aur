@@ -1,0 +1,18 @@
+#!/bin/bash
+sudo pacman-key --recv-key FBA220DFC880C036 --keyserver keyserver.ubuntu.com
+sudo pacman-key --lsign-key FBA220DFC880C036
+cd /home/$USER/Downloads
+axel https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst
+axel https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst
+yes y |sudo pacman -U /home/$USER/Downloads/chaotic-keyring.pkg.tar.zst
+yes y |sudo pacman -U /home/$USER/Downloads/chaotic-mirrorlist.pkg.tar.zst
+sudo su <<HERE
+echo '[chaotic-aur]' >> /etc/pacman.conf
+echo 'Include = /etc/pacman.d/chaotic-mirrorlist' >> /etc/pacman.conf
+yes y |pacman -Syyu
+HERE
+sudo pacman -Syyu
+rm /home/$USER/Downloads/chaotic-keyring.pkg.tar.zst
+rm /home/$USER/Downloads/chaotic-mirrorlist.pkg.tar.zst
+clear
+echo DONE
