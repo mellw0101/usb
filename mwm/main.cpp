@@ -823,22 +823,25 @@ move_to_next_desktop()
     }
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (auto & c : cur_d->current_clients)
     {
         if (c)
         {
+			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y - screen->width_in_pixels, 2000);
 			show_hide_client(c, HIDE);
         }
     }
 
     cur_d = desktop_list[cur_d->desktop];
-	// SHOW CLIENTS ON NEXT DESKTOP
-    for (const auto & c : cur_d->current_clients)
+	// SHOW CLIENTS ON NEXT_DESKTOP
+    for (auto & c : cur_d->current_clients)
     {
         if (c)
         {
-            show_hide_client(c, SHOW);           
-        }
+			c->x = c->x + screen->width_in_pixels;
+			show_hide_client(c, SHOW);
+			Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y - screen->width_in_pixels, 2000);
+		}
     }
 }
 
