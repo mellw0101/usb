@@ -1,0 +1,3 @@
+#!/bin/bash
+clear && lsblk && echo && echo "NAME ??" && read -p '  >>  ' Vvar && echo "    Where ??" && echo && read -p '  >>  /home/$USER/' Lvar
+sudo mount --mkdir /dev/$Vvar /home/$USER/$Lvar

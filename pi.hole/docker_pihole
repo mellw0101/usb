@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo docker stop pihole
+sudo docker rm pihole
+sudo ./test_2

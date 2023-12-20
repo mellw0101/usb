@@ -1,0 +1,173 @@
+#!/bin/bash
+
+# dependency check
+if ! command -v wget &> /dev/null; then
+  sudo pacman -S --noconfirm wget
+fi
+if ! command -v qemu-system-x86_64 &> /dev/null; then
+  sudo pacman -S --noconfirm qemu-full
+fi
+
+# Define variables
+VM_NAME="debian"
+FOLDER="/home/$USER/qemu/debian"
+DISK_IMAGE="debian.qcow2"
+ISO_FILE="debian-12.4.0.iso"
+RAM_SIZE="4G"
+CPU_CORES="cores=4,threads=2"
+VNC_PORT="5900"
+DISK_SIZE="20G"
+ISO_URL="https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.4.0-amd64-netinst.iso"
+UEFI_BIOS="/usr/share/edk2/x64/OVMF_CODE.fd"
+UEFI_VARS="/usr/share/edk2/x64/OVMF_VARS.fd"
+
+# Functions
+check_folder() 
+{
+  local folder_path=$1
+
+  # Check if the folder exists
+  if [ ! -d "$folder_path" ]; then
+    # If the folder doesn't exist, create it
+    echo "Could not find folder: '$folder_path'"
+    mkdir -p "$folder_path"
+    echo "Folder created: $folder_path"
+  fi
+
+  # cd into folder_path
+}
+get_ip_address() 
+{
+  # Use a command to retrieve the IP address
+  # This example uses 'hostname -I' to get the first IP address
+  local ip_address=$(hostname -i | cut -d' ' -f1)
+
+  # Check if the IP address is not empty
+  if [ -n "$ip_address" ]; then
+    # Assign the IP address to the specified variable
+    IP_ADDRESS=$ip_address
+    echo "IP address is: $IP_ADDRESS"
+  else
+    echo "Unable to retrieve IP address."
+  fi
+}
+get_iso_size_in_gb() 
+{
+  local iso_url=$1
+
+  # Use curl to follow redirects and fetch HTTP headers
+  local headers=$(curl -sI -L "$iso_url")
+
+  # Extract the Content-Length value from headers
+  local content_length=$(echo "$headers" | awk -F ': ' '/Content-Length/{print $2}' | tr -d '\r')
+
+  if [ -n "$content_length" ]; then
+    # Convert bytes to gigabytes
+    local size_in_gb=$(echo "scale=2; $content_length / (1024 * 1024 * 1024)" | bc)
+
+    # Add exact bytes to a variable
+    CORRECT_ISO_SIZE_BYTES=$content_length
+
+    echo "Correct ISO size: $size_in_gb GB"
+  else
+    echo "Unable to retrieve ISO size for $iso_url."
+  fi
+}
+check_iso_size() 
+{
+  local iso_file=$1
+
+  # Check if the ISO file exists
+  if [ -f "$iso_file" ]; then
+    # Get the size of the ISO file
+    local file_size_in_bytes=$(stat -c %s "$iso_file")
+
+    ISO_FILE_SIZE_IN_BYTES=$file_size_in_bytes
+
+    # Convert bytes to gigabytes
+    local file_size_in_gb=$(echo "scale=2; $file_size_in_bytes / (1024 * 1024 * 1024)" | bc)
+
+    # Print the ISO size
+    echo "ISO size: $file_size_in_gb GB"
+  else
+    echo "ISO file does not exist: $iso_file"
+  fi
+}
+check_disk_image()
+{
+  local disk_image=$1 
+  local disk_size=$2
+
+  if [ ! -f $disk_image ]; then
+    qemu-img create -f qcow2 $disk_image $disk_size
+  fi
+}
+download_iso()
+{
+  if [ ! -f $ISO_FILE ]; then
+    wget $ISO_URL -O $ISO_FILE
+  else
+    check_iso_size $ISO_FILE
+  fi
+
+  if [[ $ISO_FILE_SIZE_IN_BYTES != $CORRECT_ISO_SIZE_BYTES ]]; then
+    wget $ISO_URL -O $ISO_FILE
+  fi
+}
+boot()
+{
+  echo
+  echo "[1] Boot from drive [2] Boot from ISO"
+  read -p 'Pick: ' a
+  
+  while true; do
+    case $a in
+
+      1)
+        BOOT="order=c"
+        break;
+        ;;
+      2)
+        BOOT="order=d"
+        break;
+        ;;
+      *)
+        echo "Invalid option. Please choose 1 or 2."
+        ;;
+
+    esac
+  done
+}
+run()
+{
+  # Launch the virtual machine with QEMU
+  qemu-system-x86_64 \
+    --enable-kvm \
+    -name $VM_NAME \
+    -drive file=$DISK_IMAGE,format=qcow2 \
+    -cdrom $ISO_FILE \
+    -m $RAM_SIZE \
+    -smp $CPU_CORES \
+    -cpu host \
+    -machine q35 \
+    -boot $BOOT \
+    -drive file=$UEFI_BIOS,if=pflash,format=raw,unit=0,readonly=on \
+    -drive file=$UEFI_VARS,if=pflash,format=raw,unit=1 \
+    -vnc :0 \
+    -vnc 192.168.0.14:0 \
+    -vnc 0.0.0.0:14 
+}
+main()
+{
+  get_ip_address
+  check_folder "$FOLDER"
+  cd $FOLDER
+  get_iso_size_in_gb "$ISO_URL"
+  check_disk_image $DISK_IMAGE $DISK_SIZE
+  download_iso
+  boot
+  run
+}
+
+# Script starts here
+main

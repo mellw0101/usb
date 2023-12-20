@@ -1,0 +1,56 @@
+#!/bin/bash
+sudo pacman -S --needed rsync reflector
+
+sudo rm /home/$USER/mirrortest.txt
+
+clear
+
+reflector --verbose -c 'SE,NO,FI,DK,EE,CZ,FR,BE' --sort rate --protocol https,http --completion-percent 100 -a 2 -f 12 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Fastest" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'SE' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Sweden" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'NO' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Norway" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'FI' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Finland" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'DK' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Denmark" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'EE' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Estonia" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'CZ' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Czechia" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'FR' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# France" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+reflector --verbose -c 'BE' --sort rate --protocol https,http -f 4 2>&1 | tee /home/$USER/tmpmirrortest.txt
+echo "# Belgium" >> /home/$USER/mirrortest.txt
+cat /home/$USER/tmpmirrortest.txt | grep = | tee -a /home/$USER/mirrortest.txt
+
+sudo mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+sudo mv /home/$USER/mirrortest.txt /etc/pacman.d/mirrorlist
+
+cd /home/$USER
+sudo rm tmpmirrortest.txt
+
+#sudo reflector --verbose --country 'Sweden,Norway,Denmark,Germany,Finland,France' --sort rate --age 12 --save /etc/pacman.d/mirrorlist
+
+#sudo reflector --verbose --country 'SE,NO,DK,DE,FI,FR,GB,CH,RS,AT,BG' --sort rate -f 30
+
+clear
+
+echo DONE

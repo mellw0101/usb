@@ -1,0 +1,29 @@
+#!/bin/bash
+sudo mv /numlock /usr/local/bin/numlock
+
+sudo su<<HERE
+echo "[Unit]" > /etc/systemd/system/numlock.service
+echo "Description=numlock" >> /etc/systemd/system/numlock.service
+echo "" >> /etc/systemd/system/numlock.service
+echo "[Service]" >> /etc/systemd/system/numlock.service
+echo "ExecStart=/usr/local/bin/numlock" >> /etc/systemd/system/numlock.service
+echo "StandardInput=tty" >> /etc/systemd/system/numlock.service
+echo "RemainAfterExit=yes" >> /etc/systemd/system/numlock.service
+echo "" >> /etc/systemd/system/numlock.service
+echo "[Install]" >> /etc/systemd/system/numlock.service
+echo "WantedBy=multi-user.target" >> /etc/systemd/system/numlock.service
+HERE
+
+sudo systemctl enable numlock
+
+#x=$tty
+#sudo su<<HERE
+#echo "#!/bin/bash" > /numlock
+#chmod +x /numlock
+#echo "" >> /numlock
+#echo "for tty in /dev/tty{1..6}" >> /numlock
+#echo "do" >> /numlock
+#echo "	/usr/bin/setleds -D +num < tty;" >> /numlock
+#echo $ >> /numlock
+#sed -i 's/tty/"$tty"/g' /numlock
+#HERE

@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "cd /usr/share/archiso/configs/custom"

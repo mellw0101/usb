@@ -1,0 +1,158 @@
+struct CharacterInfo {
+    SDL_Rect srcRect;
+};
+
+std::unordered_map<char, CharacterInfo> generateTextureAtlas(SDL_Renderer* renderer, TTF_Font* font, SDL_Texture*& textureAtlas);
+
+class TerminalEmulator {
+private:
+    SDL_Renderer* renderer;
+    SDL_Texture* textureAtlas;
+    std::unordered_map<char, CharacterInfo> charMap;
+    TTF_Font* font;
+
+public:
+    TerminalEmulator(SDL_Renderer* renderer, TTF_Font* font) : renderer(renderer), font(font) {
+        charMap = generateTextureAtlas(renderer, font, textureAtlas);
+    }
+
+    void renderText(const std::string& text, int x, int y) {
+        for (char c : text) {
+            if (charMap.count(c)) {
+                const auto& charInfo = charMap[c];
+                SDL_Rect dstRect = { x, y, charInfo.srcRect.w, charInfo.srcRect.h };
+                SDL_RenderCopy(renderer, textureAtlas, &charInfo.srcRect, &dstRect);
+                x += charInfo.srcRect.w;
+            }
+        }
+    }
+};
+
+std::unordered_map<char, CharacterInfo> generateTextureAtlas(SDL_Renderer* renderer, TTF_Font* font, SDL_Texture*& outTexture) {
+    std::unordered_map<char, CharacterInfo> charMap;
+
+    // Calculate total width and height of the texture atlas
+    int totalWidth = 0;
+    int maxHeight = 0;
+    for (char c = 32; c <= 126; ++c) {
+        int w, h;
+        TTF_SizeText(font, &c, &w, &h);
+        totalWidth += w;
+        if (h > maxHeight) {
+            maxHeight = h;
+        }
+    }
+
+    // Create the texture atlas
+    outTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, totalWidth, maxHeight);
+    if (!outTexture) {
+        // Handle error
+        return charMap;
+    }
+
+    // Switch renderer to the texture
+    SDL_SetRenderTarget(renderer, outTexture);
+
+    // Clear the texture
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+
+    // Draw each character and store its position
+    int x = 0;
+    for (char c = 32; c <= 126; ++c) {
+        SDL_Surface* charSurface = TTF_RenderText_Blended(font, &c, { 255, 255, 255, 255 });
+        if (!charSurface) {
+            continue;  // Skip to the next character if rendering failed
+        }
+
+        SDL_Texture* charTexture = SDL_CreateTextureFromSurface(renderer, charSurface);
+        if (!charTexture) {
+            SDL_FreeSurface(charSurface);
+            continue;
+        }
+
+        SDL_Rect dstRect = { x, 0, charSurface->w, charSurface->h };
+        SDL_RenderCopy(renderer, charTexture, NULL, &dstRect);
+
+        // Store the source rectangle for the character
+        charMap[c] = { { x, 0, charSurface->w, charSurface->h } };
+
+        // Advance the x-coordinate for the next character
+        x += charSurface->w;
+
+        SDL_DestroyTexture(charTexture);
+        SDL_FreeSurface(charSurface);
+    }
+
+    // Switch back to the default rendering target
+    SDL_SetRenderTarget(renderer, NULL);
+
+    return charMap;
+}
+
+void renderText(SDL_Renderer* renderer, TTF_Font* const font, const std::string& text, const SDL_Color& color, int x, int y, int maxWidth) {
+    int curX = x, curY = y;
+
+    for (char c : text) {
+        SDL_Texture* textTexture = getTexture(renderer, font, c, color);
+
+        if (textTexture == nullptr) {
+            // Handle error.
+            continue;
+        }
+
+        int charW, charH;
+        if (SDL_QueryTexture(textTexture, NULL, NULL, &charW, &charH) != 0) {
+            // Handle error.
+            continue;
+        }
+
+        if (curX + charW > x + maxWidth) {
+            curY += TTF_FontLineSkip(font);
+            curX = x;
+        }
+
+        SDL_Rect textRect = { curX, curY, charW, charH };
+        if (SDL_RenderCopy(renderer, textTexture, nullptr, &textRect) != 0) {
+            // Handle error.
+        }
+
+        curX += charW;
+    }
+}
+
+// Keep a cache for textures
+std::unordered_map<std::string, SDL_Texture*> textureCache;
+SDL_Texture* getTexture(SDL_Renderer* renderer, TTF_Font* font, char c, SDL_Color color) {
+    std::string charStr(1, c);
+
+    auto it = textureCache.find(charStr);
+    if (it == textureCache.end()) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, charStr.c_str(), color);
+        if (textSurface) {
+            textureCache[charStr] = SDL_CreateTextureFromSurface(renderer, textSurface);
+            SDL_FreeSurface(textSurface);
+        }
+    }
+    return textureCache[charStr];
+}
+void preloadTextures(SDL_Renderer* renderer, TTF_Font* font, SDL_Color color) {
+    for (char c = 32; c < 127; ++c) {
+        getTexture(renderer, font, c, color);
+    }
+}
+
+std::unordered_map<std::string, SDL_Texture*> textureCache;
+SDL_Texture* getTexture(SDL_Renderer* renderer, TTF_Font* font, char c, SDL_Color color) {
+    std::string charStr(1, c);
+
+    auto it = textureCache.find(charStr);
+    if (it == textureCache.end()) {
+        SDL_Surface* textSurface = TTF_RenderText_Solid(font, charStr.c_str(), color);
+        if (textSurface) {
+            textureCache[charStr] = SDL_CreateTextureFromSurface(renderer, textSurface);
+            SDL_FreeSurface(textSurface);
+        }
+    }
+    return textureCache[charStr];
+}

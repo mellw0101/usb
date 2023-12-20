@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Check if wget is installed
+if ! command -v wget &> /dev/null; then
+  sudo pacman -S --noconfirm wget
+fi
+
+# Define variables
+VM_NAME="my_virtual_machine"
+DISK_IMAGE="disk_image.qcow2"
+ISO_FILE="proxmox-8.1-1.iso"
+RAM_SIZE="4G"
+CPU_CORES="4"
+VNC_PORT="5900"
+DISK_SIZE="20G"  # Adjust the size as needed
+ISO_URL="https://enterprise.proxmox.com/iso/proxmox-ve_8.1-1.iso"  # Replace with the actual ISO link
+
+# Check if the disk image exists; if not, create it
+if [ ! -f $DISK_IMAGE ]; then
+  qemu-img create -f qcow2 $DISK_IMAGE $DISK_SIZE
+fi
+
+# Download the ISO file if it doesn't exist
+if [ ! -f $ISO_FILE ]; then
+  wget $ISO_URL -O $ISO_FILE
+fi
+
+# Launch the virtual machine with QEMU
+qemu-system-x86_64 \
+  -name $VM_NAME \
+  -drive file=$DISK_IMAGE,format=qcow2 \
+  -cdrom $ISO_FILE \
+  -m $RAM_SIZE \
+  -smp $CPU_CORES \
+  -boot order=d \
+  -vnc :0 \
+  -vnc 192.168.0.14:0 \
+  -vnc 0.0.0.0:14 \

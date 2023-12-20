@@ -1,0 +1,5 @@
+#!/bin/bash
+sudo reflector --verbose --completion-percent 100 -a 1 --sort rate -f 60 -p https,http --save /etc/pacman.d/mirrorlist.full
+sudo cp /etc/pacmac.d/mirrorlist.full /usb/conf/mirrorlist.full
+clear
+echo "DONE !!!"

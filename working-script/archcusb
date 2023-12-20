@@ -1,0 +1,2 @@
+#!/bin/bash
+sudo g++ -o /usb/archtest -time -Werror -Wfatal-errors /usb/archtest.cpp

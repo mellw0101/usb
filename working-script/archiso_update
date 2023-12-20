@@ -1,0 +1,11 @@
+#!/bin/bash
+usb
+archcompusb
+sudo cp -r /usb /usr/share/archiso/configs/custom/airootfs/root
+cd /home/$USER
+#sudo rm -r archiso
+mkdir archiso 2> /dev/null
+cd archiso
+sudo mkarchiso -v /usr/share/archiso/configs/custom
+
+run_archiso -u -i /home/SERVER/archiso/out/archlinux-2023.09.10-x86_64.iso

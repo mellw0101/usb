@@ -1,0 +1,4 @@
+#!/bin/bash
+time sudo pacman -S firefox
+sudo pacman -R firefox
+sudo rm -r /var/lib/pacman/local/firefox-115.0.2-1

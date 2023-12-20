@@ -1,0 +1,45 @@
+#include <SDL.h> // Include the SDL2 header
+
+int main(int argc, char* argv[]) {
+    // Initialize SDL2
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "SDL could not initialize: %s", SDL_GetError());
+        return 1;
+    }
+
+    // Create an SDL2 window
+    SDL_Window* window = SDL_CreateWindow(
+        "SDL2 Window",            // Window title
+        SDL_WINDOWPOS_CENTERED,  // Initial x position
+        SDL_WINDOWPOS_CENTERED,  // Initial y position
+        640,                      // Width
+        480,                      // Height
+        SDL_WINDOW_SHOWN         // Flags (e.g., SDL_WINDOW_SHOWN, SDL_WINDOW_FULLSCREEN)
+    );
+
+    // Check if the window was created successfully
+    if (window == nullptr) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Window could not be created: %s", SDL_GetError());
+        SDL_Quit();
+        return 1;
+    }
+
+    // Event loop
+    bool quit = false;
+    SDL_Event e;
+
+    while (!quit) {
+        // Handle events
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_QUIT) {
+                quit = true;
+            }
+        }
+    }
+
+    // Cleanup and quit SDL2
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
+}

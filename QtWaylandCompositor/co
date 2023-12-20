@@ -1,0 +1,7 @@
+QT += core gui waylandcompositor
+
+CONFIG += c++11
+TARGET = SimpleCompositor
+TEMPLATE = app
+
+SOURCES += main.cpp

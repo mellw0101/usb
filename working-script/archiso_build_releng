@@ -1,0 +1,140 @@
+#!/bin/bash
+reflector_menu() {
+	reflector_run() {
+		reflector --verbose -c SE --sort rate -a 4 --delay 0.25 --save /home/SERVER/arch/releng/airootfs/etc/pacman.d/mirrorlist
+	}
+	cd
+	while true; do
+		read -p 'Do you want to run mirrorlist now to update, this can take some time (Y/N): ' balle
+		case "$balle" in
+			y )
+				reflector_run
+				break
+				;;
+			Y )
+				reflector_run
+				break
+				;;
+			n )
+				break
+				;;
+			N )
+				break
+				;;
+		esac
+	done
+}
+compile() {
+	compile_menu() {
+
+	echo "1 = compile_g++_no_debug"
+	echo "2 = compile_g++_no_debug_DM"
+	echo "3 = compile_g++_debug"
+	echo "4 = compile_g++_lssl"
+	echo "5 = compile_clang_O2"
+	echo "6 = compile_clang_O3"
+	echo "7 = compile_clang_DE_O2"
+	}
+	compile_g++_no_debug() {
+		sudo g++ -o /home/$USER/arch/archtest -time -Werror -Wfatal-errors -lz -O2 /usb/archtest.cpp
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	compile_g++_no_debug_DM() {
+		sudo g++ -o /home/$USER/arch/archDEtest -time -Werror -Wfatal-errors -lz -O2 /usb/archDEtest.cpp
+		sudo cp /home/$USER/arch/archtest /usb/archDEtest
+		sudo mv /home/$USER/arch/archDEtest /home/$USER/arch/releng/airootfs/usr/bin/archDEtest
+	}
+	compile_g++_debug() {
+		sudo g++ -o /home/$USER/arch/archtest -g -time -Werror -Wfatal-errors -lz -O2 /usb/archtest.cpp
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	compile_g++_lssl() {
+		sudo g++ -o /home/$USER/arch/archtest -lz -lssl -lcrypto -lcryptopp -time -Werror -Wfatal-errors -O2 /usb/archtest.cpp
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	compile_clang_O2() {
+		time sudo clang++ -v -Wall -Werror  -Wextra -pedantic -Wunused-variable -Wunused-parameter -Wuninitialized -Wshadow -Wformat -Wsign-compare -Wconversion -Wfloat-equal -Wmissing-declarations -Wredundant-decls -Wdeprecated -Wswitch -Wreturn-type -static  -march=haswell -std=c++20 -Wfatal-errors -O2 /usb/archtest.cpp -o /home/$USER/arch/archtest -lz -time
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	compile_clang_O3() {
+		time clang++ -v -Wall -Werror -Wextra -pedantic -Wunused-variable -Wunused-parameter -Wuninitialized -Wshadow -Wformat -Wsign-compare -Wconversion -Wfloat-equal -Wmissing-declarations -Wredundant-decls -Wdeprecated -Wswitch -Wreturn-type -static  -march=haswell -std=c++20 -Wfatal-errors  -O3 /usb/archtest.cpp -o /home/$USER/arch/archtest -lz
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	compile_clang_DE_O2() {
+		time sudo clang++ -v -Wall -Werror -Wextra -pedantic -Wunused-variable -Wunused-parameter -Wuninitialized -Wshadow -Wformat -Wsign-compare -Wconversion -Wfloat-equal -Wmissing-declarations -Wredundant-decls -Wdeprecated -Wswitch -Wreturn-type -static  -march=haswell -std=c++20 -Wfatal-errors -O2 /usb/archDEtest.cpp -o /home/$USER/arch/archDEtest -L/usr/include/X11/Xlib.h -lX11
+		sudo cp /home/$USER/arch/archtest /usb/archtest
+		sudo mv /home/$USER/arch/archtest /home/$USER/arch/releng/airootfs/usr/bin/archtest
+	}
+	while true; do
+		compile_menu
+		read -p 'archiso_build_releng_compile: ' response
+		case "$response" in
+			1 )
+				compile_g++_no_debug
+				;;
+			2 )
+				compile_g++_no_debug_DM
+				;;
+			3 )
+				compile_g++_debug
+				;;
+			4 )
+				compile_g++_lssl
+				;;
+			5 )
+				compile_clang_O2
+				;;
+			6 )
+				compile_clang_O3
+				;;
+			7 )
+				compile_clang_DE_O2
+				;;
+			exit )
+				break
+				;;
+			"" )
+				echo balle 1> /dev/null
+				;;
+			* )
+				echo archiso_build_releng_compile: $response is not a command
+				;;
+		esac
+	done
+}
+build_iso(){
+	sudo mkarchiso -v -w /tmp/archiso-tmp -C /home/SERVER/arch/releng/pacman.conf -r /home/SERVER/arch/releng
+}
+main() {
+	while true; do
+		read -p 'archiso_build_releng: ' answer
+		case "$answer" in
+			usb )
+				usb
+				;;
+		compile )
+				compile
+				;;
+ reflector_menu )
+				reflector_menu
+				;;
+		   exit )
+				break
+				;;
+			"" )
+				echo balle 1> /dev/null
+				;;
+			* )
+				echo "$answer" is not a command
+				;;
+		esac
+	done
+}
+
+main
+

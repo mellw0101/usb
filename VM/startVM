@@ -1,0 +1,4 @@
+#!/bin/bash
+#sudo cp /usr/share/edk2/x64/OVMF_CODE.fd /home/mellw
+
+sudo qemu-system-x86_64 --enable-kvm --machine q35 --cpu host --smp sockets=2,cores=16,threads=2 --bios /home/mellw/OVMF_CODE.fd --m 8000 --cdrom /home/mellw/archlinux-2023.06.01-x86_64.iso --hda /home/mellw/arch.qcow2 --hdd /home/mellw/usb.qcow2 --vnc 192.168.0.26:0

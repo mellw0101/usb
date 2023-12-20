@@ -1,0 +1,17 @@
+#!/bin/bash
+sudo pacman -S --needed hdparm
+sudo echo start >> /home/mellw/drivetestresult
+lsblk
+Xvar=$(sudo fdisk -l)
+echo $Xvar >> /home/mellw/drivetestresult
+read -p 'Name? ' Vvar
+x=0
+y=5
+until [ $x = 5 ]; do
+	sudo hdparm -Tt /dev/$Vvar 2>&1 | tee -a /home/mellw/drivetestresult
+	x=$(( $x + 1 ))
+done
+
+date=$(date +"%H:%M:%S-%d-%m-%y")
+
+sudo cp /home/mellw/drivetestresult /usb/result/drivetestresult-$date

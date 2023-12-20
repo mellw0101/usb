@@ -1,0 +1,25 @@
+#!/bin/bash
+usb
+
+cp /usb/working-script/archiso_build /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/archiso_conf /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/archiso_script_update /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/cmdline /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/cpufreqset /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/driveinstall /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/grubbuild /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/grubconf /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/maketarball /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/mirrorlistfast /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/mirrorlistfull /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/mirrorlistrun /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/mlpick /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/numlockinstall /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/pacmanspeedtest /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/raptoreumxm /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/sshm /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/ssht /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/u /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/usbinstall /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+cp /usb/working-script/virt-install-arch /usr/share/archiso/configs/custom/airootfs/usr/local/bin
+

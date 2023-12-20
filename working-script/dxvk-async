@@ -1,0 +1,10 @@
+#!/bin/bash
+yay -S dxvk-async-bin
+cd /home/$USER/Downloads
+axel https://github.com/Sporif/dxvk-async/releases/download/2.0/dxvk-async-2.0.tar.gz
+tar -xvzf dxvk-async-2.0.tar.gz
+cd dxvk-async-2.0
+sudo chmod +x setup_dxvk.sh
+./setup_dxvk.sh install
+mkdir /home/$USER/.local/share/lutris/runtime/dxvk/v2.0
+cp -r x64 /home/$USER/.local/share/lutris/runtime/dxvk/v2.0

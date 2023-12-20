@@ -1,0 +1,219 @@
+#!/bin/bash
+date=$(date +"%d-%m-%y-%a-%H:%M:%S")
+
+echo >> /home/$USER/Programs/mlpick/log
+
+echo "    $date" >> /home/$USER/Programs/mlpick/log
+
+echo "    start" >> /home/$USER/Programs/mlpick/log
+
+
+
+
+p=$(cat /home/$USER/Programs/mlpick/pacmancheck 2> /dev/null) && if [[ $p = "" ]]; then sudo pacman -S --needed reflector rsync echo 1 > /home/$USER/Programs/mlpick/pacmancheck; fi
+
+clear && xxx=1 && u=$(getent passwd 1000 | cut -d: -f1) && fastcheck="/etc/pacman.d/mirrorlist.fast" && fullcheck="/etc/pacman.d/mirrorlist.full" && fast=$(find /etc/pacman.d/mirrorlist.fast 2> /dev/null) && full=$(find /etc/pacman.d/mirrorlist.full 2> /dev/null)
+
+if [[ $fast = $fastcheck ]]; then fastexist=YES; else fastexist=NO; fi && if [[ $full = $fullcheck ]]; then fullexist=YES; else fullexist=NO; fi
+
+while [[ $xxx = 1 ]]; do
+
+save1check="/home/$USER/Programs/mlpick/custom/1.save" && save1find=$(find /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null) && if [[ $save1check = $save1find ]]; then S1=" 5 = Custom 1 "; fi && save2check="/home/$USER/Programs/mlpick/custom/2.save" && save2find=$(find /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null) && if [[ $save2check = $save2find ]]; then S2=" 6 = Custom 2 "; fi && save3check="/home/$USER/Programs/mlpick/custom/3.save" && save3find=$(find /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null) && if [[ $save3check = $save3find ]]; then S3=" 7 = Custom 3 " ; fi && save4check="/home/$USER/Programs/mlpick/custom/4.save" && save4find=$(find /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null) && if [[ $save4check = $save4find ]]; then S4=" 8 = Custom 4 "; fi && save5check="/home/$USER/Programs/mlpick/custom/5.save" && save5find=$(find /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null) && if [[ $save5check = $save5find ]]; then S5=" 9 = Custom 5 "; fi
+
+clear && echo && echo && echo "    nv = NvidiaOC" && echo && echo "     1 = fast" && echo "     2 = full" && echo "     3 = make custom list" && echo " >>  4 = update lists and apply changes" && echo && echo "    $S1" && echo "    $S2" && echo "    $S3" && echo "    $S4" && echo "    $S5" && echo && echo "    10 = show custom" && echo "    11 = exit" && echo "    12 = remove custom list" && echo && echo "    PICK" && echo && echo && read -p '  >>  ' a
+
+if [[ $a = 1 ]]; then echo && if [[ $fastexist = NO ]]; then read -p '    You have not run mirrorlistfast would you like to? y/n ' a && if [ $a = 'y' ]; then /home/$USER/Programs/mlpick/main/mirrorlistfast && read -p '  >>  ' a; fi; else echo && echo "    Do you want to check speed again" && echo && echo "    1 = YES" && echo "    2 = NO" && echo && read -p '  >>  ' a && if [[ $a = 1 ]]; then /home/$USER/Programs/mlpick/main/mirrorlistfast && echo && read -p '  >>  ' a; fi && sudo cp /etc/pacman.d/mirrorlist.fast /etc/pacman.d/mirrorlist; fi; fi
+if [[ $a = 2 ]]; then echo && if [[ $fullexist = NO ]]; then echo && echo "You have not run mirrorlistfull would you like to? y/n" && echo && echo "Press enter to return to menu" && echo && read -p '  >>  ' a && if [ $a = 'y' ]; then echo && echo "this will take a while are you sure" && echo && read -p ' >> ' a && if [ $a = 'y' ]; then /home/$USER/Programs/mlpick/main/mirrorlistfull; fi; fi; else sudo cp /etc/pacman.d/mirrorlist.full /etc/pacman.d/mirrorlist; fi; fi
+if [[ $a = 3 ]]; then echo && clear && reflector --list-countries && echo && echo "             PICK COUNTRIES" && echo && echo "    FORMAT = AR,AU,AT,AZ,BD" && echo && echo "    Press ENTER for no filter" && echo && read -p '  >>  ' a
+
+	c="-c $a"
+
+	if [[ $a = "" ]]; then c=""; fi && v1=age && v2=rate && v3=country && v4=score && v5=delay && echo && echo "             Sort OPTIONS" && echo && echo "    1 = age" && echo "    2 = rate" && echo "    3 = country" && echo "    4 = score" && echo "    5 = delay" && echo && read -p '  >>  ' a && if [[ $a = 1 ]]; then a=$v1; fi && if [[ $a = 2 ]]; then a=$v2; fi && if [[ $a = 3 ]]; then a=$v3; fi && if [[ $a = 4 ]]; then a=$v4; fi && if [[ $a = 5 ]]; then a=$v5; fi && mlsort="--sort $a"
+
+	echo && echo "    SELECT NUMBER OF HOURS SENSE LAST SYNC" && echo && read -p '  >>  ' h && echo && echo "    Do you want to add a minimum completion-percentage y/N" && echo && echo "    1 = YES" && echo "    2 = NO" && echo && read -p '  >>  ' a && echo
+
+	if [[ $a = 1 ]]; then echo && echo "    1-100" && echo && echo "    Pick" && echo && read -p '  >>  ' a && comp="--completion-percent $a"; fi && hours="-a $h" && Dvar="--delay 0.5"
+
+	reflector --verbose $c $mlsort $hours $Dvar $comp --save /home/$USER/Programs/mlpick/save/listA && sudo cp /home/$USER/Programs/mlpick/save/listA /etc/pacman.d/mirrorlist && save=$(echo reflector --verbose $c $mlsort $hours $Dvar $comp --save /home/$USER/Programs/mlpick/save/listA) && saveshow=$(echo reflector --verbose $c $mlsort $hours $Dvar $comp)&&echo&&echo "    Do you want to save this y/n" && echo && echo "    $saveshow" && echo && read -p '  >>  ' a
+
+	if [[ $a = y ]]; then echo && echo "  1" && echo "  2" && echo "  3" && echo "  4" && echo "  5" && echo && echo "  Pick custom spot" && echo && read -p '  >>  ' a && if [[ $a = 1 ]]; then echo $save > /home/$USER/Programs/mlpick/custom/1.save; fi && if [[ $a = 2 ]]; then echo $save > /home/$USER/Programs/mlpick/custom/2.save; fi && if [[ $a = 3 ]]; then echo $save > /home/$USER/Programs/mlpick/custom/3.save; fi && if [[ $a = 4 ]]; then echo $save > /home/$USER/Programs/mlpick/custom/4.save; fi && if [[ $a = 5 ]]; then echo $save > /home/$USER/Programs/mlpick/custom/5.save; fi; fi; fi
+
+if [[ $a = 4 ]]; then echo && l=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null) && $l && cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/1.save && echo && l=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null) && $l && cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/2.save && echo && l=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null) && $l && cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/3.save && echo && l=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null) && $l && cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/4.save && echo && l=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null) && $l && cp /home/$USER/Programs/mlpick/save/listA /home/$USER/Programs/mlpick/save/lists/5.save && echo && sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist.1&&sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist.2&&sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist.3&&sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist.4&&sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist.5
+
+	sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist.1 && sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist.2 && sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist.3 sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist.4 && sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist.5
+
+	echo && echo "    chose custom list" && echo && echo "    1" && echo "    2" && echo "    3" && echo "    4" && echo "    5" && echo && read -p '  >>  ' a && if [[ $a = 1 ]]; then sudo cp /etc/pacman.d/mirrorlist.1 /etc/pacman.d/mirrorlist; fi && if [[ $a = 2 ]]; then sudo cp /etc/pacman.d/mirrorlist.2 /etc/pacman.d/mirrorlist; fi && if [[ $a = 3 ]]; then sudo cp /etc/pacman.d/mirrorlist.3 /etc/pacman.d/mirrorlist; fi && if [[ $a = 4 ]]; then sudo cp /etc/pacman.d/mirrorlist.4 /etc/pacman.d/mirrorlist; fi && if [[ $a = 5 ]]; then sudo cp /etc/pacman.d/mirrorlist.5 /etc/pacman.d/mirrorlist; fi; fi
+
+if [[ $a = 5 ]]; then r=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null | cut -d/ -f1 2> /dev/null) && echo && $r /home/$USER/Programs/mlpick/save/lists/1.save && sudo cp /home/$USER/Programs/mlpick/save/lists/1.save /etc/pacman.d/mirrorlist; fi
+if [[ $a = 6 ]]; then r=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null | cut -d/ -f1 2> /dev/null) && echo && $r /home/$USER/Programs/mlpick/save/lists/2.save && sudo cp /home/$USER/Programs/mlpick/save/lists/2.save /etc/pacman.d/mirrorlist; fi
+if [[ $a = 7 ]]; then r=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null | cut -d/ -f1 2> /dev/null) && echo && $r /home/$USER/Programs/mlpick/save/lists/3.save && sudo cp /home/$USER/Programs/mlpick/save/lists/3.save /etc/pacman.d/mirrorlist; fi
+if [[ $a = 8 ]]; then r=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null | cut -d/ -f1 2> /dev/null) && echo && $r /home/$USER/Programs/mlpick/save/lists/4.save && sudo cp /home/$USER/Programs/mlpick/save/lists/4.save /etc/pacman.d/mirrorlist; fi
+if [[ $a = 9 ]]; then r=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null | cut -d/ -f1 2> /dev/null) && echo && $r /home/$USER/Programs/mlpick/save/lists/5.save && sudo cp /home/$USER/Programs/mlpick/save/lists/5.save /etc/pacman.d/mirrorlist; fi
+
+if [[ $a = 10 ]]; then echo && echo && echo "    1" && echo "    2" && echo "    3" && echo "    4" && echo "    5" && echo && echo && echo "    Pick" && echo && echo && read -p '  >>  ' a
+
+	if [[ $a = 1 ]]; then echo && echo && a=$(cat /home/$USER/Programs/mlpick/custom/1.save 2> /dev/null) && echo "    $a" && echo && echo && read -p '  >>  ' a; fi
+        if [[ $a = 2 ]]; then echo && echo && a=$(cat /home/$USER/Programs/mlpick/custom/2.save 2> /dev/null) && echo "    $a" && echo && echo && read -p '  >>  ' a; fi
+        if [[ $a = 3 ]]; then echo && echo && a=$(cat /home/$USER/Programs/mlpick/custom/3.save 2> /dev/null) && echo "    $a" && echo && echo && read -p '  >>  ' a; fi
+        if [[ $a = 4 ]]; then echo && echo && a=$(cat /home/$USER/Programs/mlpick/custom/4.save 2> /dev/null) && echo "    $a" && echo && echo && read -p '  >>  ' a; fi
+        if [[ $a = 5 ]]; then echo && echo && a=$(cat /home/$USER/Programs/mlpick/custom/5.save 2> /dev/null) && echo "    $a" && echo && echo && read -p '  >>  ' a; fi
+fi
+
+if [[ $a = 11 ]]; then clear && exit; fi
+if [[ $a = 12 ]]; then echo && read -p '  >>  ' a; fi
+if [[ $a = 1a ]]; then echo && echo "baLLe" && echo && read -p '  >>  ' a; fi
+
+if [[ $a = lutris ]]; then echo && sudo pacman -S --needed lutris linux-headers && clear && echo "1 = Nvidia" && echo "2 = Amd" && read -p 'pick ' x && if [ $x = 1 ]; then sudo pacman -S --needed nvidia-dkms nvidia-utils lib32-nvidia-utils nvidia-settings vulkan-icd-loader lib32-vulkan-icd-loader lib32-opencl-nvidia; fi && if [ $x = 2 ]; then sudo pacman -S --needed lib32-mesa vulkan-radeon lib32-vulkan-radeon vulkan-icd-loader lib32-vulkan-icd-loader; fi && clear
+
+sudo pacman -S --needed wine-staging giflib lib32-giflib libpng lib32-libpng libldap lib32-libldap gnutls lib32-gnutls \
+mpg123 lib32-mpg123 openal lib32-openal v4l-utils lib32-v4l-utils libpulse lib32-libpulse libgpg-error \
+lib32-libgpg-error alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib libjpeg-turbo lib32-libjpeg-turbo \
+sqlite lib32-sqlite libxcomposite lib32-libxcomposite libxinerama lib32-libgcrypt libgcrypt lib32-libxinerama \
+ncurses lib32-ncurses ocl-icd lib32-ocl-icd libxslt lib32-libxslt libva lib32-libva gtk3 \
+lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader
+
+clear && echo DONE && echo && read -p '  >>  ' a
+
+fi
+
+if [[ $a = steam ]]; then echo && sudo pacman -S --needed steam xdg-desktop-portal wget xdotool xxd yad gtk2 gnome-themes-standard lib32-gtk2 lib32-gst-plugins-good lib32-glib-networking lib32-libwebp lib32-libid3tag libspectre libid3tag libheif xorg-fonts-misc samba gtk-engines gnome-themes-standard steam-native-runtime && echo && read -p '  >>  ' a && clear; fi
+if [[ $a = wallpaper ]]; then echo && x=54 && cd /home/$USER && rm -r .Wallpapers 2> /dev/null && mkdir .Wallpapers && cd .Wallpapers && clear && echo ""
+echo "    1 of $x" && echo && axel https://stsci-opo.org/STScI-01GA6KKWG229B16K4Q38CH3BXS.png && sudo mv STScI-01GA6KKWG229B16K4Q38CH3BXS.png /home/$USER/Pictures&&echo&&echo "    2 of $x"&&echo&&axel https://stsci-opo.org/STScI-01G8GZJC3HYRHKABTQZAJFHB6P.png && sudo mv STScI-01G8GZJC3HYRHKABTQZAJFHB6P.png /home/$USER/Pictures && echo && echo "    3 of $x" && echo && axel https://stsci-opo.org/STScI-01G8H49RQ0E48YDM8WKW9PP5XS.png&&sudo mv STScI-01G8H49RQ0E48YDM8WKW9PP5XS.png /home/$USER/Pictures&&echo&&echo "    4 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GTYAME8Q4353E2WQQH2965S5.png&&sudo mv STScI-01GTYAME8Q4353E2WQQH2965S5.png /home/$USER/Pictures&&echo&&echo "    5 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GNYMD5RCRF1S01A8M2S5M0Z1.png&&sudo mv STScI-01GNYMD5RCRF1S01A8M2S5M0Z1.png /home/$USER/Pictures&&echo&&echo "    6 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GKMKDPJJ8SFNCHP3EVQPJJE2.png&&sudo mv STScI-01GKMKDPJJ8SFNCHP3EVQPJJE2.png /home/$USER/Pictures&& echo&&echo "    7 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GK2KMYS6HADS6ND8NRHG53RP.png && sudo mv STScI-01GK2KMYS6HADS6ND8NRHG53RP.png /home/$USER/Pictures&& echo&&echo "    8 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GGWD12YEES5K5163RJFYQT20.png&&sudo mv STScI-01GGWD12YEES5K5163RJFYQT20.png /home/$USER/Pictures&&echo&&echo "    9 of $x"&&echo&&axel https://stsci-opo.org/STScI-01GA76Q01D09HFEV174SVMQDMV.png&&sudo mv STScI-01GA76Q01D09HFEV174SVMQDMV.png /home/$USER/Pictures&&echo&&echo "   10 of $x"&&echo&&axel https://stsci-opo.org/STScI-01G9G4J23CDPVNGCYDJRZTTJQN.png&&sudo mv STScI-01G9G4J23CDPVNGCYDJRZTTJQN.png /home/$USER/Pictures&&echo&&echo "   11 of $x"&&echo&&axel https://stsci-opo.org/STScI-01F0SWZT0KHFG43JBWPCXVC0ZR.png&&sudo mv STScI-01F0SWZT0KHFG43JBWPCXVC0ZR.png /home/$USER/Pictures&&echo
+echo "   12 of $x" && echo && axel https://esahubble.org/media/archives/images/original/heic2017a.tif && magick heic2017a.tif heic2017a.png && rm heic2017a.tif && sudo mv heic2017a.png /home/$USER/Pictures && echo && echo "   13 of $x" && axel https://wallpapercave.com/download/super-ultrawide-wallpapers-wp8432913 && sudo mv wp8432913-super-ultrawide-wallpapers.jpg /home/$USER/Pictures && echo && echo "   14 of $x" && echo && axel https://wallpapercave.com/download/8k-desktop-hd-wallpapers-wp5823332 && sudo mv wp5823332-8k-desktop-hd-wallpapers.jpg /home/$USER/Pictures && echo && echo "   15 of $x" && echo && axel https://wallpapercave.com/download/super-ultra-wide-wallpapers-wp8606850 && sudo mv wp8606850-super-ultra-wide-wallpapers.jpg /home/$USER/Pictures && echo && echo "   16 of $x" && echo && axel https://wallpapercave.com/download/ultrawide-8k-wallpapers-wp8964760 && sudo mv wp8964760-ultrawide-8k-wallpapers.jpg /home/$USER/Pictures && echo && echo "   17 of $x" && echo && axel https://wallpapercave.com/download/macbook-4k-wallpapers-wp8030548 && sudo mv wp8030548-macbook-4k-wallpapers.jpg /home/$USER/Pictures && echo
+echo "   18 of $x" && echo && axel https://i.redd.it/mfpvicjoxdbb1.jpg && sudo mv mfpvicjoxdbb1.jpg /home/$USER/Pictures && echo
+echo "   19 of $x" && echo && axel https://stsci-opo.org/STScI-01H44AVB69N1P8RAEJ12NW2RB2.png && sudo mv STScI-01H44AVB69N1P8RAEJ12NW2RB2.png /home/$USER/Pictures&&echo
+echo "   20 of $x" && echo && axel https://i.redd.it/putc1r9jl6ab1.jpg && sudo mv putc1r9jl6ab1.jpg /home/$USER/Pictures && echo
+echo "   21 of $x" && echo && axel https://i.postimg.cc/DnzNPd3X/1.png?dl=1 && sudo mv 1.png /home/$USER/Pictures && echo && echo "   22 of $x" && echo && axel https://i.postimg.cc/KmksdGzc/2.png?dl=1 && sudo mv 2.png /home/$USER/Pictures && echo && echo "   23 of $x" && echo && axel https://i.postimg.cc/xfyZt6dK/3.png?dl=1 && sudo mv 3.png /home/$USER/Pictures && echo
+echo "   24 of $x" && echo && axel https://stsci-opo.org/STScI-01GFRYYRTCTMX197BY86MBFCR9.png && sudo mv STScI-01GFRYYRTCTMX197BY86MBFCR9.png /home/$USER/Pictures && echo && echo "   25 of $x" && echo && axel https://stsci-opo.org/STScI-01H44AVB69N1P8RAEJ12NW2RB2.png && sudo mv STScI-01H44AVB69N1P8RAEJ12NW2RB2.png /home/$USER/Pictures && echo && echo "   26 of $x" && echo && axel https://stsci-opo.org/STScI-01H2TX9HDRY87KFD082A74YADF.jpg&&sudo mv STScI-01H2TX9HDRY87KFD082A74YADF.jpg /home/$USER/Pictures&&echo&&echo "   27 of $x"&&echo&&axel https://stsci-opo.org/STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png&&sudo mv STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png /home/$USER/Pictures&&echo&&echo "   27 of $x"&&echo&&axel https://stsci-opo.org/STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png&&sudo mv STScI-01G8GZQ3ZFJRD8YF8YZWMAXCE3.png /home/$USER/Pictures&&echo
+echo "   28 of $x" && echo && axel https://i.redd.it/frfi84w0dx8b1.jpg && sudo mv frfi84w0dx8b1.jpg /home/$USER/Pictures && echo
+echo "   29 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/alley-in-japan-5120x1440.jpg && sudo mv alley-in-japan-5120x1440.jpg /home/$USER/Pictures && echo && echo "   30 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/foggy-statue-of-liberty-5120x1440.jpg && sudo mv foggy-statue-of-liberty-5120x1440.jpg /home/$USER/Pictures && echo && echo "   31 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/blinding-view-5120x1440.jpg && sudo mv blinding-view-5120x1440.jpg /home/$USER/Pictures && echo && echo "   32 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/mountain-sunset-5120x1440.jpg && sudo mv mountain-sunset-5120x1440.jpg /home/$USER/Pictures && echo && echo "   33 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/cotton-candy-view-5120x1440.jpg && sudo mv cotton-candy-view-5120x1440.jpg /home/$USER/Pictures && echo && echo "   34 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/morning-hike-5120x1440.jpg && sudo mv morning-hike-5120x1440.jpg /home/$USER/Pictures && echo && echo "   35 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/06/iceland-caps-5120x1440.jpg&&sudo mv iceland-caps-5120x1440.jpg /home/$USER/Pictures && echo && echo "   36 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2018/10/rolling-fog-5120x1440.jpg && sudo mv rolling-fog-5120x1440.jpg /home/$USER/Pictures && echo && echo "   37 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/tiger-wall-art-5120x1440.jpg && sudo mv tiger-wall-art-5120x1440.jpg /home/$USER/Pictures && echo && echo "   38 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/nyc-at-night-5120x1440.jpg && sudo mv nyc-at-night-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   39 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2019/03/cliff-town-5120x1440.jpg && sudo mv cliff-town-5120x1440.jpg /home/$USER/Pictures && echo && echo "   40 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2019/07/night-time-chills-5120x1440.jpg && sudo mv night-time-chills-5120x1440.jpg /home/$USER/Pictures && echo && echo "   41 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2019/07/sun-peak-5120x1440.jpg && sudo mv sun-peak-5120x1440.jpg /home/$USER/Pictures && echo && echo "   42 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2020/01/fiji-5120x1440.jpg && sudo mv fiji-5120x1440.jpg /home/$USER/Pictures && echo && echo "   43 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2020/04/foggy-view-5120x1440.jpg && sudo mv foggy-view-5120x1440.jpg /home/$USER/Pictures && echo && echo "   44 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/scenic-coastal-town-5120x1440.jpg && sudo mv scenic-coastal-town-5120x1440.jpg /home/$USER/Pictures && echo && echo "   45 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/foggy-downtown-5120x1440.jpg && sudo mv foggy-downtown-5120x1440.jpg /home/$USER/Pictures && echo && echo "   45 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/foggy-downtown-5120x1440.jpg && sudo mv foggy-downtown-5120x1440.jpg /home/$USER/Pictures && echo && echo "   46 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/grand-library-5120x1440.jpg && sudo mv grand-library-5120x1440.jpg /home/$USER/Pictures && echo && echo "   47 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/white-coast-5120x1440.jpg && sudo mv white-coast-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   48 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/snow-town-5120x1440.jpg && sudo mv snow-town-5120x1440.jpg /home/$USER/Pictures && echo && echo "   49 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/alpine-at-night-5120x1440.jpg && sudo mv alpine-at-night-5120x1440.jpg /home/$USER/Pictures && echo && echo "   50 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/orange-field-5120x1440.jpg && sudo mv orange-field-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   51 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2021/01/red-fireworks-5120x1440.jpg && sudo mv red-fireworks-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   52 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/scenic-communication-tower-5120x1440.jpg && sudo mv scenic-communication-tower-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   53 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/shanghai-at-night-5120x1440.jpg && sudo mv shanghai-at-night-5120x1440.jpg /home/$USER/Pictures && echo
+echo "   54 of $x" && echo && axel https://superultrawidewallpaper.com/wp-content/uploads/2022/02/daruma-5120x1440.jpg && sudo mv daruma-5120x1440.jpg /home/$USER/Pictures && echo
+fi
+
+if [[ $a = nv ]]; then
+
+	nv=1
+
+	while [[ $nv = 1 ]]; do
+
+		clear
+		echo
+		echo "    NVIDIA"
+		echo
+		echo "     1 = Sensors"
+		echo "     2 = set PWLIMIT"
+		echo
+		echo "    11 = exit"
+		echo
+
+		read -p '  >>  ' a
+
+		if [[ $a = 1 ]]; then
+
+			sens=1
+
+			while [[ $sens = 1 ]]; do
+
+
+				temp=$(nvidia-settings -q gpucoretemp -t)
+				W=$(nvidia-smi | grep W | cut -d/ -f1 | cut -dP -f2)
+				nvidia-smi | grep G | cut -dG -f2 | grep MiB | tee /home/$USER/Programs/mlpick/save/nvusage.txt
+				usage=$(cat /home/$USER/Programs/mlpick/save/nvusage.txt)
+				currentpwlimit=$(nvidia-smi --query | grep Current | grep Power | grep W)
+
+				echo $temp >> /home/$USER/Programs/mlpick/save/templog.txt
+				echo $W >> /home/$USER/Programs/mlpick/save/Wlog.txt
+
+				clear
+				echo
+				echo "    Gpu temp = $temp C"
+				echo
+				echo "    Power STATE = $W"
+				echo
+
+
+				sleep 0.1
+
+
+			done
+
+		fi
+
+		if [[ $a = 2 ]]; then
+
+			pwboot=1
+
+			while [[ $pwboot = 1 ]]; do
+
+			currentpwlimit=$(nvidia-smi --query | grep Current | grep Power | grep W)
+			maxpwlimit=$(nvidia-smi --query | grep Max | grep Power | grep W)
+
+			clear
+			echo
+			echo "    11 = exit"
+			echo
+			echo "    $currentpwlimit"
+			echo "    $maxpwlimit"
+			echo
+			echo "    Do you want to change your PWLIMIT ?"
+			echo
+			echo "    1 = y"
+			echo
+
+			read -p '  >>  ' a
+
+			if [[ $a = 1 ]]; then
+
+				echo
+				echo "    PICK W"
+				echo
+
+				read -p '  >>  ' a
+
+				echo
+				sudo nvidia-smi -pl $a 2> /dev/null
+				echo
+				echo "    DO YOU WNAT TO MAKE IT ON BOOT"
+				echo
+				echo "    1 = y"
+				echo
+
+				read -p '  >>  ' a
+
+				if [[ $a = 1 ]]; then
+
+
+					/test
+
+
+					read -p '  >>  ' a
+
+				fi
+
+			fi
+
+			if [[ $a = 11 ]]; then pwboot=0; fi
+
+			done
+
+		fi
+
+		if [[ $a = 11 ]]; then
+
+			nv=0
+
+		fi
+
+	done
+
+fi
+done
+
+#
+#
+#

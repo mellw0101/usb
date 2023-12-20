@@ -1,0 +1,3 @@
+#!/bin/bash
+read -p 'Select Freq in MHz' ' Vvar
+cpupower frequency-set -u $Vvar

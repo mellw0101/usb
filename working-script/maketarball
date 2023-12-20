@@ -1,0 +1,7 @@
+#!/bin/bash
+sudo pacman -S --needed pigz pv
+clear
+ls
+read -p 'Name of directory? ' x
+tar cf - $x -P | pv -s $(du -sb $x | awk '{print $1}') | pigz > $x.tar.gz
+#time tar -I pigz -cf $x.tar.gz $x
