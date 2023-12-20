@@ -835,6 +835,7 @@ class mv_Desktop {
 		}
 
 	private:
+		
 		class Next_Desktop {
 			public:
 				Next_Desktop() {
@@ -842,13 +843,12 @@ class mv_Desktop {
 						return;
 					}
 
-					std::vector<std::thread> threads;
+					std::vector<std::future<void>> futures;
 
 					// HIDE CLIENTS ON CURRENT_DESKTOP
 					for (auto &c : cur_d->current_clients) {
-						if (c) 
-						{
-							threads.emplace_back(&Next_Desktop::hide, this, std::ref(c));
+						if (c) {
+							futures.emplace_back(std::async(std::launch::async, [this, &c] { hide(c); }));
 						}
 					}
 
@@ -856,30 +856,25 @@ class mv_Desktop {
 
 					// SHOW CLIENTS ON NEXT_DESKTOP
 					for (auto &c : cur_d->current_clients) {
-						if (c) 
-						{
-							threads.emplace_back(&Next_Desktop::show, this, std::ref(c));
+						if (c) {
+							futures.emplace_back(std::async(std::launch::async, [this, &c] { show(c); }));
 						}
 					}
 
-					for (auto &thread : threads) {
-						thread.join();
+					// Wait for all futures to finish
+					for (auto &future : futures) {
+						future.get();
 					}
 				}
 
 			private:
-				static std::mutex hideMutex; // Separate mutex for each operation
-				static std::mutex showMutex;
-
-				static void hide(client *&c) {
-					std::lock_guard<std::mutex> lock(hideMutex); // Lock the mutex for this operation
+				void hide(client *&c) {
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 					show_hide_client(c, HIDE);
 				}
 
-				static void show(client *&c) {
-					std::lock_guard<std::mutex> lock(showMutex); // Lock the mutex for this operation
+				void show(client *&c) {
 					if (c->x < screen->width_in_pixels) {
 						c->x = c->x + screen->width_in_pixels;
 					}
@@ -887,7 +882,7 @@ class mv_Desktop {
 					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
 					wm::update_client(c);
 				}
-			};
+		};
 
 		class Prev_Desktop {
 			public:

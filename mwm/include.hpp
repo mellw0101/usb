@@ -38,6 +38,8 @@
     #include <chrono>
     #include <atomic>
     #include <mutex> // Added for thread safety
+    #include <future>
+    #include <iostream>
 
     #include "structs.hpp"
     #include "Log.hpp"
