@@ -856,6 +856,12 @@ class mv_Desktop {
 						}
 					}
 
+					for (auto &thread : threads) 
+					{
+						thread.join();
+					}
+					threads.clear();
+					
 					cur_d = desktop_list[cur_d->desktop];
 					// SHOW CLIENTS ON NEXT_DESKTOP
 					for (auto & c : cur_d->current_clients)
