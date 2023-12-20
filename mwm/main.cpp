@@ -852,7 +852,8 @@ class mv_Desktop {
 					{
 						if (c)
 						{
-							threads.emplace_back(&hide, this, * std::ref(c));
+							std::thread h = std::thread(&hide, this, std::ref(c));
+							threads.push_back(h);
 						}
 					}
 
@@ -868,7 +869,8 @@ class mv_Desktop {
 					{
 						if (c)
 						{
-							threads.emplace_back(&show, this, * std::ref(c));
+							std::thread s = std::thread(&show, this, std::ref(c));
+							threads.push_back(s);
 						}
 					}
 
