@@ -850,7 +850,7 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-			std::thread(next_hide, c).detach();
+			std::thread(& next_hide, c).detach();
 		}
 	}
 
@@ -861,7 +861,7 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-			std::thread(next_show, c).detach();
+			std::thread( & next_show, c).detach();
 		}
 	}
 }
