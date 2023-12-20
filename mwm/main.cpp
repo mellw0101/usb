@@ -842,14 +842,15 @@ Next_Desktop() {
 		return;
 	}
 
-	std::vector<std::future<void>> futures;
+	std::vector<std::thread> threads;
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
 	for (auto & c : cur_d->current_clients) 
 	{
 		if (c) 
 		{
-			futures.emplace_back(std::async(std::launch::async, [&c] { next_hide(c); }));
+			std::thread t(next_hide, c);
+			threads.push_back(std::move(t));
 		}
 	}
 
@@ -860,14 +861,15 @@ Next_Desktop() {
 	{
 		if (c) 
 		{
-			futures.emplace_back(std::async(std::launch::async, [&c] { next_show(c); }));
+			std::thread t(next_show, c);
+			threads.push_back(std::move(t));
 		}
 	}
 
 	// Wait for all futures to finish
-	for (auto & future : futures)
+	for (auto & t : threads)
 	{
-		future.get();
+		t.join();
 	}
 }
 
