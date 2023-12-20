@@ -1765,7 +1765,6 @@ class Event {
 			{
 				client * c = get::client_from_win(& e->event);
 				Animate::move(c, c->x, c->y, c->x + 40, c->y + 40, 2000);
-				wm::update_client(c);
 			}
         }
 
