@@ -815,127 +815,99 @@ move_desktop(const uint8_t & n)
     }
 }
 
-class mv_Desktop {
-	public:
-		mv_Desktop(Direction Direction)
+void 
+next_hide(client * & c) 
+{
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+	wm::update_client(c);
+	show_hide_client(c, HIDE);
+}
+
+void 
+next_show(client * & c) 
+{
+	if (c->x < screen->width_in_pixels) 
+	{
+		c->x = c->x + screen->width_in_pixels;
+	}
+	show_hide_client(c, SHOW);
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+	wm::update_client(c);
+}
+
+void
+Next_Desktop() {
+	if (cur_d->desktop == desktop_list.size()) 
+	{
+		return;
+	}
+
+	std::vector<std::future<void>> futures;
+
+	// HIDE CLIENTS ON CURRENT_DESKTOP
+	for (auto & c : cur_d->current_clients) 
+	{
+		if (c) 
 		{
-			switch (Direction) 
-			{
-				case NEXT:
-				{
-					Next_Desktop give_me_a_name;
-					break;
-				}
-				case PREV:
-				{
-					Prev_Desktop();
-					break;
-				}
-			}
+			futures.emplace_back(std::async(std::launch::async, [&c] { next_hide(c); }));
 		}
+	}
 
-	private:
-		
-		class Next_Desktop {
-			public:
-				Next_Desktop() {
-					if (cur_d->desktop == desktop_list.size()) 
-					{
-						return;
-					}
+	cur_d = desktop_list[cur_d->desktop];
 
-					std::vector<std::future<void>> futures;
+	// SHOW CLIENTS ON NEXT_DESKTOP
+	for (auto & c : cur_d->current_clients)
+	{
+		if (c) 
+		{
+			futures.emplace_back(std::async(std::launch::async, [&c] { next_show(c); }));
+		}
+	}
 
-					// HIDE CLIENTS ON CURRENT_DESKTOP
-					for (auto & c : cur_d->current_clients) 
-					{
-						if (c) 
-						{
-							futures.emplace_back(std::async(std::launch::async, [this, &c] { hide(c); }));
-						}
-					}
+	// Wait for all futures to finish
+	for (auto & future : futures)
+	{
+		future.get();
+	}
+}
 
-					cur_d = desktop_list[cur_d->desktop];
 
-					// SHOW CLIENTS ON NEXT_DESKTOP
-					for (auto & c : cur_d->current_clients)
-					{
-						if (c) 
-						{
-							futures.emplace_back(std::async(std::launch::async, [this, &c] { show(c); }));
-						}
-					}
+void
+Prev_Desktop()
+{
+	LOG_func
+	if (cur_d->desktop == 1)
+	{
+		return;
+	}
 
-					// Wait for all futures to finish
-					for (auto & future : futures)
-					{
-						future.get();
-					}
-				}
+	// HIDE CLIENTS ON CURRENT_DESKTOP
+	for (auto & c : cur_d->current_clients)
+	{
+		if (c)
+		{
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
+			show_hide_client(c, HIDE);
+		}
+	}
 
-			private:
-				void 
-				hide(client * & c) 
-				{
-					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-					wm::update_client(c);
-					show_hide_client(c, HIDE);
-				}
-
-				void 
-				show(client * & c) 
-				{
-					if (c->x < screen->width_in_pixels) 
-					{
-						c->x = c->x + screen->width_in_pixels;
-					}
-					show_hide_client(c, SHOW);
-					Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
-					wm::update_client(c);
-				}
-		};
-
-		class Prev_Desktop {
-			public:
-				Prev_Desktop()
-				{
-					LOG_func
-					if (cur_d->desktop == 1)
-					{
-						return;
-					}
-
-					// HIDE CLIENTS ON CURRENT_DESKTOP
-					for (auto & c : cur_d->current_clients)
-					{
-						if (c)
-						{
-							Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
-							wm::update_client(c);
-							show_hide_client(c, HIDE);
-						}
-					}
-
-					cur_d = desktop_list[cur_d->desktop - 2];
-					// SHOW CLIENTS ON NEXT_DESKTOP
-					for (auto & c : cur_d->current_clients)
-					{
-						if (c)
-						{
-							if (c->x > 0)
-							{
-								c->x = c->x - screen->width_in_pixels;
-							}
-							show_hide_client(c, SHOW);
-							Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
-							wm::update_client(c);
-						}
-					}
-				}
-
-			private:
-		};	
-};
+	cur_d = desktop_list[cur_d->desktop - 2];
+	// SHOW CLIENTS ON NEXT_DESKTOP
+	for (auto & c : cur_d->current_clients)
+	{
+		if (c)
+		{
+			if (c->x > 0)
+			{
+				c->x = c->x - screen->width_in_pixels;
+			}
+			show_hide_client(c, SHOW);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			wm::update_client(c);
+		}
+	}
+}
 
 void
 move_to_next_desktop_w_app()
@@ -1311,7 +1283,7 @@ namespace borrowed {
 }
 
 std::string
-get_name(client * c)
+get_name(client * & c)
 {
     log.log(FUNC, __func__);
     xcb_get_property_reply_t * reply;
@@ -1422,7 +1394,7 @@ class WinManager {
 
     private:
         static void
-        grab_buttons(client * c, std::initializer_list<std::pair<const uint8_t, const uint16_t>> bindings)
+        grab_buttons(client * & c, std::initializer_list<std::pair<const uint8_t, const uint16_t>> bindings)
         {
             for (const auto & binding : bindings)
             {
@@ -1459,7 +1431,7 @@ class WinManager {
         }
 
         static void 
-        grab_keys(client * c, std::initializer_list<std::pair<const uint32_t, const uint16_t>> bindings) 
+        grab_keys(client * & c, std::initializer_list<std::pair<const uint32_t, const uint16_t>> bindings) 
         {
             xcb_key_symbols_t * keysyms = xcb_key_symbols_alloc(conn);
         
@@ -1513,7 +1485,7 @@ class WinManager {
         }
 
         static void
-        apply_event_mask(client * c)
+        apply_event_mask(client * & c)
         {
             xcb_change_window_attributes
             (
@@ -1529,7 +1501,7 @@ class WinManager {
         }
 
         static bool 
-        is_exclusive_fullscreen(client * c) 
+        is_exclusive_fullscreen(client * & c) 
         {
             xcb_ewmh_get_atoms_reply_t wm_state;
             if (xcb_ewmh_get_wm_state_reply(ewmh, xcb_ewmh_get_wm_state(ewmh, c->win), & wm_state, NULL)) 
@@ -1550,7 +1522,7 @@ class WinManager {
             return false;
         }
 
-        static client *
+        static client * 
         make_client(const xcb_window_t & win) 
         {
             client * c = static_cast<client *>(malloc(sizeof(client)));
@@ -1591,7 +1563,7 @@ class WinManager {
         }
 
         static void 
-        make_frame(client * c)
+        make_frame(client * & c)
         {
             // CREATE A FRAME WINDOW
             c->frame = xcb_generate_id(conn);
@@ -1839,7 +1811,7 @@ class Event {
                     move_to_next_desktop_w_app();
                     return;
                 }
-				mv_Desktop to(NEXT);
+				Next_Desktop();
             }
 
             /*
@@ -1855,7 +1827,7 @@ class Event {
                     move_to_previus_desktop_w_app();
                     return;
                 }
-                mv_Desktop to(PREV);
+                Prev_Desktop();
             }
 
             /*
@@ -1981,7 +1953,7 @@ class Event {
         }
         
         void 
-        map_notify_handler(const xcb_generic_event_t * ev)
+        map_notify_handler(const xcb_generic_event_t * & ev)
         {
             const auto * e = reinterpret_cast<const xcb_map_notify_event_t *>(ev);
             
@@ -1993,14 +1965,14 @@ class Event {
         }
         
         void 
-        map_req_handler(const xcb_generic_event_t * ev) 
+        map_req_handler(const xcb_generic_event_t * & ev) 
         {
             const auto * e = reinterpret_cast<const xcb_map_request_event_t *>(ev);
             WinManager::manage_new_window( e->window);
         }
         
         void 
-        button_press_handler(const xcb_generic_event_t * ev) 
+        button_press_handler(const xcb_generic_event_t * & ev) 
         {
             const auto * e = reinterpret_cast<const xcb_button_press_event_t *>(ev);
             
@@ -2041,7 +2013,7 @@ class Event {
         }
 
         void
-        configure_request_handler(const xcb_generic_event_t * ev)
+        configure_request_handler(const xcb_generic_event_t * & ev)
         {
             const auto * e = reinterpret_cast<const xcb_configure_request_event_t *>(ev);
             data.width     = e->width;
@@ -2051,7 +2023,7 @@ class Event {
         }
 
         void
-        focus_in_handler(const xcb_generic_event_t * ev)
+        focus_in_handler(const xcb_generic_event_t * & ev)
         {
             const auto * e = reinterpret_cast<const xcb_focus_in_event_t *>(ev);
             
@@ -2066,7 +2038,7 @@ class Event {
         }
 
         void
-        focus_out_handler(const xcb_generic_event_t * ev)
+        focus_out_handler(const xcb_generic_event_t * & ev)
         {
             const auto * e = reinterpret_cast<const xcb_focus_out_event_t *>(ev);
             
@@ -2085,7 +2057,7 @@ class Event {
         }
 
         void
-        destroy_notify_handler(const xcb_generic_event_t * ev)
+        destroy_notify_handler(const xcb_generic_event_t * & ev)
         {
             const auto * e = reinterpret_cast<const xcb_destroy_notify_event_t *>(ev);
 
