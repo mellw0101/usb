@@ -1547,30 +1547,26 @@ class tile {
                 case 1:
                 {
                     // IF CURRENTLT TILED TO LEFT
-                    if (c->x == 0 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2 
-                     && c->height == screen->height_in_pixels)
+                    if (currently_tiled(c, 1))
                     {
                         c->x        = c->tile_ogsize.x;
                         c->y        = c->tile_ogsize.y;
                         c->width    = c->tile_ogsize.width;
                         c->height   = c->tile_ogsize.height;
-                        moveresize(c);
+                        wm::setWindowPosition(c);
+                        wm::setWindowSize(c);
                         return;
                     }
                     
                     // IF CURRENTLY TILED TO RIGHT
-                    if (c->x == screen->width_in_pixels / 2 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2
-                     && c->height == screen->height_in_pixels)
+                    if (currently_tiled(c, 2))
                     {
                         c->x = 0;
                         c->y = 0;
                         c->width = screen->width_in_pixels / 2;
                         c->height = screen->height_in_pixels;
-                        moveresize(c);
+                        wm::setWindowPosition(c);
+                        wm::setWindowSize(c);
                         return;
                     }
 
@@ -1579,7 +1575,8 @@ class tile {
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    moveresize(c);
+                    wm::setWindowPosition(c);
+                    wm::setWindowSize(c);
                     break;
                 }
                 
