@@ -1624,10 +1624,10 @@ class tile {
                 }
 
                 // DOWN
-                // case 3:
-                // {
+                case 3:
+                {
 
-                // }
+                }
             }
         } 
     private:
@@ -1642,12 +1642,7 @@ class tile {
         
         void
         moveresize(client * & c)
-        {
-            if (c->win == screen->root || c->win == 0)
-            {
-                return;
-            }
-                
+        {        
             xcb_configure_window
             (
                 conn,
