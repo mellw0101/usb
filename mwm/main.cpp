@@ -860,7 +860,7 @@ Prev_Desktop()
 	{
 		if (c)
 		{
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 			show_hide_client(c, HIDE);
 		}
@@ -877,7 +877,7 @@ Prev_Desktop()
 				c->x = c->x - screen->width_in_pixels;
 			}
 			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 500);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 		}
 	}
