@@ -1764,7 +1764,7 @@ class Event {
             if ((e->detail == r_arrow) 
              && (e->state & CTRL | SUPER))
             {
-                if (e->state & SHIFT)
+                if (e->state == SHIFT)
                 {
                     move_to_next_desktop_w_app();
                     return;
@@ -1805,13 +1805,6 @@ class Event {
 				client * c = get::client_from_win(& e->event);
 				Animate::move(c, c->x, c->y, c->x + 600, c->y, 400);
 			}
-
-            if (e->detail == l_arrow
-             && e->state & SUPER)
-            {
-                client * c = get::client_from_win(& e->event);
-                tile(c, 1);
-            }
         }
 
         void /* 
