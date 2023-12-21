@@ -1568,6 +1568,8 @@ tile(client * & c, const uint8_t & mode)
             c->y = 0;
             c->width = screen->width_in_pixels / 2;
             c->height = screen->height_in_pixels;
+            wm::setWindowPosition(c);
+            wm::setWindowSize(c);
             break;
         }
     }
