@@ -1581,7 +1581,7 @@ public:
             {
                 if (c->x == screen->width_in_pixels / 2 
                  && c->y == 0 
-                 && c->width == screen->width_in_pixels 
+                 && c->width == screen->width_in_pixels / 2
                  && c->height == screen->height_in_pixels)
                 {
                     c->x        = c->tile_ogsize.x;
@@ -1603,7 +1603,7 @@ public:
                 save_tile_ogsize(c);
                 c->x = screen->width_in_pixels / 2;
                 c->y = 0;
-                c->width = screen->width_in_pixels;
+                c->width = screen->width_in_pixels / 2;
                 c->height = screen->height_in_pixels;
                 wm::setWindowPosition(c);
                 wm::setWindowSize(c);
