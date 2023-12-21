@@ -1764,7 +1764,7 @@ class Event {
             if ((e->detail == r_arrow) 
              && (e->state & CTRL | SUPER))
             {
-                if (e->state == SHIFT)
+                if (e->state == SHIFT + CTRL + SUPER)
                 {
                     move_to_next_desktop_w_app();
                     return;
