@@ -1,4 +1,3 @@
-#include <cstdint>
 #define main_cpp
 #include "include.hpp"
 
@@ -1806,6 +1805,13 @@ class Event {
 				client * c = get::client_from_win(& e->event);
 				Animate::move(c, c->x, c->y, c->x + 600, c->y, 400);
 			}
+
+            if (e->detail == l_arrow
+             && e->state & SUPER)
+            {
+                client * c = get::client_from_win(& e->event);
+                tile(c, 1);
+            }
         }
 
         void /* 
