@@ -1761,8 +1761,7 @@ class Event {
                 IF 'CTRL+SUPER+LEFT' WAS PRESSED MOVE TO PREVIOUS DESKTOP
                 IF 'CTRL+SUPER+SHIFT+LEFT' WAS PRESSED MOVE TO PREVIOUS DESKTOP WITH FOCUSED APP
              */
-            if ((e->detail == r_arrow) 
-             && (e->state & CTRL | SUPER))
+            if (e->detail == r_arrow)
             {
                 switch (e->state) 
                 {
@@ -1770,9 +1769,15 @@ class Event {
                     {
                         move_to_next_desktop_w_app();
                         return;
+                        break;
+                    }
+                    case CTRL + SUPER:
+                    {
+				        Next_Desktop();
+                        return;
+                        break;
                     }
                 }
-				Next_Desktop();
             }
 
             /*
