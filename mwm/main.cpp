@@ -1631,16 +1631,6 @@ class tile {
                         break;
                     }
 
-                    // IF 'CURRENTLY_TILED' 'LEFT_DOWN'
-                    if (currently_tiled(c, 3))
-                    {
-                        set_tile_ogsize(c);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
-                        return;
-                        break;
-                    }
-
                     // IF 'CURRENTLY_TILED' 'RIGHT'
                     if (currently_tiled(c, 2))
                     {
@@ -1654,10 +1644,41 @@ class tile {
                         break;
                     }
 
-                    // IF 'CURRENTLY_TILED' 'RIGHT_DOWN'
-                    if (currently_tiled(c, 4))
+                    // IF 'CURRENTLY_TILED' 'LEFT_DOWN' OR 'RIGHT_DOWN'
+                    if (currently_tiled(c, 3)
+                     || currently_tiled(c, 4))
                     {
                         set_tile_ogsize(c);
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
+                        return;
+                        break;
+                    }
+                }
+
+                // UP
+                case 4:
+                {
+                    // IF 'CURRENTLY_TILED' LEFT
+                    if (currently_tiled(c, 1))
+                    {
+                        c->x = 0;
+                        c->y = 0;
+                        c->width = screen->width_in_pixels / 2;
+                        c->height = screen->height_in_pixels / 2;
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
+                        return;
+                        break;
+                    }
+
+                    // IF 'CURRENTLY_TILED' RIGHT
+                    if (currently_tiled(c, 1))
+                    {
+                        c->x = screen->width_in_millimeters / 2;
+                        c->y = 0;
+                        c->width = screen->width_in_pixels / 2;
+                        c->height = screen->height_in_pixels / 2;
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1747,6 +1768,32 @@ class tile {
                 {
                     if (c->x        == screen->width_in_pixels / 2
                      && c->y        == screen->height_in_pixels / 2
+                     && c->width    == screen->width_in_pixels / 2
+                     && c->height   == screen->height_in_pixels / 2)
+                    {
+                        return true;
+                    }
+                    break;
+                }
+
+                // LEFT_UP
+                case 5:
+                {
+                    if (c->x        == 0
+                     && c->y        == 0
+                     && c->width    == screen->width_in_pixels / 2
+                     && c->height   == screen->height_in_pixels / 2)
+                    {
+                        return true;
+                    }
+                    break;
+                }
+
+                // RIGHT_UP
+                case 6:
+                {
+                    if (c->x        == screen->width_in_pixels / 2
+                     && c->y        == 0
                      && c->width    == screen->width_in_pixels / 2
                      && c->height   == screen->height_in_pixels / 2)
                     {
@@ -2017,6 +2064,9 @@ class Event {
                 }
             }
 
+            /*
+                IF 'D_ARROW' IS PRESSED SEND TO TILE
+             */
             if (e->detail == d_arrow)
             {
                 switch (e->state) 
