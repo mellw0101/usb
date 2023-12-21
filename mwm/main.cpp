@@ -1549,7 +1549,8 @@ class tile {
                 case 1:
                 {
                     // IF CURRENTLT TILED TO LEFT
-                    if (currently_tiled(c, 1))
+                    if (currently_tiled(c, 1)
+                     || currently_tiled(c, 3))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1591,9 +1592,8 @@ class tile {
                         return;
                     }
 
-                    // IF 'CURRENTLT_TILED' TO 'LEFT' OR 'DOWN_LEFT'
-                    if (currently_tiled(c, 1)
-                     || currently_tiled(c, 3))
+                    // IF 'CURRENTLT_TILED' TO 'LEFT'
+                    if (currently_tiled(c, 1))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
