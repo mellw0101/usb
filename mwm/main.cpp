@@ -1,3 +1,4 @@
+#include "structs.hpp"
 #define main_cpp
 #include "include.hpp"
 
@@ -1611,10 +1612,11 @@ class tile {
                      || current_tile_pos(c, TILEPOS_RIGHT_DOWN)
                      || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
-                        c->x        = screen->width_in_pixels / 2;
-                        c->y        = 0;
-                        c->width    = screen->width_in_pixels / 2;
-                        c->height   = screen->height_in_pixels;
+                        // c->x        = screen->width_in_pixels / 2;
+                        // c->y        = 0;
+                        // c->width    = screen->width_in_pixels / 2;
+                        // c->height   = screen->height_in_pixels;
+                        set_tile_sizepos(c, TILEPOS_RIGHT);
                         wm::setWindowPosition(c);
                         wm::setWindowSize(c);
                         return;
@@ -1828,6 +1830,65 @@ class tile {
                 }
             }
             return false;
+        }
+
+        void
+        set_tile_sizepos(client * & c, TILEPOS sizepos)
+        {
+            switch (sizepos) 
+            {
+                case TILEPOS_LEFT:
+                {
+                    c->x        = 0;
+                    c->y        = 0;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels;
+                    return;
+                }
+                
+                case TILEPOS_RIGHT:
+                {
+                    c->x        = screen->width_in_pixels / 2;
+                    c->y        = 0;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels;
+                    return;
+                }
+                
+                case TILEPOS_LEFT_DOWN:
+                {
+                    c->x        = 0;
+                    c->y        = screen->height_in_pixels / 2;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels / 2;
+                }
+
+                case TILEPOS_RIGHT_DOWN:
+                {
+                    c->x        = screen->width_in_pixels / 2;
+                    c->y        = screen->height_in_pixels / 2;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels / 2;
+                    return;
+                }
+
+                case TILEPOS_LEFT_UP:
+                {
+                    c->x        = 0;
+                    c->y        = 0;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels / 2;
+                    return;
+                } 
+                
+                case TILEPOS_RIGHT_UP:
+                {
+                    c->x        = screen->width_in_pixels / 2;
+                    c->y        = 0;
+                    c->width    = screen->width_in_pixels / 2;
+                    c->height   = screen->height_in_pixels / 2;
+                }
+            }
         }
 
         void 
