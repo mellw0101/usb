@@ -1545,6 +1545,7 @@ public:
             // LEFT
             case 1:
             {
+                // IF CURRENTLT TILED TO LEFT
                 if (c->x == 0 
                  && c->y == 0 
                  && c->width == screen->width_in_pixels / 2 
@@ -1565,6 +1566,21 @@ public:
                     );
                     return;
                 }
+                
+                // IF CURRENTLY TILED TO RIGHT
+                if (c->x == screen->width_in_pixels / 2 
+                 && c->y == 0 
+                 && c->width == screen->width_in_pixels / 2
+                 && c->height == screen->height_in_pixels)
+                {
+                    c->x = 0;
+                    c->y = 0;
+                    c->width = screen->width_in_pixels / 2;
+                    c->height = screen->height_in_pixels;
+                    wm::setWindowPosition(c);
+                    wm::setWindowSize(c);
+                    return;
+                }
 
                 save_tile_ogsize(c);
                 c->x = 0;
@@ -1579,6 +1595,7 @@ public:
             // RIGHT
             case 2:
             {
+                // IF CURRENTLY TILED TO RIGHT
                 if (c->x == screen->width_in_pixels / 2 
                  && c->y == 0 
                  && c->width == screen->width_in_pixels / 2
@@ -1597,6 +1614,21 @@ public:
                         c->width,
                         c->height
                     );
+                    return;
+                }
+
+                // IF CURRENTLT TILED TO LEFT
+                if (c->x == 0 
+                 && c->y == 0 
+                 && c->width == screen->width_in_pixels / 2 
+                 && c->height == screen->height_in_pixels)
+                {
+                    c->x = screen->width_in_pixels / 2;
+                    c->y = 0;
+                    c->width = screen->width_in_pixels / 2;
+                    c->height = screen->height_in_pixels;
+                    wm::setWindowPosition(c);
+                    wm::setWindowSize(c);
                     return;
                 }
 
