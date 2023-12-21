@@ -446,7 +446,7 @@ class mv_client {
         }
 
         /* DEFENITIONS TO REDUCE REDUNDENT CODE IN 'snap' FUNCTION */
-        #define RIGHT   screen->width_in_pixels  - c->width
+        #define RIGHT_   screen->width_in_pixels  - c->width
         #define BOTTOM  screen->height_in_pixels - c->height
 
         void 
@@ -549,7 +549,7 @@ class mv_client {
             {
                 move_client(0, 0);
             }
-            else if ((x < RIGHT + N && x > RIGHT - N) && (y < N && y > -N))
+            else if ((x < RIGHT_ + N && x > RIGHT_ - N) && (y < N && y > -N))
             {
                 move_client(RIGHT, 0);
             }
@@ -565,11 +565,11 @@ class mv_client {
             {
                 move_client(x, 0);
             }
-            else if ((x < RIGHT + N && x > RIGHT - N) && (y < BOTTOM + N && y > BOTTOM - N))
+            else if ((x < RIGHT_ + N && x > RIGHT_ - N) && (y < BOTTOM + N && y > BOTTOM - N))
             {
                 move_client(RIGHT, BOTTOM);
             }
-            else if ((x < RIGHT + N) && (x > RIGHT - N))
+            else if ((x < RIGHT_ + N) && (x > RIGHT_ - N))
             { 
                 move_client(RIGHT, y);
             }
@@ -1549,7 +1549,7 @@ class tile {
                 case 1:
                 {
                     // IF 'CURRENTLT_TILED' TO 'LEFT'
-                    if (currently_tiled(c, 1))
+                    if (currently_tiled(c, LEFT))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1558,10 +1558,10 @@ class tile {
                     }
                     
                     // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN', 'LEFT_UP' OR 'RIGHT_UP'
-                    if (currently_tiled(c, 2)
-                     || currently_tiled(c, 3)
-                     || currently_tiled(c, 5)
-                     || currently_tiled(c, 6))
+                    if (currently_tiled(c, RIGHT)
+                     || currently_tiled(c, LEFT_DOWN)
+                     || currently_tiled(c, LEFT_UP)
+                     || currently_tiled(c, RIGHT_UP))
                     {
                         c->x        = 0;
                         c->y        = 0;
@@ -1573,7 +1573,7 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' TO 'RIGHT_DOWN'
-                    if (currently_tiled(c, 4))
+                    if (currently_tiled(c, RIGHT_DOWN))
                     {
                         c->x        = 0;
                         c->y        = screen->height_in_pixels / 2;
@@ -1598,7 +1598,7 @@ class tile {
                 case 2:
                 {
                     // IF 'CURRENTLY_TILED' TO 'RIGHT'
-                    if (currently_tiled(c, 2))
+                    if (currently_tiled(c, RIGHT))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1607,10 +1607,10 @@ class tile {
                     }
 
                     // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN', 'RIGHT_UP', OR 'LEFT_UP' 
-                    if (currently_tiled(c, 1)
-                     || currently_tiled(c, 6)
-                     || currently_tiled(c, 4)
-                     || currently_tiled(c, 5))
+                    if (currently_tiled(c, LEFT)
+                     || currently_tiled(c, RIGHT_UP)
+                     || currently_tiled(c, RIGHT_DOWN)
+                     || currently_tiled(c, LEFT_UP))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = 0;
@@ -1622,7 +1622,7 @@ class tile {
                     }
 
                     // IF 'CURRENTLT_TILED' 'LEFT_DOWN'
-                    if (currently_tiled(c, 3))
+                    if (currently_tiled(c, LEFT_DOWN))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = screen->height_in_pixels / 2;
@@ -1647,8 +1647,8 @@ class tile {
                 case 3:
                 {
                     // IF 'CURRENTLY_TILED' 'LEFT' OR 'LEFT_UP'
-                    if (currently_tiled(c, 1)
-                     || currently_tiled(c, 5))
+                    if (currently_tiled(c, LEFT)
+                     || currently_tiled(c, LEFT_UP))
                     {
                         c->x = 0;
                         c->y = screen->height_in_pixels / 2;
@@ -1661,8 +1661,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'RIGHT' OR 'RIGHT_UP'
-                    if (currently_tiled(c, 2)
-                     || currently_tiled(c, 6))
+                    if (currently_tiled(c, RIGHT)
+                     || currently_tiled(c, RIGHT_UP))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = screen->height_in_pixels / 2;
@@ -1675,8 +1675,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'LEFT_DOWN' OR 'RIGHT_DOWN'
-                    if (currently_tiled(c, 3)
-                     || currently_tiled(c, 4))
+                    if (currently_tiled(c, LEFT_DOWN)
+                     || currently_tiled(c, RIGHT_DOWN))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1690,8 +1690,8 @@ class tile {
                 case 4:
                 {
                     // IF 'CURRENTLY_TILED' 'LEFT'
-                    if (currently_tiled(c, 1)
-                     || currently_tiled(c, 3))
+                    if (currently_tiled(c, LEFT)
+                     || currently_tiled(c, LEFT_DOWN))
                     {
                         c->x = 0;
                         c->y = 0;
@@ -1704,8 +1704,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'RIGHT' OR RIGHT_DOWN
-                    if (currently_tiled(c, 2)
-                     || currently_tiled(c, 4))
+                    if (currently_tiled(c, RIGHT)
+                     || currently_tiled(c, RIGHT_DOWN))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
@@ -1752,12 +1752,11 @@ class tile {
         }
 
         bool
-        currently_tiled(client * & c, const uint8_t & mode)
+        currently_tiled(client * & c, TILE mode)
         {
             switch (mode) 
             {
-                // LEFT
-                case 1:
+                case LEFT:
                 {
                     if (c->x        == 0 
                      && c->y        == 0 
@@ -1769,8 +1768,7 @@ class tile {
                     break;
                 }
 
-                // RIGHT
-                case 2:
+                case RIGHT:
                 {
                     if (c->x        == screen->width_in_pixels / 2 
                      && c->y        == 0 
@@ -1782,8 +1780,7 @@ class tile {
                     break;
                 }
 
-                // LEFT_DOWN
-                case 3:
+                case LEFT_DOWN:
                 {
                     if (c->x        == 0
                      && c->y        == screen->height_in_pixels / 2
@@ -1795,8 +1792,7 @@ class tile {
                     break;
                 }
 
-                // RIGHT_DOWN
-                case 4:
+                case RIGHT_DOWN:
                 {
                     if (c->x        == screen->width_in_pixels / 2
                      && c->y        == screen->height_in_pixels / 2
@@ -1808,8 +1804,7 @@ class tile {
                     break;
                 }
 
-                // LEFT_UP
-                case 5:
+                case LEFT_UP:
                 {
                     if (c->x        == 0
                      && c->y        == 0
@@ -1821,8 +1816,7 @@ class tile {
                     break;
                 }
 
-                // RIGHT_UP
-                case 6:
+                case RIGHT_UP:
                 {
                     if (c->x        == screen->width_in_pixels / 2
                      && c->y        == 0

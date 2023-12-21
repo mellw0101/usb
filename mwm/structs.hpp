@@ -11,6 +11,15 @@ enum {
      */
 };
 
+enum TILE {
+    LEFT = 1,
+    RIGHT = 2,
+    LEFT_DOWN = 3,
+    RIGHT_DOWN = 4,
+    LEFT_UP = 5,
+    RIGHT_UP = 6
+};
+
 enum Direction {
     NEXT,
     PREV
