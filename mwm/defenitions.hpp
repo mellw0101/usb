@@ -33,8 +33,10 @@
 #define N_3     0x33
 #define N_4     0x34
 #define N_5     0x35
-#define R_ARROW 0xff53
 #define L_ARROW 0xff51
+#define U_ARROW 0xff52
+#define R_ARROW 0xff53
+#define D_ARROW 0xff54
 #define TAB     0xff09
 #define K       0x6b
 

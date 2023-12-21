@@ -1303,10 +1303,12 @@ class WinManager {
                 {   L_ARROW,    CTRL | SUPER            },
                 {   R_ARROW,    CTRL | SUPER | SHIFT    },
                 {   L_ARROW,    CTRL | SUPER | SHIFT    },
-                {   TAB,        ALT                     },
-                {   K,          ALT | SUPER             },
                 {   R_ARROW,    SUPER                   },
-                {   L_ARROW,    SUPER                   }
+                {   L_ARROW,    SUPER                   },
+                {   U_ARROW,    SUPER                   },
+                {   D_ARROW,    SUPER                   },
+                {   TAB,        ALT                     },
+                {   K,          ALT | SUPER             }
             });
 
             // make_frame(c);
@@ -1549,12 +1551,9 @@ class tile {
                     // IF CURRENTLT TILED TO LEFT
                     if (currently_tiled(c, 1))
                     {
-                        c->x        = c->tile_ogsize.x;
-                        c->y        = c->tile_ogsize.y;
-                        c->width    = c->tile_ogsize.width;
-                        c->height   = c->tile_ogsize.height;
-                        wm::setWindowPosition(c);
+                        set_tile_ogsize(c);
                         wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
                         return;
                     }
                     
@@ -1565,8 +1564,8 @@ class tile {
                         c->y = 0;
                         c->width = screen->width_in_pixels / 2;
                         c->height = screen->height_in_pixels;
-                        wm::setWindowPosition(c);
                         wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -1575,8 +1574,8 @@ class tile {
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    wm::setWindowPosition(c);
                     wm::setWindowSize(c);
+                    wm::setWindowPosition(c);
                     break;
                 }
                 
@@ -1586,12 +1585,9 @@ class tile {
                     // IF CURRENTLY TILED TO RIGHT
                     if (currently_tiled(c, 2))
                     {
-                        c->x        = c->tile_ogsize.x;
-                        c->y        = c->tile_ogsize.y;
-                        c->width    = c->tile_ogsize.width;
-                        c->height   = c->tile_ogsize.height;
-                        wm::setWindowPosition(c);
+                        set_tile_ogsize(c);
                         wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -1612,26 +1608,47 @@ class tile {
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    wm::setWindowPosition(c);
                     wm::setWindowSize(c);
+                    wm::setWindowPosition(c);
                     break;
                 }
 
-                // // DOWN
-                // case 3:
-                // {
+                // DOWN
+                case 3:
+                {
+                    // IF CURRENTLY TILED LEFT
+                    if (currently_tiled(c, 1))
+                    {
+                        c->x = 0;
+                        c->y = 0;
+                        c->width = screen->width_in_pixels / 2;
+                        c->height = screen->height_in_pixels / 2;
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
+                        return;
+                        break;
+                    }
 
-                // }
+                    // IF 'CURRENTLY_TILED' 'LEFT_DOWN'
+                    if (currently_tiled(c, 3))
+                    {
+                        set_tile_ogsize(c);
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
+                        return;
+                        break;
+                    }
+                }
             }
         } 
     private:
         void 
         save_tile_ogsize(client * & c)
         {
-            c->tile_ogsize.x = c->x;
-            c->tile_ogsize.y = c->y;
-            c->tile_ogsize.width = c->width;
-            c->tile_ogsize.height = c->height;
+            c->tile_ogsize.x        = c->x;
+            c->tile_ogsize.y        = c->y;
+            c->tile_ogsize.width    = c->width;
+            c->tile_ogsize.height   = c->height;
         }
         
         void
@@ -1664,10 +1681,10 @@ class tile {
                 // LEFT
                 case 1:
                 {
-                    if (c->x == 0 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2 
-                     && c->height == screen->height_in_pixels)
+                    if (c->x        == 0 
+                     && c->y        == 0 
+                     && c->width    == screen->width_in_pixels / 2 
+                     && c->height   == screen->height_in_pixels)
                     {
                         return true;
                     }
@@ -1677,10 +1694,23 @@ class tile {
                 // RIGHT
                 case 2:
                 {
-                    if (c->x == screen->width_in_pixels / 2 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2
-                     && c->height == screen->height_in_pixels)
+                    if (c->x        == screen->width_in_pixels / 2 
+                     && c->y        == 0 
+                     && c->width    == screen->width_in_pixels / 2
+                     && c->height   == screen->height_in_pixels)
+                    {
+                        return true;
+                    }
+                    break;
+                }
+
+                // LEFT_DOWN
+                case 3:
+                {
+                    if (c->x        == 0
+                     && c->y        == 0
+                     && c->width    == screen->width_in_pixels / 2
+                     && c->height   == screen->height_in_pixels / 2)
                     {
                         return true;
                     }
@@ -1688,6 +1718,15 @@ class tile {
                 }
             }
             return false;
+        }
+
+        void 
+        set_tile_ogsize(client * & c)
+        {
+            c->x        = c->tile_ogsize.x;
+            c->y        = c->tile_ogsize.y;
+            c->width    = c->tile_ogsize.width;
+            c->height   = c->tile_ogsize.height;
         }
 };
 
@@ -1777,7 +1816,7 @@ class Event {
         /*
             VARIABELS TO STORE KEYCODES
          */ 
-        xcb_keycode_t t{}, q{}, f{}, f11{}, n_1{}, n_2{}, n_3{}, n_4{}, n_5{}, r_arrow{}, l_arrow{}, tab{}, k{}; 
+        xcb_keycode_t t{}, q{}, f{}, f11{}, n_1{}, n_2{}, n_3{}, n_4{}, n_5{}, r_arrow{}, l_arrow{}, u_arrow{}, d_arrow{}, tab{}, k{}; 
         
         void 
         key_press_handler(const xcb_generic_event_t * & ev)
@@ -1940,6 +1979,20 @@ class Event {
                 }
             }
 
+            if (e->detail == d_arrow)
+            {
+                switch (e->state) 
+                {
+                    case SUPER:
+                    {
+                        client * c = get::client_from_win(& e->event);
+                        tile(c, 3);
+                        return;
+                        break;
+                    }
+                }
+            }
+
             /*
                 CHECK IF 'ALT+TAB' WAS PRESSED
                 IF SO CYCLE FOCUS
@@ -1971,6 +2024,8 @@ class Event {
                 xcb_keycode_t * n_5_keycodes        = xcb_key_symbols_get_keycode(keysyms, N_5);
                 xcb_keycode_t * r_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, R_ARROW);
                 xcb_keycode_t * l_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, L_ARROW);
+                xcb_keycode_t * u_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, U_ARROW);
+                xcb_keycode_t * d_arrow_keycodes    = xcb_key_symbols_get_keycode(keysyms, D_ARROW);
                 xcb_keycode_t * tab_keycodes        = xcb_key_symbols_get_keycode(keysyms, TAB);
                 xcb_keycode_t * k_keycodes			= xcb_key_symbols_get_keycode(keysyms, K);
                 
@@ -2038,6 +2093,18 @@ class Event {
                 {
                     l_arrow = * l_arrow_keycodes;
                     free(l_arrow_keycodes);
+                }
+
+                if (u_arrow_keycodes)
+                {
+                    u_arrow = * u_arrow_keycodes;
+                    free(u_arrow_keycodes);
+                }
+
+                if (d_arrow_keycodes)
+                {
+                    d_arrow = * d_arrow_keycodes;
+                    free(d_arrow_keycodes);
                 }
 
                 if (tab_keycodes)
