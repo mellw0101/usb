@@ -815,6 +815,7 @@ next_show(client * & c)
 	show_hide_client(c, SHOW);
 	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
+    focus::client(c);
 }
 
 void
@@ -879,6 +880,7 @@ Prev_Desktop()
 			show_hide_client(c, SHOW);
 			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
+            focus::client(c);
 		}
 	}
 }
