@@ -14,7 +14,8 @@
 #define log_info(message)               log.log(INFO, __func__, message)
 
 /* XCB DEFENITIONS */
-#define XCB_map_window(win) xcb.map_window(conn, win, __func__)
+#define XCB_map_window(win) xcb.map_window(conn, win, __FUNCTION__)
+#define XCB_flush()         xcb.flush(conn, __FUNCTION__)
 
 /* MOD_MASK DEFENITIONS */
 #define SHIFT   XCB_MOD_MASK_SHIFT

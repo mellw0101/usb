@@ -63,9 +63,118 @@ get_atom(const char * atom_name)
     return atom;
 }
 
-class wm {
+class focus {
     public:
+        static void
+        client(client * & c)
+        {
+            // LOG_func
+            if (c == nullptr)
+            {
+                LOG_warning("client was nullptr");
+                return;
+            }
+            raise_client(c);
+            focus_input(c);
+            focused_client = c;
+        }
+    private:
+        static void  
+        raise_client(struct client * & c) 
+        {
+            uint32_t values[1] = 
+            {
+                XCB_STACK_MODE_ABOVE
+            };
+            xcb_configure_window
+            (
+                conn,
+                c->win,
+                XCB_CONFIG_WINDOW_STACK_MODE, 
+                values
+            );
+            XCB_flush();
+        }
+        
         static void 
+        focus_input(struct client * & c)
+        {
+            if (!c)
+            {
+                LOG_warning("client was nullptr");
+                return;
+            }
+            xcb_set_input_focus
+            (
+                conn, 
+                XCB_INPUT_FOCUS_POINTER_ROOT, 
+                c->win, 
+                XCB_CURRENT_TIME
+            );
+            XCB_flush();
+        }
+};
+
+class focus_client {
+    public:
+        focus_client(client * & c) : c(c)
+        {
+            // LOG_func
+            if (c == nullptr)
+            {
+                LOG_warning("client was nullptr");
+                return;
+            }
+            raise_client(c);
+            focus_input(c);
+            focused_client = c;
+        }
+
+        focus_client(client * & c, bool is = true) : c(c)
+        {
+            // LOG_func
+            if (c == nullptr)
+            {
+                LOG_warning("client was nullptr");
+                return;
+            }
+            raise_client(c);
+            focus_input(c);
+            focused_client = c;
+        }
+
+    private:
+        client * & c;
+
+        void  
+        raise_client(client * & c) 
+        {
+            uint32_t values[1] = 
+            {
+                XCB_STACK_MODE_ABOVE
+            };
+            xcb_configure_window
+            (
+                conn,
+                c->win,
+                XCB_CONFIG_WINDOW_STACK_MODE, 
+                values
+            );
+            flush_server(__func__);
+        }
+        
+        void 
+        flush_server(const char * function_name)
+        {
+            const uint8_t & status = xcb_flush(conn);
+            if (status == 0) 
+            {
+                Log::ERROR(function_name, "]:[Failed to flush server");
+                return;
+            }
+        }
+
+        void 
         focus_input(client * & c)
         {
             if (!c)
@@ -82,34 +191,11 @@ class wm {
             );
             flush_server(__func__);
         }
+};
 
-        static void 
-        unfocus_client(client * c)
-        {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            xcb_unmap_window(conn, c->win);
-            xcb_map_window(conn, c->win);
-        }
-
-        static void 
-        focus_client(client * & c)
-        {    
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
-        }
-
+class wm {
+    public:
+       
         static void 
         setWindowSize(client * c) 
         {
@@ -289,89 +375,11 @@ class wm {
                     
                     if (focus)
                     {
-                        focus_client(c);
+                        focus_client(c, true);
                         return;  
                     }
                 }
             }
-        }
-};
-
-class focus_client {
-    public:
-        focus_client(client * & c) : c(c)
-        {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
-        }
-
-        focus_client(client * & c, bool is = true) : c(c)
-        {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
-        }
-
-    private:
-        client * & c;
-
-        void  
-        raise_client(client * & c) 
-        {
-            uint32_t values[1] = 
-            {
-                XCB_STACK_MODE_ABOVE
-            };
-            xcb_configure_window
-            (
-                conn,
-                c->win,
-                XCB_CONFIG_WINDOW_STACK_MODE, 
-                values
-            );
-            flush_server(__func__);
-        }
-        
-        void 
-        flush_server(const char * function_name)
-        {
-            const uint8_t & status = xcb_flush(conn);
-            if (status == 0) 
-            {
-                Log::ERROR(function_name, "]:[Failed to flush server");
-                return;
-            }
-        }
-
-        void 
-        focus_input(client * & c)
-        {
-            if (!c)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            xcb_set_input_focus
-            (
-                conn, 
-                XCB_INPUT_FOCUS_POINTER_ROOT, 
-                c->win, 
-                XCB_CURRENT_TIME
-            );
-            flush_server(__func__);
         }
 };
 
@@ -818,7 +826,7 @@ move_desktop(const uint8_t & n)
 void 
 next_hide(client * & c) 
 {
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
 	show_hide_client(c, HIDE);
 }
@@ -831,7 +839,7 @@ next_show(client * & c)
 		c->x = c->x + screen->width_in_pixels;
 	}
 	show_hide_client(c, SHOW);
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 500);
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
 }
 
@@ -842,8 +850,6 @@ Next_Desktop()
 	{
 		return;
 	}
-
-	std::vector<std::thread> threads;
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
 	for (auto & c : cur_d->current_clients) 
@@ -1272,7 +1278,7 @@ namespace borrowed {
         c->ismax = true;
         xcb_flush(conn);
         show_hide_client(c, SHOW);
-        wm::focus_client(c);
+        focus::client(c);
     }
 }
 
@@ -1383,7 +1389,7 @@ class WinManager {
 
             // make_frame(c);
             get_name(c);
-            wm::focus_client(c);
+            focus::client(c);
         }
 
     private:
@@ -1984,7 +1990,7 @@ class Event {
                 log.log(INFO, __func__, "ALT+L_MOUSE_BUTTON");
                 wm::raise_client(c);
                 mv_client(c, e->event_x, e->event_y);
-                wm::focus_client(c);
+                focus::client(c);
             }
 
             if ((e->detail == R_MOUSE_BUTTON) 
@@ -1994,7 +2000,7 @@ class Event {
                 log.log(INFO, __func__, "ALT+R_MOUSE_BUTTON");
                 wm::raise_client(c);
                 resize_client(c, 0);
-                wm::focus_client(c);
+                focus::client(c);
             }
 
             if ((e->detail == L_MOUSE_BUTTON) 
@@ -2002,7 +2008,7 @@ class Event {
              && (c != focused_client))
             {
                 log.log(INFO, __func__, "L_MOUSE_BUTTON");
-                focus_client(c, 0);
+                focus::client(c);
             } 
         }
 
