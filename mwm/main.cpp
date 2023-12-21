@@ -1546,9 +1546,9 @@ public:
             case 1:
             {
                 if (c->x == 0 
-                && c->y == 0 
-                && c->width == screen->width_in_pixels / 2 
-                && c->height == screen->height_in_pixels)
+                 && c->y == 0 
+                 && c->width == screen->width_in_pixels / 2 
+                 && c->height == screen->height_in_pixels)
                 {
                     c->x        = c->tile_ogsize.x;
                     c->y        = c->tile_ogsize.y;
@@ -1565,10 +1565,45 @@ public:
                     );
                     return;
                 }
+
                 save_tile_ogsize(c);
                 c->x = 0;
                 c->y = 0;
                 c->width = screen->width_in_pixels / 2;
+                c->height = screen->height_in_pixels;
+                wm::setWindowPosition(c);
+                wm::setWindowSize(c);
+                break;
+            }
+            
+            // RIGHT
+            case 2:
+            {
+                if (c->x == screen->width_in_pixels / 2 
+                 && c->y == 0 
+                 && c->width == screen->width_in_pixels 
+                 && c->height == screen->height_in_pixels)
+                {
+                    c->x        = c->tile_ogsize.x;
+                    c->y        = c->tile_ogsize.y;
+                    c->width    = c->tile_ogsize.width;
+                    c->height   = c->tile_ogsize.height;
+
+                    borrowed::moveresize
+                    (
+                        c->win,
+                        c->x, 
+                        c->y,
+                        c->width,
+                        c->height
+                    );
+                    return;
+                }
+
+                save_tile_ogsize(c);
+                c->x = screen->width_in_pixels / 2;
+                c->y = 0;
+                c->width = screen->width_in_pixels;
                 c->height = screen->height_in_pixels;
                 wm::setWindowPosition(c);
                 wm::setWindowSize(c);
@@ -1793,6 +1828,13 @@ class Event {
                         return;
                         break;
                     }
+                    case SUPER:
+                    {
+                        client * c = get::client_from_win(& e->event);
+                        tile(c, 2);
+                        return;
+                        break;
+                    }
                 }
             }
 
@@ -1821,6 +1863,8 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 1);
+                        return;
+                        break;
                     }
                 }
             }
