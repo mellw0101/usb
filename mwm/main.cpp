@@ -2081,6 +2081,18 @@ class Event {
                 }
             }
 
+            if (e->detail == u_arrow)
+            {
+                switch (e->state) 
+                {
+                    case SUPER:
+                    {
+                        client * c = get::client_from_win(& e->event);
+                        tile(c, 4);
+                    }
+                }
+            }
+
             /*
                 CHECK IF 'ALT+TAB' WAS PRESSED
                 IF SO CYCLE FOCUS
