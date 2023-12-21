@@ -1769,8 +1769,9 @@ class Event {
                     case SHIFT + CTRL + SUPER:
                     {
                         move_to_next_desktop_w_app();
-                        return;
+                        break;    
                     }
+                    return;
                 }
 				Next_Desktop();
             }
