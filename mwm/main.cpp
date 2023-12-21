@@ -1557,7 +1557,7 @@ class tile {
                         return;
                     }
                     
-                    // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN', 'LEFT_UP', 'RIGHT_DOWN' OR 'RIGHT_UP'
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN', 'LEFT_UP' OR 'RIGHT_UP'
                     if (currently_tiled(c, 2)
                      || currently_tiled(c, 3)
                      || currently_tiled(c, 5)
@@ -1581,6 +1581,7 @@ class tile {
                         c->height   = screen->height_in_pixels / 2;
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
+                        return;
                     }
 
                     save_tile_ogsize(c);
