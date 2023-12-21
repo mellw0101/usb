@@ -1801,6 +1801,11 @@ class Event {
                         return;
                         break;
                     }
+                    case SUPER:
+                    {
+                        client * c = get::client_from_win(& e->event);
+                        tile(c, 1);
+                    }
                 }
             }
 
