@@ -1557,9 +1557,10 @@ class tile {
                         return;
                     }
                     
-                    // IF 'CURRENTLY_TILED' TO 'RIGHT' OR 'LEFT_DOWN'
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT' OR 'LEFT_DOWN' OR 'LEFT_UP'
                     if (currently_tiled(c, 2)
-                     || currently_tiled(c, 3))
+                     || currently_tiled(c, 3)
+                     || currently_tiled(c, 5))
                     {
                         c->x = 0;
                         c->y = 0;
@@ -1592,9 +1593,10 @@ class tile {
                         return;
                     }
 
-                    // IF 'CURRENTLT_TILED' TO 'LEFT'
+                    // IF 'CURRENTLT_TILED' TO 'LEFT' OR 'RIGHT_DOWN' OR 'RIGHT_UP'
                     if (currently_tiled(c, 1)
-                     || currently_tiled(c, 4))
+                     || currently_tiled(c, 4)
+                     || currently_tiled(c, 6))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
@@ -1618,8 +1620,9 @@ class tile {
                 // DOWN
                 case 3:
                 {
-                    // IF 'CURRENTLY_TILED' 'LEFT'
-                    if (currently_tiled(c, 1))
+                    // IF 'CURRENTLY_TILED' 'LEFT' OR 'LEFT_UP'
+                    if (currently_tiled(c, 1)
+                     || currently_tiled(c, 5))
                     {
                         c->x = 0;
                         c->y = screen->height_in_pixels / 2;
@@ -1631,8 +1634,9 @@ class tile {
                         break;
                     }
 
-                    // IF 'CURRENTLY_TILED' 'RIGHT'
-                    if (currently_tiled(c, 2))
+                    // IF 'CURRENTLY_TILED' 'RIGHT' OR 'RIGHT_UP'
+                    if (currently_tiled(c, 2)
+                     || currently_tiled(c, 6))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = screen->height_in_pixels / 2;
@@ -1673,7 +1677,7 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' RIGHT
-                    if (currently_tiled(c, 1))
+                    if (currently_tiled(c, 2))
                     {
                         c->x = screen->width_in_millimeters / 2;
                         c->y = 0;
