@@ -1679,7 +1679,7 @@ class tile {
                     // IF 'CURRENTLY_TILED' RIGHT
                     if (currently_tiled(c, 2))
                     {
-                        c->x = screen->width_in_millimeters / 2;
+                        c->x = screen->width_in_pixels / 2;
                         c->y = 0;
                         c->width = screen->width_in_pixels / 2;
                         c->height = screen->height_in_pixels / 2;
