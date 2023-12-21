@@ -1596,7 +1596,8 @@ class tile {
                         c->y        = c->tile_ogsize.y;
                         c->width    = c->tile_ogsize.width;
                         c->height   = c->tile_ogsize.height;
-                        moveresize(c);
+                        wm::setWindowPosition(c);
+                        wm::setWindowSize(c);
                         return;
                     }
 
@@ -1610,7 +1611,8 @@ class tile {
                         c->y = 0;
                         c->width = screen->width_in_pixels / 2;
                         c->height = screen->height_in_pixels;
-                        moveresize(c);
+                        wm::setWindowPosition(c);
+                        wm::setWindowSize(c);
                         return;
                     }
 
