@@ -1,4 +1,3 @@
-#include <cstdint>
 #define main_cpp
 #include "include.hpp"
 
@@ -1549,7 +1548,7 @@ class tile {
                 case 1:
                 {
                     // IF 'CURRENTLT_TILED' TO 'LEFT'
-                    if (currently_tiled(c, LEFT))
+                    if (current_tile_pos(c, TILEPOS_LEFT))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1558,10 +1557,10 @@ class tile {
                     }
                     
                     // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN', 'LEFT_UP' OR 'RIGHT_UP'
-                    if (currently_tiled(c, RIGHT)
-                     || currently_tiled(c, LEFT_DOWN)
-                     || currently_tiled(c, LEFT_UP)
-                     || currently_tiled(c, RIGHT_UP))
+                    if (current_tile_pos(c, TILEPOS_RIGHT)
+                     || current_tile_pos(c, TILEPOS_LEFT_DOWN)
+                     || current_tile_pos(c, TILEPOS_LEFT_UP)
+                     || current_tile_pos(c, TILEPOS_RIGHT_UP))
                     {
                         c->x        = 0;
                         c->y        = 0;
@@ -1573,7 +1572,7 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' TO 'RIGHT_DOWN'
-                    if (currently_tiled(c, RIGHT_DOWN))
+                    if (current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
                         c->x        = 0;
                         c->y        = screen->height_in_pixels / 2;
@@ -1598,7 +1597,7 @@ class tile {
                 case 2:
                 {
                     // IF 'CURRENTLY_TILED' TO 'RIGHT'
-                    if (currently_tiled(c, RIGHT))
+                    if (current_tile_pos(c, TILEPOS_RIGHT))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1607,10 +1606,10 @@ class tile {
                     }
 
                     // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN', 'RIGHT_UP', OR 'LEFT_UP' 
-                    if (currently_tiled(c, LEFT)
-                     || currently_tiled(c, RIGHT_UP)
-                     || currently_tiled(c, RIGHT_DOWN)
-                     || currently_tiled(c, LEFT_UP))
+                    if (current_tile_pos(c, TILEPOS_LEFT)
+                     || current_tile_pos(c, TILEPOS_RIGHT_UP)
+                     || current_tile_pos(c, TILEPOS_RIGHT_DOWN)
+                     || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = 0;
@@ -1622,7 +1621,7 @@ class tile {
                     }
 
                     // IF 'CURRENTLT_TILED' 'LEFT_DOWN'
-                    if (currently_tiled(c, LEFT_DOWN))
+                    if (current_tile_pos(c, TILEPOS_LEFT_DOWN))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = screen->height_in_pixels / 2;
@@ -1647,8 +1646,8 @@ class tile {
                 case 3:
                 {
                     // IF 'CURRENTLY_TILED' 'LEFT' OR 'LEFT_UP'
-                    if (currently_tiled(c, LEFT)
-                     || currently_tiled(c, LEFT_UP))
+                    if (current_tile_pos(c, TILEPOS_LEFT)
+                     || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
                         c->x = 0;
                         c->y = screen->height_in_pixels / 2;
@@ -1661,8 +1660,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'RIGHT' OR 'RIGHT_UP'
-                    if (currently_tiled(c, RIGHT)
-                     || currently_tiled(c, RIGHT_UP))
+                    if (current_tile_pos(c, TILEPOS_RIGHT)
+                     || current_tile_pos(c, TILEPOS_RIGHT_UP))
                     {
                         c->x        = screen->width_in_pixels / 2;
                         c->y        = screen->height_in_pixels / 2;
@@ -1675,8 +1674,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'LEFT_DOWN' OR 'RIGHT_DOWN'
-                    if (currently_tiled(c, LEFT_DOWN)
-                     || currently_tiled(c, RIGHT_DOWN))
+                    if (current_tile_pos(c, TILEPOS_LEFT_DOWN)
+                     || current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
                         set_tile_ogsize(c);
                         wm::setWindowSize(c);
@@ -1690,8 +1689,8 @@ class tile {
                 case 4:
                 {
                     // IF 'CURRENTLY_TILED' 'LEFT'
-                    if (currently_tiled(c, LEFT)
-                     || currently_tiled(c, LEFT_DOWN))
+                    if (current_tile_pos(c, TILEPOS_LEFT)
+                     || current_tile_pos(c, TILEPOS_LEFT_DOWN))
                     {
                         c->x = 0;
                         c->y = 0;
@@ -1704,8 +1703,8 @@ class tile {
                     }
 
                     // IF 'CURRENTLY_TILED' 'RIGHT' OR RIGHT_DOWN
-                    if (currently_tiled(c, RIGHT)
-                     || currently_tiled(c, RIGHT_DOWN))
+                    if (current_tile_pos(c, TILEPOS_RIGHT)
+                     || current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
@@ -1752,11 +1751,11 @@ class tile {
         }
 
         bool
-        currently_tiled(client * & c, TILE mode)
+        current_tile_pos(client * & c, TILEPOS mode)
         {
             switch (mode) 
             {
-                case LEFT:
+                case TILEPOS_LEFT:
                 {
                     if (c->x        == 0 
                      && c->y        == 0 
@@ -1768,7 +1767,7 @@ class tile {
                     break;
                 }
 
-                case RIGHT:
+                case TILEPOS_RIGHT:
                 {
                     if (c->x        == screen->width_in_pixels / 2 
                      && c->y        == 0 
@@ -1780,7 +1779,7 @@ class tile {
                     break;
                 }
 
-                case LEFT_DOWN:
+                case TILEPOS_LEFT_DOWN:
                 {
                     if (c->x        == 0
                      && c->y        == screen->height_in_pixels / 2
@@ -1792,7 +1791,7 @@ class tile {
                     break;
                 }
 
-                case RIGHT_DOWN:
+                case TILEPOS_RIGHT_DOWN:
                 {
                     if (c->x        == screen->width_in_pixels / 2
                      && c->y        == screen->height_in_pixels / 2
@@ -1804,7 +1803,7 @@ class tile {
                     break;
                 }
 
-                case LEFT_UP:
+                case TILEPOS_LEFT_UP:
                 {
                     if (c->x        == 0
                      && c->y        == 0
@@ -1816,7 +1815,7 @@ class tile {
                     break;
                 }
 
-                case RIGHT_UP:
+                case TILEPOS_RIGHT_UP:
                 {
                     if (c->x        == screen->width_in_pixels / 2
                      && c->y        == 0
@@ -1938,24 +1937,34 @@ class Event {
                 CHECK IF 'ALT+CTRL+T' WAS PRESSED
                 AND IF SO LAUNCH TERMINAL   
              */         
-            if ((e->detail == t) 
-             && (e->state & CTRL) 
-             && (e->state & ALT)) 
+            if (e->detail == t)  
             {
-                log.log(INFO, __func__, "ALT+CTRL+T");
-                wm::launchTerminal();
+                switch (e->state) 
+                {
+                    case CTRL + ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+CTRL+T");
+                        wm::launchTerminal();
+                        break;
+                    }
+                }
+                
             }
 
             /*
                 CHECK IF 'ALT+SHIFT+Q' WAS PRESSED
                 AND IF SO LAUNCH KILL_SESSION
              */ 
-            if ((e->detail == q) 
-             && (e->state & SHIFT) 
-             && (e->state & ALT)) 
+            if (e->detail == q) 
             {
-                log.log(INFO, __func__, "ALT+SHIFT+Q");
-                wm::kill_session();
+                switch (e->state) 
+                {
+                    case SHIFT + ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+SHIFT+Q");
+                        wm::kill_session();
+                    }
+                }
             }
 
             /*
@@ -1973,55 +1982,80 @@ class Event {
                 CHECK IF 'ALT+1' WAS PRESSED
                 AND IF SO MOVE TO DESKTOP 1
              */
-            if ((e->detail == n_1) 
-             && (e->state & ALT))
+            if (e->detail == n_1) 
             {
-                log.log(INFO, __func__, "ALT+1");
-                move_desktop(1);
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+1");
+                        move_desktop(1);
+                    }
+                }
             }
 
             /*
                 CHECK IF 'ALT+2' WAS PRESSED
                 AND IF SO MOVE TO DESKTOP 2
              */ 
-            if ((e->detail == n_2) 
-             && (e->state & ALT))
+            if (e->detail == n_2) 
             {
-                log.log(INFO, __func__, "ALT+2");
-                move_desktop(2);
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+2");
+                        move_desktop(2);
+                    }
+                }
             }
 
             /*
                 CHECK IF 'ALT+3' WAS PRESSED
                 AND IF SO MOVE TO DESKTOP 3
              */ 
-            if ((e->detail == n_3) 
-             && (e->state & ALT))
+            if (e->detail == n_3) 
             {
-                log.log(INFO, __func__, "ALT+3");
-                move_desktop(3);
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+3");
+                        move_desktop(3);
+                    }
+                }
             }
 
             /*
                 CHECK IF 'ALT+4' WAS PRESSED
                 AND IF SO MOVE TO DESKTOP 4
              */
-            if ((e->detail == n_4) 
-             && (e->state & ALT))
+            if (e->detail == n_4) 
             {
-                log.log(INFO, __func__, "ALT+4");
-                move_desktop(4);
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+4");
+                        move_desktop(4);
+                    }
+                }
             }
 
             /*
                 CHECK IF 'ALT+5' WAS PRESSED
                 IF SO MOVE TO DESKTOP 5
              */
-            if ((e->detail == n_5) 
-             && (e->state & ALT))
+            if (e->detail == n_5) 
             {
-                log.log(INFO, __func__, "ALT+5");
-                move_desktop(5);
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        log.log(INFO, __func__, "ALT+5");
+                        move_desktop(5);
+                    }
+                }
             }
 
             /*
@@ -2115,6 +2149,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 4);
+                        break;
                     }
                 }
             }
@@ -2123,10 +2158,16 @@ class Event {
                 CHECK IF 'ALT+TAB' WAS PRESSED
                 IF SO CYCLE FOCUS
              */
-            if ((e->detail == tab) 
-             && (e->state & ALT))
+            if (e->detail == tab) 
             {
-                wm::cycle_focus();
+                switch (e->state) 
+                {
+                    case ALT:
+                    {
+                        wm::cycle_focus();
+                        break;
+                    }
+                }
             }
         }
 

@@ -11,20 +11,19 @@ enum {
      */
 };
 
-enum TILE {
-    LEFT = 1,
-    RIGHT = 2,
-    LEFT_DOWN = 3,
-    RIGHT_DOWN = 4,
-    LEFT_UP = 5,
-    RIGHT_UP = 6
+enum TILEPOS {
+    TILEPOS_LEFT = 1,
+    TILEPOS_RIGHT = 2,
+    TILEPOS_LEFT_DOWN = 3,
+    TILEPOS_RIGHT_DOWN = 4,
+    TILEPOS_LEFT_UP = 5,
+    TILEPOS_RIGHT_UP = 6
 };
 
 enum Direction {
     NEXT,
     PREV
 };
-
 
 struct size_pos {
     uint16_t x, y, width, height;
