@@ -1582,7 +1582,7 @@ class tile {
                 // RIGHT
                 case 2:
                 {
-                    // IF CURRENTLY TILED TO RIGHT
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT'
                     if (currently_tiled(c, 2))
                     {
                         set_tile_ogsize(c);
@@ -1591,8 +1591,9 @@ class tile {
                         return;
                     }
 
-                    // IF CURRENTLT TILED TO LEFT
-                    if (currently_tiled(c, 1))
+                    // IF 'CURRENTLT_TILED' TO 'LEFT' OR 'DOWN_LEFT'
+                    if (currently_tiled(c, 1)
+                     || currently_tiled(c, 3))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
