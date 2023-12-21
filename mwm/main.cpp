@@ -1,3 +1,4 @@
+#include <cstdint>
 #define main_cpp
 #include "include.hpp"
 
@@ -1537,124 +1538,157 @@ class WinManager {
 };
 
 class tile {
-public:
-    tile(client * & c, const uint8_t & mode)
-    {
-        switch (mode) 
+    public:
+        tile(client * & c, const uint8_t & mode)
         {
-            // LEFT
-            case 1:
+            switch (mode) 
             {
-                // IF CURRENTLT TILED TO LEFT
-                if (c->x == 0 
-                 && c->y == 0 
-                 && c->width == screen->width_in_pixels / 2 
-                 && c->height == screen->height_in_pixels)
+                // LEFT
+                case 1:
                 {
-                    c->x        = c->tile_ogsize.x;
-                    c->y        = c->tile_ogsize.y;
-                    c->width    = c->tile_ogsize.width;
-                    c->height   = c->tile_ogsize.height;
+                    // IF CURRENTLT TILED TO LEFT
+                    if (currently_tiled(c, 1))
+                    {
+                        c->x        = c->tile_ogsize.x;
+                        c->y        = c->tile_ogsize.y;
+                        c->width    = c->tile_ogsize.width;
+                        c->height   = c->tile_ogsize.height;
+                        moveresize(c);
+                        return;
+                    }
+                    
+                    // IF CURRENTLY TILED TO RIGHT
+                    if (currently_tiled(c, 2))
+                    {
+                        c->x = 0;
+                        c->y = 0;
+                        c->width = screen->width_in_pixels / 2;
+                        c->height = screen->height_in_pixels;
+                        moveresize(c);
+                        return;
+                    }
 
-                    borrowed::moveresize
-                    (
-                        c->win,
-                        c->x, 
-                        c->y,
-                        c->width,
-                        c->height
-                    );
-                    return;
-                }
-                
-                // IF CURRENTLY TILED TO RIGHT
-                if (c->x == screen->width_in_pixels / 2 
-                 && c->y == 0 
-                 && c->width == screen->width_in_pixels / 2
-                 && c->height == screen->height_in_pixels)
-                {
+                    save_tile_ogsize(c);
                     c->x = 0;
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    wm::setWindowPosition(c);
-                    wm::setWindowSize(c);
-                    return;
+                    moveresize(c);
+                    break;
                 }
-
-                save_tile_ogsize(c);
-                c->x = 0;
-                c->y = 0;
-                c->width = screen->width_in_pixels / 2;
-                c->height = screen->height_in_pixels;
-                wm::setWindowPosition(c);
-                wm::setWindowSize(c);
-                break;
-            }
-            
-            // RIGHT
-            case 2:
-            {
-                // IF CURRENTLY TILED TO RIGHT
-                if (c->x == screen->width_in_pixels / 2 
-                 && c->y == 0 
-                 && c->width == screen->width_in_pixels / 2
-                 && c->height == screen->height_in_pixels)
+                
+                // RIGHT
+                case 2:
                 {
-                    c->x        = c->tile_ogsize.x;
-                    c->y        = c->tile_ogsize.y;
-                    c->width    = c->tile_ogsize.width;
-                    c->height   = c->tile_ogsize.height;
+                    // IF CURRENTLY TILED TO RIGHT
+                    if (currently_tiled(c, 2))
+                    {
+                        c->x        = c->tile_ogsize.x;
+                        c->y        = c->tile_ogsize.y;
+                        c->width    = c->tile_ogsize.width;
+                        c->height   = c->tile_ogsize.height;
+                        moveresize(c);
+                        return;
+                    }
 
-                    borrowed::moveresize
-                    (
-                        c->win,
-                        c->x, 
-                        c->y,
-                        c->width,
-                        c->height
-                    );
-                    return;
-                }
+                    // IF CURRENTLT TILED TO LEFT
+                    if (currently_tiled(c, 1))
+                    {
+                        c->x = screen->width_in_pixels / 2;
+                        c->y = 0;
+                        c->width = screen->width_in_pixels / 2;
+                        c->height = screen->height_in_pixels;
+                        moveresize(c);
+                        return;
+                    }
 
-                // IF CURRENTLT TILED TO LEFT
-                if (c->x == 0 
-                 && c->y == 0 
-                 && c->width == screen->width_in_pixels / 2 
-                 && c->height == screen->height_in_pixels)
-                {
+                    save_tile_ogsize(c);
                     c->x = screen->width_in_pixels / 2;
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    wm::setWindowPosition(c);
-                    wm::setWindowSize(c);
-                    return;
+                    moveresize(c);
+                    break;
                 }
 
-                save_tile_ogsize(c);
-                c->x = screen->width_in_pixels / 2;
-                c->y = 0;
-                c->width = screen->width_in_pixels / 2;
-                c->height = screen->height_in_pixels;
-                wm::setWindowPosition(c);
-                wm::setWindowSize(c);
-                break;
+                // DOWN
+                // case 3:
+                // {
+
+                // }
             }
+        } 
+    private:
+        void 
+        save_tile_ogsize(client * & c)
+        {
+            c->tile_ogsize.x = c->x;
+            c->tile_ogsize.y = c->y;
+            c->tile_ogsize.width = c->width;
+            c->tile_ogsize.height = c->height;
         }
-    } 
-private:
-    void 
-    save_tile_ogsize(client * & c)
-    {
-        c->tile_ogsize.x = c->x;
-        c->tile_ogsize.y = c->y;
-        c->tile_ogsize.width = c->width;
-        c->tile_ogsize.height = c->height;
-    }
+        
+        void
+        moveresize(client * & c)
+        {
+            if (c->win == screen->root || c->win == 0)
+            {
+                return;
+            }
+                
+            xcb_configure_window
+            (
+                conn,
+                c->win,
+                XCB_CONFIG_WINDOW_WIDTH | 
+                XCB_CONFIG_WINDOW_HEIGHT| 
+                XCB_CONFIG_WINDOW_X |
+                XCB_CONFIG_WINDOW_Y,
+                (const uint32_t[4])
+                {
+                    static_cast<const uint32_t &>(c->width),
+                    static_cast<const uint32_t &>(c->height),
+                    static_cast<const uint32_t &>(c->x),
+                    static_cast<const uint32_t &>(c->y)
+                }
+            );
+            xcb_flush(conn);
+        }
+
+        bool
+        currently_tiled(client * & c, const uint8_t & mode)
+        {
+            switch (mode) 
+            {
+                // LEFT
+                case 1:
+                {
+                    if (c->x == 0 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2 
+                     && c->height == screen->height_in_pixels)
+                    {
+                        return true;
+                    }
+                    break;
+                }
+
+                // RIGHT
+                case 2:
+                {
+                    if (c->x == screen->width_in_pixels / 2 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2
+                     && c->height == screen->height_in_pixels)
+                    {
+                        return true;
+                    }
+                    break;
+                }
+            }
+            return false;
+        }
 };
-
-
 
 class Event {
     public:
@@ -1840,9 +1874,11 @@ class Event {
             }
 
             /*
-                CHECK IF 'CTRL+SUPER+LEFT' OR 'CTRL+SUPER+SHIFT+LEFT' WAS PRESSED
-                IF 'CTRL+SUPER+LEFT' WAS PRESSED MOVE TO PREVIOUS DESKTOP
-                IF 'CTRL+SUPER+SHIFT+LEFT' WAS PRESSED MOVE TO PREVIOUS DESKTOP WITH FOCUSED APP
+                IF R_ARROW IS PRESSED THEN CHECK WHAT MOD MASK IS APPLIED
+
+                IF 'SHIFT+CTRL+SUPER' THEN MOVE TO NEXT DESKTOP WITH CURRENTLY FOCUSED APP
+                IF 'CTRL+SUPER' THEN MOVE TO THE NEXT DESKTOP
+                IF 'SUPER' THEN TILE WINDOW TO THE RIGHT
              */
             if (e->detail == r_arrow)
             {
@@ -1871,9 +1907,11 @@ class Event {
             }
 
             /*
-                CHECK IF 'CTRL+SUPER+RIGHT' OR 'CTRL+SUPER+SHIFT+RIGHT' WAS PRESSED
-                IF 'CTRL+SUPER+RIGHT' WAS PRESSED MOVE TO NEXT DESKTOP
-                IF 'CTRL+SUPER+SHIFT+RIGHT' WAS PRESSED MOVE TO NEXT DESKTOP WITH FOCUSED APP
+                IF L_ARROW IS PRESSED THEN CHECK WHAT MOD MASK IS APPLIED
+
+                IF 'SHIFT+CTRL+SUPER' THEN MOVE TO PREV DESKTOP WITH CURRENTLY FOCUSED APP
+                IF 'CTRL+SUPER' THEN MOVE TO THE PREV DESKTOP
+                IF 'SUPER' THEN TILE WINDOW TO THE LEFT
              */
             if (e->detail == l_arrow)
             {
@@ -1910,14 +1948,6 @@ class Event {
             {
                 wm::cycle_focus();
             }
-
-			if ((e->detail == k)
-			 && (e->state & ALT)
-			 && (e->state & SUPER))
-			{
-				client * c = get::client_from_win(& e->event);
-				Animate::move(c, c->x, c->y, c->x + 600, c->y, 400);
-			}
         }
 
         void /* 
