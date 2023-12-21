@@ -1619,15 +1619,16 @@ class tile {
                     c->y = 0;
                     c->width = screen->width_in_pixels / 2;
                     c->height = screen->height_in_pixels;
-                    moveresize(c);
+                    wm::setWindowPosition(c);
+                    wm::setWindowSize(c);
                     break;
                 }
 
-                // DOWN
-                case 3:
-                {
+                // // DOWN
+                // case 3:
+                // {
 
-                }
+                // }
             }
         } 
     private:
