@@ -1620,7 +1620,7 @@ class tile {
                     if (currently_tiled(c, 1))
                     {
                         c->x = 0;
-                        c->y = 0;
+                        c->y = screen->height_in_pixels / 2;
                         c->width = screen->width_in_pixels / 2;
                         c->height = screen->height_in_pixels / 2;
                         wm::setWindowSize(c);
