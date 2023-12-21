@@ -1587,10 +1587,7 @@ class tile {
                 case 2:
                 {
                     // IF CURRENTLY TILED TO RIGHT
-                    if (c->x == screen->width_in_pixels / 2 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2
-                     && c->height == screen->height_in_pixels)
+                    if (currently_tiled(c, 2))
                     {
                         c->x        = c->tile_ogsize.x;
                         c->y        = c->tile_ogsize.y;
