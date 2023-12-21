@@ -1561,16 +1561,26 @@ class tile {
                     if (currently_tiled(c, 2)
                      || currently_tiled(c, 3)
                      || currently_tiled(c, 5)
-                     || currently_tiled(c, 4)
                      || currently_tiled(c, 6))
                     {
-                        c->x = 0;
-                        c->y = 0;
-                        c->width = screen->width_in_pixels / 2;
-                        c->height = screen->height_in_pixels;
+                        c->x        = 0;
+                        c->y        = 0;
+                        c->width    = screen->width_in_pixels / 2;
+                        c->height   = screen->height_in_pixels;
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
+                    }
+
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT_DOWN'
+                    if (currently_tiled(c, 4))
+                    {
+                        c->x        = 0;
+                        c->y        = screen->height_in_pixels / 2;
+                        c->width    = screen->width_in_pixels / 2;
+                        c->height   = screen->height_in_pixels / 2;
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
                     }
 
                     save_tile_ogsize(c);
@@ -1595,17 +1605,28 @@ class tile {
                         return;
                     }
 
-                    // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN', 'RIGHT_UP', 'LEFT_DOWN' OR 'LEFT_UP' 
+                    // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN', 'RIGHT_UP', OR 'LEFT_UP' 
                     if (currently_tiled(c, 1)
-                     || currently_tiled(c, 4)
                      || currently_tiled(c, 6)
-                     || currently_tiled(c, 3)
+                     || currently_tiled(c, 4)
                      || currently_tiled(c, 5))
                     {
-                        c->x = screen->width_in_pixels / 2;
-                        c->y = 0;
-                        c->width = screen->width_in_pixels / 2;
-                        c->height = screen->height_in_pixels;
+                        c->x        = screen->width_in_pixels / 2;
+                        c->y        = 0;
+                        c->width    = screen->width_in_pixels / 2;
+                        c->height   = screen->height_in_pixels;
+                        wm::setWindowPosition(c);
+                        wm::setWindowSize(c);
+                        return;
+                    }
+
+                    // IF 'CURRENTLT_TILED' 'LEFT_DOWN'
+                    if (currently_tiled(c, 3))
+                    {
+                        c->x        = screen->width_in_pixels / 2;
+                        c->y        = screen->height_in_pixels / 2;
+                        c->width    = screen->width_in_pixels / 2;
+                        c->height   = screen->height_in_pixels / 2;
                         wm::setWindowPosition(c);
                         wm::setWindowSize(c);
                         return;
