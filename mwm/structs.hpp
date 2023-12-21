@@ -28,6 +28,7 @@ struct client {
 	uint16_t width,height;          
 	uint8_t  depth;  
     size_pos ogsize;
+    size_pos tile_ogsize;
     bool ismax;
     uint16_t desktop;
 };

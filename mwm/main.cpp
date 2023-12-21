@@ -1536,46 +1536,58 @@ class WinManager {
         }
 };
 
-void 
-tile(client * & c, const uint8_t & mode)
-{
-    switch (mode) 
+class tile {
+public:
+    tile(client * & c, const uint8_t & mode)
     {
-        // LEFT
-        case 1:
+        switch (mode) 
         {
-            if (c->x == 0 
-             && c->y == 0 
-             && c->width == screen->width_in_pixels / 2 
-             && c->height == screen->height_in_pixels)
+            // LEFT
+            case 1:
             {
-                c->x        = c->ogsize.x;
-                c->y        = c->ogsize.y;
-                c->width    = c->ogsize.width;
-                c->height   = c->ogsize.height;
-                c->ismax    = false;
+                if (c->x == 0 
+                && c->y == 0 
+                && c->width == screen->width_in_pixels / 2 
+                && c->height == screen->height_in_pixels)
+                {
+                    c->x        = c->tile_ogsize.x;
+                    c->y        = c->tile_ogsize.y;
+                    c->width    = c->tile_ogsize.width;
+                    c->height   = c->tile_ogsize.height;
 
-                borrowed::moveresize
-                (
-                    c->win,
-                    c->x, 
-                    c->y,
-                    c->width,
-                    c->height
-                );
-                return;
+                    borrowed::moveresize
+                    (
+                        c->win,
+                        c->x, 
+                        c->y,
+                        c->width,
+                        c->height
+                    );
+                    return;
+                }
+                save_tile_ogsize(c);
+                c->x = 0;
+                c->y = 0;
+                c->width = screen->width_in_pixels / 2;
+                c->height = screen->height_in_pixels;
+                wm::setWindowPosition(c);
+                wm::setWindowSize(c);
+                break;
             }
-            wm::save_ogsize(c);
-            c->x = 0;
-            c->y = 0;
-            c->width = screen->width_in_pixels / 2;
-            c->height = screen->height_in_pixels;
-            wm::setWindowPosition(c);
-            wm::setWindowSize(c);
-            break;
         }
+    } 
+private:
+    void 
+    save_tile_ogsize(client * & c)
+    {
+        c->tile_ogsize.x = c->x;
+        c->tile_ogsize.y = c->y;
+        c->tile_ogsize.width = c->width;
+        c->tile_ogsize.height = c->height;
     }
-}
+};
+
+
 
 class Event {
     public:
