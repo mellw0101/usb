@@ -1547,7 +1547,10 @@ class tile {
                 case 1:
                 {
                     // IF CURRENTLT TILED TO LEFT
-                    if (currently_tiled(c, 1))
+                    if (c->x == 0 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2 
+                     && c->height == screen->height_in_pixels)
                     {
                         c->x        = c->tile_ogsize.x;
                         c->y        = c->tile_ogsize.y;
@@ -1558,7 +1561,10 @@ class tile {
                     }
                     
                     // IF CURRENTLY TILED TO RIGHT
-                    if (currently_tiled(c, 2))
+                    if (c->x == screen->width_in_pixels / 2 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2
+                     && c->height == screen->height_in_pixels)
                     {
                         c->x = 0;
                         c->y = 0;
@@ -1581,7 +1587,10 @@ class tile {
                 case 2:
                 {
                     // IF CURRENTLY TILED TO RIGHT
-                    if (currently_tiled(c, 2))
+                    if (c->x == screen->width_in_pixels / 2 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2
+                     && c->height == screen->height_in_pixels)
                     {
                         c->x        = c->tile_ogsize.x;
                         c->y        = c->tile_ogsize.y;
@@ -1592,7 +1601,10 @@ class tile {
                     }
 
                     // IF CURRENTLT TILED TO LEFT
-                    if (currently_tiled(c, 1))
+                    if (c->x == 0 
+                     && c->y == 0 
+                     && c->width == screen->width_in_pixels / 2 
+                     && c->height == screen->height_in_pixels)
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
