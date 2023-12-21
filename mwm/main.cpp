@@ -551,7 +551,7 @@ class mv_client {
             }
             else if ((x < RIGHT_ + N && x > RIGHT_ - N) && (y < N && y > -N))
             {
-                move_client(RIGHT, 0);
+                move_client(RIGHT_, 0);
             }
             else if ((y < BOTTOM + N && y > BOTTOM - N) && (x < N && x > -N))
             {
@@ -567,11 +567,11 @@ class mv_client {
             }
             else if ((x < RIGHT_ + N && x > RIGHT_ - N) && (y < BOTTOM + N && y > BOTTOM - N))
             {
-                move_client(RIGHT, BOTTOM);
+                move_client(RIGHT_, BOTTOM);
             }
             else if ((x < RIGHT_ + N) && (x > RIGHT_ - N))
             { 
-                move_client(RIGHT, y);
+                move_client(RIGHT_, y);
             }
             else if (y < BOTTOM + N && y > BOTTOM - N)
             {
