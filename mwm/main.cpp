@@ -1602,10 +1602,7 @@ class tile {
                     }
 
                     // IF CURRENTLT TILED TO LEFT
-                    if (c->x == 0 
-                     && c->y == 0 
-                     && c->width == screen->width_in_pixels / 2 
-                     && c->height == screen->height_in_pixels)
+                    if (currently_tiled(c, 1))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
