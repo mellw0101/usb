@@ -1,6 +1,4 @@
-#include "structs.hpp"
-#include <string>
-#include <thread>
+#include <cstdint>
 #define main_cpp
 #include "include.hpp"
 
@@ -38,164 +36,141 @@ namespace get {
             CLIENT IN THE CLIENT LIST
          */ 
     }
-}
 
-xcb_atom_t
-get_atom(const char * atom_name) 
-{
-    xcb_intern_atom_cookie_t cookie = xcb_intern_atom
-    (
-        conn, 
-        0, 
-        strlen(atom_name), 
-        atom_name
-    );
-    
-    xcb_intern_atom_reply_t * reply = xcb_intern_atom_reply(conn, cookie, NULL);
-    
-    if (!reply) 
+    xcb_atom_t
+    atom(const char * atom_name) 
     {
-        return XCB_ATOM_NONE;
-    } 
+        xcb_intern_atom_cookie_t cookie = xcb_intern_atom
+        (
+            conn, 
+            0, 
+            strlen(atom_name), 
+            atom_name
+        );
+        
+        xcb_intern_atom_reply_t * reply = xcb_intern_atom_reply(conn, cookie, NULL);
+        
+        if (!reply) 
+        {
+            return XCB_ATOM_NONE;
+        } 
 
-    xcb_atom_t atom = reply->atom;
-    free(reply);
-    return atom;
+        xcb_atom_t atom = reply->atom;
+        free(reply);
+        return atom;
+    }
+
+    std::string
+    name(client * & c)
+    {
+        log.log(FUNC, __func__);
+        xcb_get_property_reply_t * reply;
+        unsigned int reply_len;
+        char * name;
+
+        reply = xcb_get_property_reply
+        (
+            conn, 
+            xcb_get_property
+            (
+                conn, 
+                false,
+                c->win, 
+                get::atom
+                (
+                    "WM_NAME"
+                ),
+                XCB_GET_PROPERTY_TYPE_ANY, 
+                0,
+                60
+            ), 
+            NULL
+        );
+
+        if (!reply || xcb_get_property_value_length(reply) == 0)
+        {
+            if (reply != nullptr)
+            {
+                log.log(ERROR, __func__, "reply length is = 0");
+                free(reply);
+                return "";
+            }
+
+            log.log(ERROR, __func__, "reply == nullptr");
+            return "";
+        }
+
+        reply_len = xcb_get_property_value_length(reply);
+        name = static_cast<char *>(malloc(sizeof(char) * (reply_len+1)));
+        memcpy(name, xcb_get_property_value(reply), reply_len);
+        name[reply_len] = '\0';
+
+        if (reply)
+        {
+            free(reply);
+        }
+
+        log.log(INFO, __func__, "name = " + std::string(name)); 
+        std::string sname = std::string(name);
+        free(name);
+
+        return sname;
+    }
 }
 
 class focus {
-    public:
-        static void
-        client(client * & c)
+public:
+    static void
+    client(client * & c)
+    {
+        // LOG_func
+        if (c == nullptr)
         {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
+            LOG_warning("client was nullptr");
+            return;
         }
-    private:
-        static void  
-        raise_client(struct client * & c) 
-        {
-            uint32_t values[1] = 
-            {
-                XCB_STACK_MODE_ABOVE
-            };
-            xcb_configure_window
-            (
-                conn,
-                c->win,
-                XCB_CONFIG_WINDOW_STACK_MODE, 
-                values
-            );
-            XCB_flush();
-        }
-        
-        static void 
-        focus_input(struct client * & c)
-        {
-            if (!c)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            xcb_set_input_focus
-            (
-                conn, 
-                XCB_INPUT_FOCUS_POINTER_ROOT, 
-                c->win, 
-                XCB_CURRENT_TIME
-            );
-            XCB_flush();
-        }
-};
-
-class focus_client {
-    public:
-        focus_client(client * & c) : c(c)
-        {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
-        }
-
-        focus_client(client * & c, bool is = true) : c(c)
-        {
-            // LOG_func
-            if (c == nullptr)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            raise_client(c);
-            focus_input(c);
-            focused_client = c;
-        }
-
-    private:
-        client * & c;
-
-        void  
-        raise_client(client * & c) 
-        {
-            uint32_t values[1] = 
+        raise_client(c);
+        focus_input(c);
+        focused_client = c;
+    }
+private:
+    static void  
+    raise_client(struct client * & c) 
+    {
+        xcb_configure_window
+        (
+            conn,
+            c->win,
+            XCB_CONFIG_WINDOW_STACK_MODE, 
+            (const uint32_t[1])
             {
                 XCB_STACK_MODE_ABOVE
-            };
-            xcb_configure_window
-            (
-                conn,
-                c->win,
-                XCB_CONFIG_WINDOW_STACK_MODE, 
-                values
-            );
-            flush_server(__func__);
-        }
-        
-        void 
-        flush_server(const char * function_name)
-        {
-            const uint8_t & status = xcb_flush(conn);
-            if (status == 0) 
-            {
-                Log::ERROR(function_name, "]:[Failed to flush server");
-                return;
             }
-        }
-
-        void 
-        focus_input(client * & c)
+        );
+        XCB_flush();
+    }
+    
+    static void 
+    focus_input(struct client * & c)
+    {
+        if (!c)
         {
-            if (!c)
-            {
-                LOG_warning("client was nullptr");
-                return;
-            }
-            xcb_set_input_focus
-            (
-                conn, 
-                XCB_INPUT_FOCUS_POINTER_ROOT, 
-                c->win, 
-                XCB_CURRENT_TIME
-            );
-            flush_server(__func__);
+            LOG_warning("client was nullptr");
+            return;
         }
+        xcb_set_input_focus
+        (
+            conn, 
+            XCB_INPUT_FOCUS_POINTER_ROOT, 
+            c->win, 
+            XCB_CURRENT_TIME
+        );
+        XCB_flush();
+    }
 };
 
 class wm {
     public:
-       
         static void 
         setWindowSize(client * c) 
         {
@@ -375,7 +350,7 @@ class wm {
                     
                     if (focus)
                     {
-                        focus_client(c, true);
+                        focus::client(c);
                         return;  
                     }
                 }
@@ -1282,63 +1257,6 @@ namespace borrowed {
     }
 }
 
-std::string
-get_name(client * & c)
-{
-    log.log(FUNC, __func__);
-    xcb_get_property_reply_t * reply;
-    unsigned int reply_len;
-    char * name;
-
-    reply = xcb_get_property_reply
-    (
-        conn, 
-        xcb_get_property
-        (
-            conn, 
-            false,
-            c->win, 
-            get_atom
-            (
-                "WM_NAME"
-            ),
-            XCB_GET_PROPERTY_TYPE_ANY, 
-            0,
-            60
-        ), 
-        NULL
-    );
-
-    if (!reply || xcb_get_property_value_length(reply) == 0)
-    {
-        if (reply != nullptr)
-        {
-            log.log(ERROR, __func__, "reply length is = 0");
-            free(reply);
-            return "";
-        }
-
-        log.log(ERROR, __func__, "reply == nullptr");
-        return "";
-    }
-
-    reply_len = xcb_get_property_value_length(reply);
-	name = static_cast<char *>(malloc(sizeof(char) * (reply_len+1)));
-	memcpy(name, xcb_get_property_value(reply), reply_len);
-	name[reply_len] = '\0';
-
-    if (reply)
-    {
-        free(reply);
-    }
-
-    log.log(INFO, __func__, "name = " + std::string(name)); 
-    std::string sname = std::string(name);
-    free(name);
-
-    return sname;
-}
-
 class WinManager {
     public:
         static void 
@@ -1384,11 +1302,13 @@ class WinManager {
                 {   R_ARROW,    CTRL | SUPER | SHIFT    },
                 {   L_ARROW,    CTRL | SUPER | SHIFT    },
                 {   TAB,        ALT                     },
-                {   K,          ALT | SUPER             }
+                {   K,          ALT | SUPER             },
+                {   R_ARROW,    SUPER                   },
+                {   L_ARROW,    SUPER                   }
             });
 
             // make_frame(c);
-            get_name(c);
+            get::name(c);
             focus::client(c);
         }
 
@@ -1614,6 +1534,45 @@ class WinManager {
             xcb_flush(conn); 
         }
 };
+
+void 
+tile(client * & c, const uint8_t & mode)
+{
+    switch (mode) 
+    {
+        // LEFT
+        case 1:
+        {
+            if (c->x == 0 
+             && c->y == 0 
+             && c->width == screen->width_in_pixels / 2 
+             && c->height == screen->height_in_pixels)
+            {
+                c->x        = c->ogsize.x;
+                c->y        = c->ogsize.y;
+                c->width    = c->ogsize.width;
+                c->height   = c->ogsize.height;
+                c->ismax    = false;
+
+                borrowed::moveresize
+                (
+                    c->win,
+                    c->x, 
+                    c->y,
+                    c->width,
+                    c->height
+                );
+                return;
+            }
+            wm::save_ogsize(c);
+            c->x = 0;
+            c->y = 0;
+            c->width = screen->width_in_pixels / 2;
+            c->height = screen->height_in_pixels;
+            break;
+        }
+    }
+}
 
 class Event {
     public:
