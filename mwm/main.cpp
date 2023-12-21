@@ -1663,8 +1663,9 @@ class tile {
                 // UP
                 case 4:
                 {
-                    // IF 'CURRENTLY_TILED' LEFT
-                    if (currently_tiled(c, 1))
+                    // IF 'CURRENTLY_TILED' 'LEFT'
+                    if (currently_tiled(c, 1)
+                     || currently_tiled(c, 3))
                     {
                         c->x = 0;
                         c->y = 0;
@@ -1676,8 +1677,9 @@ class tile {
                         break;
                     }
 
-                    // IF 'CURRENTLY_TILED' RIGHT
-                    if (currently_tiled(c, 2))
+                    // IF 'CURRENTLY_TILED' 'RIGHT' OR RIGHT_DOWN
+                    if (currently_tiled(c, 2)
+                     || currently_tiled(c, 4))
                     {
                         c->x = screen->width_in_pixels / 2;
                         c->y = 0;
