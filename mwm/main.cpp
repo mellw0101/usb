@@ -1315,7 +1315,7 @@ Next_Desktop()
 	// SHOW CLIENTS ON NEXT_DESKTOP
 	for (const auto & c : client_list)
 	{
-		if (c && c->desktop == cur_d->desktop) 
+		if (c && c->desktop == cur_d->desktop + 1) 
 		{
 			std::thread t(next_show, c);
             t.detach();
