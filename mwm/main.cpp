@@ -340,63 +340,6 @@ namespace get {
 
         return spropertyValue;
     }
-
-    void 
-    sendNetWMState(xcb_window_t window, xcb_atom_t state, xcb_atom_t action) 
-    {
-        // Get the atom for _NET_WM_STATE
-        xcb_intern_atom_cookie_t stateCookie = xcb_intern_atom(conn, 1, strlen("_NET_WM_STATE"), "_NET_WM_STATE");
-        xcb_intern_atom_reply_t *stateReply = xcb_intern_atom_reply(conn, stateCookie, nullptr);
-        if (!stateReply) 
-        {
-            log_error("Failed to get atom for _NET_WM_STATE");
-            return;
-        }
-
-        xcb_client_message_event_t event;
-        event.response_type = XCB_CLIENT_MESSAGE;
-        event.format = 32;
-        event.window = window;
-        event.type = stateReply->atom;
-        event.data.data32[0] = action; // The action, e.g., _NET_WM_STATE_ADD
-        event.data.data32[1] = state;  // The state, e.g., _NET_WM_STATE_FULLSCREEN
-        event.data.data32[2] = 0;       // Padding
-
-        // Send the event
-        xcb_send_event(conn, 0, window, XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT, reinterpret_cast<char *>(& event));
-
-        xcb_flush(conn);
-        xcb_disconnect(conn);
-
-        free(stateReply);
-    }
-
-    void 
-    sendCustomMessage(xcb_window_t targetWindow, xcb_atom_t messageType, uint32_t data) 
-    {
-        xcb_client_message_event_t event;
-        event.response_type = XCB_CLIENT_MESSAGE;
-        event.format = 32;
-        event.window = targetWindow;
-        event.type = messageType;
-        event.data.data32[0] = data;
-        event.data.data32[1] = XCB_CURRENT_TIME; // Timestamp, you can adjust this if needed
-        event.data.data32[2] = 0;  // Additional data
-        event.data.data32[3] = 0;  // Additional data
-        event.data.data32[4] = 0;  // Additional data
-
-        // Send the event to the root window
-        xcb_send_event
-        (
-            conn,
-            0,               // Propagate event to all clients
-            screen->root, // Target window is the root window
-            XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY,
-            reinterpret_cast<char *>(& event)
-        );
-
-        xcb_flush(conn);
-    }
 }
 
 class focus {
