@@ -2621,7 +2621,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         XCBAnimator anim(conn, c->win);
-                        anim.move(c->x, c->y, c->x + 200, c->y, 100);
+                        anim.move(c->x, c->y, c->x + 100, c->y, 100);
                         wm::update_client(c);
                         break;
                     }
