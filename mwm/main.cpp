@@ -1880,11 +1880,10 @@ class tile {
                         return;
                     }
                     
-                    // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN', 'LEFT_UP' OR 'RIGHT_UP'
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT', 'LEFT_DOWN' OR 'LEFT_UP'
                     if (current_tile_pos(c, TILEPOS_RIGHT)
                      || current_tile_pos(c, TILEPOS_LEFT_DOWN)
-                     || current_tile_pos(c, TILEPOS_LEFT_UP)
-                     || current_tile_pos(c, TILEPOS_RIGHT_UP))
+                     || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS_LEFT);
                         wm::setWindowSize(c);
@@ -1901,6 +1900,7 @@ class tile {
                         return;
                     }
 
+                    // IF 'CURRENTLY_TILED' TO 'RIGHT_UP'
                     if (current_tile_pos(c, TILEPOS_RIGHT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS_LEFT_UP);
@@ -1928,11 +1928,10 @@ class tile {
                         return;
                     }
 
-                    // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN', 'RIGHT_UP', OR 'LEFT_UP' 
+                    // IF 'CURRENTLT_TILED' TO 'LEFT', 'RIGHT_DOWN' OR 'RIGHT_UP' 
                     if (current_tile_pos(c, TILEPOS_LEFT)
                      || current_tile_pos(c, TILEPOS_RIGHT_UP)
-                     || current_tile_pos(c, TILEPOS_RIGHT_DOWN)
-                     || current_tile_pos(c, TILEPOS_LEFT_UP))
+                     || current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS_RIGHT);
                         wm::setWindowPosition(c);
@@ -1949,6 +1948,7 @@ class tile {
                         return;
                     }
 
+                    // IF 'CURRENTLY_TILED' 'LEFT_UP'
                     if (current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS_RIGHT_UP);
