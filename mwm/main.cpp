@@ -947,7 +947,7 @@ class XCBAnimator {
         int currentY;
         int stepX;
         int stepY;
-        const int animationInterval = 10; // milliseconds
+        const int animationInterval = 5; // milliseconds
         std::atomic<bool> stopFlag{false};
 
         // Static method for the animation thread
