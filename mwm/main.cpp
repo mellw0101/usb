@@ -893,7 +893,7 @@ class Animate {
             log_info("endX = " + std::to_string(endX));
             
             // Ensure any existing animation is stopped
-            stopAnimation();
+            // stopAnimation();
             
             c = cli;
 
@@ -916,7 +916,7 @@ class Animate {
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
 
             // Stop the animation
-            stopAnimation();
+            // stopAnimation();
 			wm::update_client(c);
         }
 
