@@ -207,7 +207,7 @@ namespace get {
                 false,
                 c->win,
                 property,
-                XCB_GET_PROPERTY_TYPE_ANY,
+                XCB_ATOM_ANY,
                 0,
                 60
             ),
