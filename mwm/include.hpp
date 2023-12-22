@@ -40,6 +40,7 @@
     #include <mutex> // Added for thread safety
     #include <future>
     #include <iostream>
+    #include <algorithm>
 
     #include "structs.hpp"
     #include "Log.hpp"
