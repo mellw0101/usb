@@ -1,4 +1,3 @@
-#include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -192,7 +191,7 @@ namespace get {
     }
 
     std::string 
-    WindowProperty(client * c, xcb_atom_enum_t property) 
+    WindowProperty(client * c, xcb_atom_enum_t property, const char * atom_name) 
     {
         xcb_get_property_reply_t *reply;
         unsigned int reply_len;
@@ -206,7 +205,10 @@ namespace get {
                 conn,
                 false,
                 c->win,
-                property,
+                atom
+                (
+                    atom_name
+                ),
                 XCB_ATOM_ANY,
                 0,
                 60
@@ -1670,22 +1672,22 @@ class WinManager {
         static void
         get_win_info(client * & c)
         {
-            get::WindowProperty(c, XCB_ATOM_WINDOW);
-            get::WindowProperty(c, XCB_ATOM_WM_CLASS);
-            get::WindowProperty(c, XCB_ATOM_FULL_NAME);
-            get::WindowProperty(c, XCB_ATOM_ATOM);
-            get::WindowProperty(c, XCB_ATOM_DRAWABLE);
-            get::WindowProperty(c, XCB_ATOM_FONT);
-            get::WindowProperty(c, XCB_ATOM_INTEGER);
-            get::WindowProperty(c, XCB_ATOM_PIXMAP);
-            get::WindowProperty(c, XCB_ATOM_VISUALID);
-            get::WindowProperty(c, XCB_ATOM_WM_COMMAND);
-            get::WindowProperty(c, XCB_ATOM_WM_HINTS);
-            get::WindowProperty(c, XCB_ATOM_WM_NORMAL_HINTS);
-            get::WindowProperty(c, XCB_ATOM_MIN_SPACE);
-            get::WindowProperty(c, XCB_ATOM_NORM_SPACE);
-            get::WindowProperty(c, XCB_ATOM_WM_SIZE_HINTS);
-            get::WindowProperty(c, XCB_ATOM_NOTICE);
+            get::WindowProperty(c, XCB_ATOM_WINDOW, "WINDOW");
+            get::WindowProperty(c, XCB_ATOM_WM_CLASS, "WM_CLASS");
+            get::WindowProperty(c, XCB_ATOM_FULL_NAME, "FULL_NAME");
+            get::WindowProperty(c, XCB_ATOM_ATOM, "ATOM");
+            get::WindowProperty(c, XCB_ATOM_DRAWABLE, "DRAWEBLE");
+            get::WindowProperty(c, XCB_ATOM_FONT, "FONT");
+            get::WindowProperty(c, XCB_ATOM_INTEGER, "INTEGER");
+            get::WindowProperty(c, XCB_ATOM_PIXMAP, "PIXMAP");
+            get::WindowProperty(c, XCB_ATOM_VISUALID, "VISUALID");
+            get::WindowProperty(c, XCB_ATOM_WM_COMMAND, "WM_COMMAND");
+            get::WindowProperty(c, XCB_ATOM_WM_HINTS, "WM_HINTS");
+            get::WindowProperty(c, XCB_ATOM_WM_NORMAL_HINTS, "WM_NORMAL_HINTS");
+            get::WindowProperty(c, XCB_ATOM_MIN_SPACE, "MIN_SPACE");
+            get::WindowProperty(c, XCB_ATOM_NORM_SPACE, "NORM_SPACE");
+            get::WindowProperty(c, XCB_ATOM_WM_SIZE_HINTS, "WM_SIZE_HINTS");
+            get::WindowProperty(c, XCB_ATOM_NOTICE, "NOTICE");
         }
 };
 
