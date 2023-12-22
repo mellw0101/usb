@@ -1032,7 +1032,7 @@ next_hide(client * c)
 }
 
 void 
-next_show(client * & c) 
+next_show(client * c) 
 {
 	if (c->x < screen->width_in_pixels) 
 	{
@@ -1053,7 +1053,7 @@ Next_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (auto & c : cur_d->current_clients) 
+	for (const auto & c : cur_d->current_clients) 
 	{
 		if (c) 
 		{
@@ -1064,7 +1064,7 @@ Next_Desktop()
 	cur_d = desktop_list[cur_d->desktop];
 
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (auto & c : cur_d->current_clients)
+	for (const auto & c : cur_d->current_clients)
 	{
 		if (c) 
 		{
@@ -1083,7 +1083,7 @@ Prev_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (auto & c : cur_d->current_clients)
+	for (const auto & c : cur_d->current_clients)
 	{
 		if (c)
 		{
@@ -1095,7 +1095,7 @@ Prev_Desktop()
 
 	cur_d = desktop_list[cur_d->desktop - 2];
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (auto & c : cur_d->current_clients)
+	for (const auto & c : cur_d->current_clients)
 	{
 		if (c)
 		{
