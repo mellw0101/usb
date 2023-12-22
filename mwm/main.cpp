@@ -1323,7 +1323,7 @@ void
 prev_hide(client * c)
 {
     XCBAnimator::Move anim(conn, c->win);
-    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 100);
+    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 1000);
     wm::update_client(c);
     show_hide_client(c, HIDE);
 }
