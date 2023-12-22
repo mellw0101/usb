@@ -949,11 +949,11 @@ class Animate {
                         return;
                     }
                 }
-                // // Check if the target position is reached
-                // if (currentX == endX && currentY == endY) 
-                // {
-                //     break;   
-                // }
+                // Check if the target position is reached
+                if (currentX == endX && currentY == endY) 
+                {
+                    break;   
+                }
             }
 
             // Ensure final position is reached
