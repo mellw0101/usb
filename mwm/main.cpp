@@ -2400,20 +2400,17 @@ class Event {
                     case SHIFT + CTRL + SUPER:
                     {
                         move_to_next_desktop_w_app();
-                        return;
                         break;
                     }
                     case CTRL + SUPER:
                     {
 				        Next_Desktop();
-                        return;
                         break;
                     }
                     case SUPER:
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 2);
-                        return;
                         break;
                     }
                 }
@@ -2433,20 +2430,17 @@ class Event {
                     case SHIFT + CTRL + SUPER:
                     {
                         move_to_previus_desktop_w_app();
-                        return;
                         break;
                     }
                     case CTRL + SUPER:
                     {
 				        Prev_Desktop();
-                        return;
                         break;
                     }
                     case SUPER:
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 1);
-                        return;
                         break;
                     }
                 }
