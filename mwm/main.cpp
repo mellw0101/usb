@@ -951,8 +951,10 @@ class XCBAnimator {
         std::atomic<bool> stopFlag{false};
 
         // Static method for the animation thread
-        void animateThread(int endX, int endY) {
-            while (!stopFlag.load()) {
+        void animateThread(int endX, int endY) 
+        {
+            while (!stopFlag.load()) 
+            {
                 // Perform animation step
                 moveStep();
 
@@ -967,21 +969,30 @@ class XCBAnimator {
         }
 
         // Static method to move the coordinates
-        void moveStep() {
+        void moveStep() 
+        {
             currentX += stepX;
             currentY += stepY;
 
-            xcb_configure_window(
+            xcb_configure_window
+            (
                 connection,
                 window,
                 XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
-                (const uint32_t[2]){static_cast<const uint32_t &>(currentX), static_cast<const uint32_t &>(currentY)});
+                (const uint32_t[2])
+                {
+                    static_cast<const uint32_t &>(currentX), 
+                    static_cast<const uint32_t &>(currentY)
+                }
+            );
             xcb_flush(connection);
         }
 
         // Static method to stop the animation
-        void stopAnimation() {
-            if (animationThread.joinable()) {
+        void stopAnimation() 
+        {
+            if (animationThread.joinable()) 
+            {
                 // Signal the thread to exit
                 stopFlag.store(true);
                 // Wait for the thread to finish
@@ -2593,7 +2604,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         XCBAnimator anim(conn, c->win);
-                        anim.move(c->x, c->y, c->x + 200, c->y, 1000);
+                        anim.move(c->x, c->y, c->x + 1200, c->y, 1000);
                         wm::update_client(c);
                         break;
                     }
