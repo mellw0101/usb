@@ -2712,6 +2712,7 @@ class Event {
             client * c = get::client_from_win(& e->event);
             if (c)
             {
+                c = nullptr;
                 free(c);
                 focused_client = nullptr;
             }
