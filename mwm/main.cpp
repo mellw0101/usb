@@ -2481,6 +2481,19 @@ class Event {
                     }
                 }
             }
+
+            if (e->detail == k)
+            {
+                switch (e->state) 
+                {
+                    case SUPER:
+                    {
+                        client * c = get::client_from_win(& e->event);
+                        Animate::move(c, c->x, c->y, c->x + 200, c->y, 1000);
+                        break;
+                    }
+                }
+            }
         }
 
         void /* 
@@ -2713,7 +2726,6 @@ class Event {
             if (c)
             {
                 free(c);
-                focused_client = nullptr;
             }
         }
 };
