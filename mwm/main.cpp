@@ -585,12 +585,18 @@ class wm {
 };
 
 // Function to remove a client based on its window ID
-void removeClient(const xcb_window_t & win) {
-    auto it = std::remove_if(client_list.begin(), client_list.end(),
-                             [win](const client* c) { return c->win == win; });
+void removeClient(const xcb_window_t & win) 
+{
+    auto it = std::remove_if
+    (
+        client_list.begin(),
+        client_list.end(),
+        [win](const client * c) { return c->win == win; }
+    );
 
     // Delete the removed clients to avoid memory leaks
-    for (auto iter = it; iter != client_list.end(); ++iter) {
+    for (auto iter = it; iter != client_list.end(); ++iter) 
+    {
         delete *iter;
     }
 
@@ -896,6 +902,93 @@ class mv_client {
             return false; /*
                 RETURN FALSE IF NOT ENOUGH TIME HAS PASSED
              */ 
+        }
+};
+
+class XCBAnimator {
+    public:
+        XCBAnimator(xcb_connection_t* connection, xcb_window_t window)
+            : connection(connection), window(window) {}
+
+        // Public method to start the animation
+        void move(int startX, int startY, int endX, int endY, int duration) {
+            // Ensure any existing animation is stopped
+            stopAnimation();
+
+            // Set initial coordinates
+            currentX = startX;
+            currentY = startY;
+
+            // Calculate step size based on time
+            int steps = duration / animationInterval;
+            stepX = (endX - startX) / steps;
+            stepY = (endY - startY) / steps;
+
+            // Start a new thread for animation
+            animationThread = std::thread(&XCBAnimator::animateThread, this, endX, endY);
+
+            // Wait for the animation to complete
+            std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+
+            // Stop the animation
+            stopAnimation();
+        }
+
+        // Destructor to ensure the animation thread is stopped when the object is destroyed
+        ~XCBAnimator() {
+            stopAnimation();
+        }
+
+    private:
+        xcb_connection_t* connection;
+        xcb_window_t window;
+        std::thread animationThread;
+        int currentX;
+        int currentY;
+        int stepX;
+        int stepY;
+        const int animationInterval = 10; // milliseconds
+        std::atomic<bool> stopFlag{false};
+
+        // Static method for the animation thread
+        void animateThread(int endX, int endY) {
+            while (!stopFlag.load()) {
+                // Perform animation step
+                moveStep();
+
+                // Sleep for the animation interval
+                std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+
+                // Check if animation should stop
+                if (currentX == endX && currentY == endY) {
+                    break;
+                }
+            }
+        }
+
+        // Static method to move the coordinates
+        void moveStep() {
+            currentX += stepX;
+            currentY += stepY;
+
+            xcb_configure_window(
+                connection,
+                window,
+                XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+                (const uint32_t[2]){static_cast<const uint32_t &>(currentX), static_cast<const uint32_t &>(currentY)});
+            xcb_flush(connection);
+        }
+
+        // Static method to stop the animation
+        void stopAnimation() {
+            if (animationThread.joinable()) {
+                // Signal the thread to exit
+                stopFlag.store(true);
+                // Wait for the thread to finish
+                animationThread.join();
+                // Reset the stop flag
+                stopFlag.store(false);
+            }
         }
 };
 
@@ -2499,7 +2592,8 @@ class Event {
                     case SUPER:
                     {
                         client * c = get::client_from_win(& e->event);
-                        Animate::move(c, c->x, c->y, c->x + 200, c->y, 200);
+                        XCBAnimator anim(conn, c->win);
+                        anim.move(c->x, c->y, c->x + 200, c->y, 1000);
                         break;
                     }
                 }
