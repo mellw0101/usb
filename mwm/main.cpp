@@ -962,13 +962,30 @@ class XCBAnimator {
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                 // Check if animation should stop
-                if (currentX >= endX && currentY >= endY) {
+                if (currentX >= endX && currentY >= endY) 
+                {
                     break;
                 }
             }
+            move(endX, endY);
         }
 
-        // Static method to move the coordinates
+        void move(const int & x, const int & y) 
+        {
+            xcb_configure_window
+            (
+                connection,
+                window,
+                XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
+                (const uint32_t[2])
+                {
+                    static_cast<const uint32_t &>(x), 
+                    static_cast<const uint32_t &>(y)
+                }
+            );
+            xcb_flush(connection);
+        }
+
         void moveStep() 
         {
             currentX += stepX;
