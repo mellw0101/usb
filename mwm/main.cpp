@@ -1281,9 +1281,9 @@ next_hide(client * c)
 void 
 next_show(client * c) 
 {
-	if (c->x < screen->width_in_pixels) 
+	if (c->x > 0) 
 	{
-		c->x = c->x + screen->width_in_pixels;
+		c->x = c->x - screen->width_in_pixels;
 	}
 	show_hide_client(c, SHOW);
 	XCBAnimator::Move anim(conn, c->win);
