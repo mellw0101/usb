@@ -345,7 +345,7 @@ namespace get {
 class focus {
     public:
         static void
-        client(client * c)
+        client(client * & c)
         {
             // LOG_func
             if (c == nullptr)
@@ -360,7 +360,7 @@ class focus {
 
     private:
         static void  
-        raise_client(struct client * c) 
+        raise_client(struct client * & c) 
         {
             xcb_configure_window
             (
@@ -376,7 +376,7 @@ class focus {
         }
         
         static void 
-        focus_input(struct client * c)
+        focus_input(struct client * & c)
         {
             if (!c)
             {
@@ -465,7 +465,7 @@ class wm {
         }
 
         static void 
-        raise_client(client * c) 
+        raise_client(client * & c) 
         {
             uint32_t values[1] = 
             {
@@ -482,7 +482,7 @@ class wm {
         }
 
         static void
-        save_ogsize(client * c)
+        save_ogsize(client * & c)
         {
             c->ogsize.x         = c->x; 
             c->ogsize.y         = c->y;
@@ -493,7 +493,7 @@ class wm {
         /* TODO */
         // MUST CHECK VALUES SOMETHING IS OFF
         static void 
-        update_client(client * c) 
+        update_client(client * & c) 
         {
             if (c == nullptr)
             {
@@ -886,10 +886,8 @@ class mv_client {
 
 class Animate {
     public:
-        Animate(client * cli) : c(cli), stopFlag(false) {}
-        
-        void // Public static method to start the animation
-        move(client * cli, int startX, int startY, int endX, int endY, int time) 
+        static void // Public static method to start the animation
+        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
             log_info("endX = " + std::to_string(endX));
@@ -897,6 +895,8 @@ class Animate {
             // Ensure any existing animation is stopped
             stopAnimation();
             
+            c = cli;
+
             // Set initial coordinates
             currentX = startX;
             currentY = startY;
@@ -910,26 +910,27 @@ class Animate {
 			log_info("stepX = " + std::to_string(stepX));
 
             // Start a new thread for animation
-            animationThread = std::thread(&Animate::animateThread, this, endX, endY, stepX, stepY, steps);
+            animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
 
             // Wait for the animation to complete
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
 
             // Stop the animation
-			wm::update_client(c);
             stopAnimation();
+			wm::update_client(c);
         }
 
     private:
-        std::thread animationThread;
-        std::atomic<bool> stopFlag;
-        int currentX;
-        int currentY;
+        // Static member variables
+        static std::thread animationThread;
+        static std::atomic<bool> stopFlag;
+        static int currentX;
+        static int currentY;
 		// 50, 25, 5 works
-        const int animationInterval = 1;
-        client * c;
+        static const int animationInterval = 1;
+        static client * & c;
         
-        void // Static method for the animation thread
+        static void // Static method for the animation thread
         animateThread(int endX, int endY, int stepX, int stepY, int steps) 
         {
             for (int i = 0; i < steps; ++i) 
@@ -940,7 +941,7 @@ class Animate {
                 // Sleep for the animation interval
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
-                // // Check if animation should stop
+                // Check if animation should stop
                 // if (stopFlag.load()) 
                 // {
                 //     return;
@@ -950,7 +951,7 @@ class Animate {
             move(endX - currentX, endY - currentY);
         }
 
-        void // Static method to move the coordinates
+        static void // Static method to move the coordinates
         move(int deltaX, int deltaY) 
         {
 			log_info("currentX = " + std::to_string(currentX));
@@ -972,7 +973,7 @@ class Animate {
             xcb_flush(conn);
         }
 
-        void // Static method to stop the animation
+        static void // Static method to stop the animation
         stopAnimation() 
         {
             if (animationThread.joinable()) {
@@ -985,6 +986,13 @@ class Animate {
             }
         }
 };
+
+// Initialization of static member variables
+std::thread Animate::animationThread;
+std::atomic<bool> Animate::stopFlag(false);
+int Animate::currentX;
+int Animate::currentY;
+client * & Animate::c = focused_client;
 
 void 
 move_desktop(const uint8_t & n)
@@ -1016,23 +1024,23 @@ move_desktop(const uint8_t & n)
 }
 
 void 
-next_hide(client * c) 
+next_hide(client * & c) 
 {
-	Animate anim(c);
-    anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
-	// show_hide_client(c, HIDE);
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	wm::update_client(c);
+	show_hide_client(c, HIDE);
 }
 
 void 
-next_show(client * c) 
+next_show(client * & c) 
 {
 	if (c->x < screen->width_in_pixels) 
 	{
 		c->x = c->x + screen->width_in_pixels;
 	}
-	// show_hide_client(c, SHOW);
-	Animate anim(c);
-    anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	show_hide_client(c, SHOW);
+	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	wm::update_client(c);
     focus::client(c);
 }
 
@@ -1045,7 +1053,7 @@ Next_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : cur_d->current_clients) 
+	for (auto & c : cur_d->current_clients) 
 	{
 		if (c) 
 		{
@@ -1056,7 +1064,7 @@ Next_Desktop()
 	cur_d = desktop_list[cur_d->desktop];
 
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (auto & c : cur_d->current_clients)
 	{
 		if (c) 
 		{
@@ -1075,12 +1083,11 @@ Prev_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (auto & c : cur_d->current_clients)
 	{
 		if (c)
 		{
-			Animate anim(c);
-            anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 			show_hide_client(c, HIDE);
 		}
@@ -1088,7 +1095,7 @@ Prev_Desktop()
 
 	cur_d = desktop_list[cur_d->desktop - 2];
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (auto & c : cur_d->current_clients)
 	{
 		if (c)
 		{
@@ -1097,8 +1104,7 @@ Prev_Desktop()
 				c->x = c->x - screen->width_in_pixels;
 			}
 			show_hide_client(c, SHOW);
-			Animate anim(c);
-            anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
             focus::client(c);
 		}
@@ -2391,7 +2397,6 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 2);
-                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2425,7 +2430,6 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 1);
-                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2443,7 +2447,6 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 3);
-                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2458,7 +2461,6 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 4);
-                        wm::update_client(c);
                         break;
                     }
                 }
@@ -2710,7 +2712,6 @@ class Event {
             client * c = get::client_from_win(& e->event);
             if (c)
             {
-                c = nullptr;
                 free(c);
                 focused_client = nullptr;
             }
