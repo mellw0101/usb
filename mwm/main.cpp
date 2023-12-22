@@ -895,7 +895,7 @@ class Animate {
             log_info("endX = " + std::to_string(endX));
             
             // Ensure any existing animation is stopped
-            // stopAnimation();
+            stopAnimation();
             
             c = cli;
 
