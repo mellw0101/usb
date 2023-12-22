@@ -1273,7 +1273,7 @@ void
 next_hide(client * c) 
 {
 	XCBAnimator::Move anim(conn, c->win);
-    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 1000);
 	wm::update_client(c);
 	show_hide_client(c, HIDE);
 }
@@ -1283,7 +1283,7 @@ next_show(client * c)
 {
 	show_hide_client(c, SHOW);
 	XCBAnimator::Move anim(conn, c->win);
-    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 1000);
 	wm::update_client(c);
     focus::client(c);
 }
@@ -1297,9 +1297,9 @@ Next_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : client_list) 
+	for (const auto & c : cur_d->current_clients) 
 	{
-		if (c && c->desktop == cur_d->desktop) 
+		if (c) 
 		{
             std::thread t(next_hide, c);
             t.detach();
@@ -1309,9 +1309,9 @@ Next_Desktop()
 	cur_d = desktop_list[cur_d->desktop];
 
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : client_list)
+	for (const auto & c : cur_d->current_clients)
 	{
-		if (c && c->desktop == cur_d->desktop) 
+		if (c) 
 		{
 			std::thread t(next_show, c);
             t.detach();
@@ -1323,7 +1323,7 @@ void
 prev_hide(client * c)
 {
     XCBAnimator::Move anim(conn, c->win);
-    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 100);
     wm::update_client(c);
     show_hide_client(c, HIDE);
 }
@@ -1331,13 +1331,9 @@ prev_hide(client * c)
 void 
 prev_show(client * c)
 {
-    if (c->x > 0)
-    {
-        c->x = c->x - screen->width_in_pixels;
-    }
     show_hide_client(c, SHOW);
     XCBAnimator::Move anim(conn, c->win);
-    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 1000);
     wm::update_client(c);
     focus::client(c);
 }
@@ -1352,9 +1348,9 @@ Prev_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : client_list)
+	for (const auto & c : cur_d->current_clients)
 	{
-		if (c && c->desktop == cur_d->desktop)
+		if (c)
 		{
             std::thread t(prev_hide, c);
             t.detach();
@@ -1363,9 +1359,9 @@ Prev_Desktop()
 
 	cur_d = desktop_list[cur_d->desktop - 2];
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : client_list)
+	for (const auto & c : cur_d->current_clients)
 	{
-		if (c && c->desktop == cur_d->desktop)
+		if (c)
 		{
 			std::thread t(prev_show, c);
             t.detach();
