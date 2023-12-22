@@ -1954,6 +1954,7 @@ class tile {
                         set_tile_sizepos(c, TILEPOS_RIGHT_UP);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
+                        return;
                     }
 
                     save_tile_ogsize(c);
