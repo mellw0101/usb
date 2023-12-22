@@ -345,7 +345,7 @@ namespace get {
 class focus {
     public:
         static void
-        client(client * & c)
+        client(client * c)
         {
             // LOG_func
             if (c == nullptr)
@@ -360,7 +360,7 @@ class focus {
 
     private:
         static void  
-        raise_client(struct client * & c) 
+        raise_client(struct client * c) 
         {
             xcb_configure_window
             (
@@ -376,7 +376,7 @@ class focus {
         }
         
         static void 
-        focus_input(struct client * & c)
+        focus_input(struct client * c)
         {
             if (!c)
             {
@@ -465,7 +465,7 @@ class wm {
         }
 
         static void 
-        raise_client(client * & c) 
+        raise_client(client * c) 
         {
             uint32_t values[1] = 
             {
@@ -482,7 +482,7 @@ class wm {
         }
 
         static void
-        save_ogsize(client * & c)
+        save_ogsize(client * c)
         {
             c->ogsize.x         = c->x; 
             c->ogsize.y         = c->y;
@@ -493,7 +493,7 @@ class wm {
         /* TODO */
         // MUST CHECK VALUES SOMETHING IS OFF
         static void 
-        update_client(client * & c) 
+        update_client(client * c) 
         {
             if (c == nullptr)
             {
@@ -887,7 +887,7 @@ class mv_client {
 class Animate {
     public:
         static void // Public static method to start the animation
-        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
+        move(client * cli, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
             log_info("endX = " + std::to_string(endX));
@@ -928,7 +928,7 @@ class Animate {
         static int currentY;
 		// 50, 25, 5 works
         static const int animationInterval = 1;
-        static client * & c;
+        static client * c;
         
         static void // Static method for the animation thread
         animateThread(int endX, int endY, int stepX, int stepY, int steps) 
@@ -992,7 +992,7 @@ std::thread Animate::animationThread;
 std::atomic<bool> Animate::stopFlag(false);
 int Animate::currentX;
 int Animate::currentY;
-client * & Animate::c = focused_client;
+client * Animate::c = focused_client;
 
 void 
 move_desktop(const uint8_t & n)
@@ -1024,7 +1024,7 @@ move_desktop(const uint8_t & n)
 }
 
 void 
-next_hide(client * & c) 
+next_hide(client * c) 
 {
 	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
