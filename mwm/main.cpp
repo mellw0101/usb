@@ -886,10 +886,10 @@ class mv_client {
 
 class Animate {
     public:
-        Animate(client * & cli) : c(cli), stopFlag(false) {}
+        Animate(client * cli) : c(cli), stopFlag(false) {}
         
         void // Public static method to start the animation
-        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
+        move(client * cli, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
             log_info("endX = " + std::to_string(endX));
@@ -927,7 +927,7 @@ class Animate {
         int currentY;
 		// 50, 25, 5 works
         const int animationInterval = 1;
-        client * & c;
+        client * c;
         
         void // Static method for the animation thread
         animateThread(int endX, int endY, int stepX, int stepY, int steps) 
