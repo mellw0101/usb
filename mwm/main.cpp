@@ -1,3 +1,4 @@
+#include "structs.hpp"
 #include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
@@ -285,7 +286,7 @@ namespace get {
     }
 
     std::string 
-    WindowProperty(client * c, xcb_atom_t atom_name) 
+    WindowProperty(client * c, const char * atom_name) 
     {
         xcb_get_property_reply_t *reply;
         unsigned int reply_len;
@@ -299,7 +300,10 @@ namespace get {
                 conn,
                 false,
                 c->win,
-                atom_name,
+                atom
+                (
+                    atom_name
+                ),
                 XCB_GET_PROPERTY_TYPE_ANY,
                 0,
                 60
@@ -330,7 +334,7 @@ namespace get {
             free(reply);
         }
 
-        log.log(INFO, __func__, "property value(" + getNetAtomAsString(atom_name) + ") = " + std::string(propertyValue));
+        log.log(INFO, __func__, "property value(" + std::string(atom_name) + ") = " + std::string(propertyValue));
         std::string spropertyValue = std::string(propertyValue);
         free(propertyValue);
 
@@ -1820,41 +1824,41 @@ class WinManager {
         static void
         get_win_info(client * & c)
         {
-            get::WindowProperty(c, WINDOW);
-            get::WindowProperty(c, WM_CLASS);
-            get::WindowProperty(c, FULL_NAME);
-            get::WindowProperty(c, ATOM);
-            get::WindowProperty(c, DRAWABLE);
-            get::WindowProperty(c, FONT);
-            get::WindowProperty(c, INTEGER);
-            get::WindowProperty(c, PIXMAP);
-            get::WindowProperty(c, VISUALID);
-            get::WindowProperty(c, WM_COMMAND);
-            get::WindowProperty(c, WM_HINTS);
-            get::WindowProperty(c, WM_NORMAL_HINTS);
-            get::WindowProperty(c, MIN_SPACE);
-            get::WindowProperty(c, NORM_SPACE);
-            get::WindowProperty(c, WM_SIZE_HINTS);
-            get::WindowProperty(c, NOTICE);
-            get::WindowProperty(c, ewmh->_NET_WM_NAME);
-            get::WindowProperty(c, ewmh->_NET_WM_STATE);
-            get::WindowProperty(c, ewmh->_NET_WM_VISIBLE_NAME);
-            get::WindowProperty(c, ewmh->_NET_WM_ICON_NAME);
-            get::WindowProperty(c, ewmh->_NET_WM_VISIBLE_ICON_NAME);
-            get::WindowProperty(c, ewmh->_NET_WM_DESKTOP);
-            get::WindowProperty(c, ewmh->_NET_WM_WINDOW_TYPE);
-            get::WindowProperty(c, ewmh->_NET_WM_STATE);
-            get::WindowProperty(c, ewmh->_NET_WM_ALLOWED_ACTIONS);
-            get::WindowProperty(c, ewmh->_NET_WM_STRUT);
-            get::WindowProperty(c, ewmh->_NET_WM_STRUT_PARTIAL);
-            get::WindowProperty(c, ewmh->_NET_WM_ICON_GEOMETRY);
-            get::WindowProperty(c, ewmh->_NET_WM_ICON);
-            get::WindowProperty(c, ewmh->_NET_WM_PID);
-            get::WindowProperty(c, ewmh->_NET_WM_HANDLED_ICONS);
-            get::WindowProperty(c, ewmh->_NET_WM_USER_TIME);
-            get::WindowProperty(c, ewmh->_NET_WM_USER_TIME_WINDOW);
-            get::WindowProperty(c, ewmh->_NET_FRAME_EXTENTS);
-            get::WindowProperty(c, ewmh->_NET_SUPPORTED);
+            get::WindowProperty(c, "WINDOW");
+            get::WindowProperty(c, "WM_CLASS");
+            get::WindowProperty(c, "FULL_NAME");
+            get::WindowProperty(c, "ATOM");
+            get::WindowProperty(c, "DRAWABLE");
+            get::WindowProperty(c, "FONT");
+            get::WindowProperty(c, "INTEGER");
+            get::WindowProperty(c, "PIXMAP");
+            get::WindowProperty(c, "VISUALID");
+            get::WindowProperty(c, "WM_COMMAND");
+            get::WindowProperty(c, "WM_HINTS");
+            get::WindowProperty(c, "WM_NORMAL_HINTS");
+            get::WindowProperty(c, "MIN_SPACE");
+            get::WindowProperty(c, "NORM_SPACE");
+            get::WindowProperty(c, "WM_SIZE_HINTS");
+            get::WindowProperty(c, "NOTICE");
+            get::WindowProperty(c, "_NET_WM_NAME");
+            get::WindowProperty(c, "_NET_WM_STATE");
+            get::WindowProperty(c, "_NET_WM_VISIBLE_NAME");
+            get::WindowProperty(c, "_NET_WM_ICON_NAME");
+            get::WindowProperty(c, "_NET_WM_VISIBLE_ICON_NAME");
+            get::WindowProperty(c, "_NET_WM_DESKTOP");
+            get::WindowProperty(c, "_NET_WM_WINDOW_TYPE");
+            get::WindowProperty(c, "_NET_WM_STATE");
+            get::WindowProperty(c, "_NET_WM_ALLOWED_ACTIONS");
+            get::WindowProperty(c, "_NET_WM_STRUT");
+            get::WindowProperty(c, "_NET_WM_STRUT_PARTIAL");
+            get::WindowProperty(c, "_NET_WM_ICON_GEOMETRY");
+            get::WindowProperty(c, "_NET_WM_ICON");
+            get::WindowProperty(c, "_NET_WM_PID");
+            get::WindowProperty(c, "_NET_WM_HANDLED_ICONS");
+            get::WindowProperty(c, "_NET_WM_USER_TIME");
+            get::WindowProperty(c, "_NET_WM_USER_TIME_WINDOW");
+            get::WindowProperty(c, "_NET_FRAME_EXTENTS");
+            get::WindowProperty(c, "_NET_SUPPORTED");
         }
 };
 
@@ -1892,6 +1896,14 @@ class tile {
                     if (current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS_LEFT_DOWN);
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
+                        return;
+                    }
+
+                    if (current_tile_pos(c, TILEPOS_RIGHT_UP))
+                    {
+                        set_tile_sizepos(c, TILEPOS_LEFT_UP);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1935,6 +1947,13 @@ class tile {
                         wm::setWindowPosition(c);
                         wm::setWindowSize(c);
                         return;
+                    }
+
+                    if (current_tile_pos(c, TILEPOS_LEFT_UP))
+                    {
+                        set_tile_sizepos(c, TILEPOS_RIGHT_UP);
+                        wm::setWindowSize(c);
+                        wm::setWindowPosition(c);
                     }
 
                     save_tile_ogsize(c);
