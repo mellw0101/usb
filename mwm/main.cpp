@@ -1016,7 +1016,7 @@ move_desktop(const uint8_t & n)
 }
 
 void 
-next_hide(client * & c) 
+next_hide(client * c) 
 {
 	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
@@ -1025,7 +1025,7 @@ next_hide(client * & c)
 }
 
 void 
-next_show(client * & c) 
+next_show(client * c) 
 {
 	if (c->x < screen->width_in_pixels) 
 	{
@@ -1047,7 +1047,7 @@ Next_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (auto & c : cur_d->current_clients) 
+	for (const auto & c : cur_d->current_clients) 
 	{
 		if (c) 
 		{
@@ -1058,7 +1058,7 @@ Next_Desktop()
 	cur_d = desktop_list[cur_d->desktop];
 
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (auto & c : cur_d->current_clients)
+	for (const auto & c : cur_d->current_clients)
 	{
 		if (c) 
 		{
