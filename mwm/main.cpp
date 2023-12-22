@@ -2404,7 +2404,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        Next_Desktop();
+				        move_desktop(cur_d->desktop + 1);
                         break;
                     }
                     case SUPER:
@@ -2434,7 +2434,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        Prev_Desktop();
+				        move_desktop(cur_d->desktop - 1);
                         break;
                     }
                     case SUPER:
