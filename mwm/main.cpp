@@ -220,7 +220,7 @@ namespace get {
         {
             if (reply != nullptr) 
             {
-                log.log(ERROR, __func__, "reply length is = 0");
+                log.log(ERROR, __func__, "reply length for property(" + propertyAtom_enum_to_string(property) + ") = 0");
                 free(reply);
                 return "";
             }
@@ -1675,6 +1675,19 @@ class WinManager {
             get::WindowProperty(c, XCB_ATOM_WINDOW);
             get::WindowProperty(c, XCB_ATOM_WM_CLASS);
             get::WindowProperty(c, XCB_ATOM_FULL_NAME);
+            get::WindowProperty(c, XCB_ATOM_ATOM);
+            get::WindowProperty(c, XCB_ATOM_DRAWABLE);
+            get::WindowProperty(c, XCB_ATOM_FONT);
+            get::WindowProperty(c, XCB_ATOM_INTEGER);
+            get::WindowProperty(c, XCB_ATOM_PIXMAP);
+            get::WindowProperty(c, XCB_ATOM_VISUALID);
+            get::WindowProperty(c, XCB_ATOM_WM_COMMAND);
+            get::WindowProperty(c, XCB_ATOM_WM_HINTS);
+            get::WindowProperty(c, XCB_ATOM_WM_NORMAL_HINTS);
+            get::WindowProperty(c, XCB_ATOM_MIN_SPACE);
+            get::WindowProperty(c, XCB_ATOM_NORM_SPACE);
+            get::WindowProperty(c, XCB_ATOM_WM_SIZE_HINTS);
+            get::WindowProperty(c, XCB_ATOM_NOTICE);
         }
 };
 
