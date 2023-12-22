@@ -1689,6 +1689,25 @@ class WinManager {
             get::WindowProperty(c, "WM_SIZE_HINTS");
             get::WindowProperty(c, "NOTICE");
             get::WindowProperty(c, "_NET_WM_NAME");
+            get::WindowProperty(c, "_NET_WM_STATE");
+            get::WindowProperty(c, "_NET_WM_VISIBLE_NAME");
+            get::WindowProperty(c, "_NET_WM_ICON_NAME");
+            get::WindowProperty(c, "_NET_WM_VISIBLE_ICON_NAME");
+            get::WindowProperty(c, "_NET_WM_DESKTOP");
+            get::WindowProperty(c, "_NET_WM_WINDOW_TYPE");
+            get::WindowProperty(c, "_NET_WM_STATE");
+            get::WindowProperty(c, "_NET_WM_ALLOWED_ACTIONS");
+            get::WindowProperty(c, "_NET_WM_STRUT");
+            get::WindowProperty(c, "_NET_WM_STRUT_PARTIAL");
+            get::WindowProperty(c, "_NET_WM_ICON_GEOMETRY");
+            get::WindowProperty(c, "_NET_WM_ICON");
+            get::WindowProperty(c, "_NET_WM_PID");
+            get::WindowProperty(c, "_NET_WM_HANDLED_ICONS");
+            get::WindowProperty(c, "_NET_WM_USER_TIME");
+            get::WindowProperty(c, "_NET_WM_USER_TIME_WINDOW");
+            get::WindowProperty(c, "_NET_FRAME_EXTENTS");
+            get::WindowProperty(c, "_NET_WM_OPAQUE_REGION");
+            get::WindowProperty(c, "_NET_WM_BYPASS_COMPOSITOR");
         }
 };
 
