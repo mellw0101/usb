@@ -1533,7 +1533,7 @@ class WinManager {
                 {   U_ARROW,    SUPER                   },
                 {   D_ARROW,    SUPER                   },
                 {   TAB,        ALT                     },
-                {   K,          ALT | SUPER             }
+                {   K,          SUPER                   }
             });
 
             // make_frame(c);
