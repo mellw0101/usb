@@ -275,71 +275,6 @@ namespace get {
 
         free(stateReply);
     }
-
-    xcb_atom_t 
-    getNetWMState(xcb_window_t window) 
-    {
-        xcb_connection_t *connection = xcb_connect(nullptr, nullptr);
-        if (xcb_connection_has_error(connection)) 
-        {
-            std::cerr << "Error connecting to X server" << std::endl;
-            xcb_disconnect(connection);
-            return XCB_ATOM_NONE;
-        }
-
-        // Get the atom for _NET_WM_STATE
-        xcb_intern_atom_cookie_t stateCookie = xcb_intern_atom(connection, 1, strlen("_NET_WM_STATE"), "_NET_WM_STATE");
-        xcb_intern_atom_reply_t *stateReply = xcb_intern_atom_reply(connection, stateCookie, nullptr);
-        if (!stateReply) {
-            std::cerr << "Failed to get atom for _NET_WM_STATE" << std::endl;
-            xcb_disconnect(connection);
-            return XCB_ATOM_NONE;
-        }
-
-        // Get the current value of _NET_WM_STATE property
-        xcb_get_property_cookie_t propertyCookie = xcb_get_property(
-            connection,
-            0,
-            window,
-            stateReply->atom,
-            XCB_GET_PROPERTY_TYPE_ANY,
-            0,
-            1024
-        );
-
-        xcb_generic_error_t *error = nullptr;
-        xcb_get_property_reply_t *propertyReply = xcb_get_property_reply(connection, propertyCookie, &error);
-
-        if (error) {
-            std::cerr << "Error getting property: " << static_cast<int>(error->error_code) << std::endl;
-            free(error);
-            xcb_disconnect(connection);
-            return XCB_ATOM_NONE;
-        }
-
-        if (!propertyReply) {
-            std::cerr << "Failed to get property reply" << std::endl;
-            xcb_disconnect(connection);
-            return XCB_ATOM_NONE;
-        }
-
-        if (propertyReply->type != XCB_ATOM_ATOM || propertyReply->format != 32) {
-            std::cerr << "Invalid property type or format" << std::endl;
-            free(propertyReply);
-            xcb_disconnect(connection);
-            return XCB_ATOM_NONE;
-        }
-
-        xcb_atom_t *atoms = reinterpret_cast<xcb_atom_t *>(xcb_get_property_value(propertyReply));
-        xcb_atom_t currentState = (propertyReply->length > 0) ? atoms[0] : XCB_ATOM_NONE;
-
-        free(stateReply);
-        free(propertyReply);
-        xcb_disconnect(connection);
-
-        return currentState;
-    }
-
 }
 
 class focus {
@@ -1803,8 +1738,7 @@ class WinManager {
             get::WindowProperty(c, "_NET_FRAME_EXTENTS");
             get::WindowProperty(c, "_NET_WM_OPAQUE_REGION");
             get::WindowProperty(c, "_NET_WM_BYPASS_COMPOSITOR");
-
-            get::getNetWMState(c->win);
+            get::WindowProperty(c, "_NET_SUPPORTED");
         }
 };
 
