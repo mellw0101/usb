@@ -1,3 +1,4 @@
+#include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -191,7 +192,100 @@ namespace get {
     }
 
     std::string 
-    WindowProperty(client * c, const char * atom_name) 
+    getNetAtomAsString(xcb_atom_t atom) 
+    {
+        static const std::unordered_map<xcb_atom_t, std::string> atomMap = {
+            {XCB_ATOM_NONE, "XCB_ATOM_NONE"},
+            {ewmh->_NET_SUPPORTED, "_NET_SUPPORTED"},
+            {ewmh->_NET_CLIENT_LIST, "_NET_CLIENT_LIST"},
+            {ewmh->_NET_CLIENT_LIST_STACKING, "_NET_CLIENT_LIST_STACKING"},
+            {ewmh->_NET_NUMBER_OF_DESKTOPS, "_NET_NUMBER_OF_DESKTOPS"},
+            {ewmh->_NET_DESKTOP_GEOMETRY, "_NET_DESKTOP_GEOMETRY"},
+            {ewmh->_NET_DESKTOP_VIEWPORT, "_NET_DESKTOP_VIEWPORT"},
+            {ewmh->_NET_CURRENT_DESKTOP, "_NET_CURRENT_DESKTOP"},
+            {ewmh->_NET_DESKTOP_NAMES, "_NET_DESKTOP_NAMES"},
+            {ewmh->_NET_ACTIVE_WINDOW, "_NET_ACTIVE_WINDOW"},
+            {ewmh->_NET_WORKAREA, "_NET_WORKAREA"},
+            {ewmh->_NET_SUPPORTING_WM_CHECK, "_NET_SUPPORTING_WM_CHECK"},
+            {ewmh->_NET_VIRTUAL_ROOTS, "_NET_VIRTUAL_ROOTS"},
+            {ewmh->_NET_DESKTOP_LAYOUT, "_NET_DESKTOP_LAYOUT"},
+            {ewmh->_NET_SHOWING_DESKTOP, "_NET_SHOWING_DESKTOP"},
+            {ewmh->_NET_CLOSE_WINDOW, "_NET_CLOSE_WINDOW"},
+            {ewmh->_NET_MOVERESIZE_WINDOW, "_NET_MOVERESIZE_WINDOW"},
+            {ewmh->_NET_WM_MOVERESIZE, "_NET_WM_MOVERESIZE"},
+            {ewmh->_NET_RESTACK_WINDOW, "_NET_RESTACK_WINDOW"},
+            {ewmh->_NET_REQUEST_FRAME_EXTENTS, "_NET_REQUEST_FRAME_EXTENTS"},
+            {ewmh->_NET_WM_NAME, "_NET_WM_NAME"},
+            {ewmh->_NET_WM_VISIBLE_NAME, "_NET_WM_VISIBLE_NAME"},
+            {ewmh->_NET_WM_ICON_NAME, "_NET_WM_ICON_NAME"},
+            {ewmh->_NET_WM_VISIBLE_ICON_NAME, "_NET_WM_VISIBLE_ICON_NAME"},
+            {ewmh->_NET_WM_DESKTOP, "_NET_WM_DESKTOP"},
+            {ewmh->_NET_WM_WINDOW_TYPE, "_NET_WM_WINDOW_TYPE"},
+            {ewmh->_NET_WM_STATE, "_NET_WM_STATE"},
+            {ewmh->_NET_WM_ALLOWED_ACTIONS, "_NET_WM_ALLOWED_ACTIONS"},
+            {ewmh->_NET_WM_STRUT, "_NET_WM_STRUT"},
+            {ewmh->_NET_WM_STRUT_PARTIAL, "_NET_WM_STRUT_PARTIAL"},
+            {ewmh->_NET_WM_ICON_GEOMETRY, "_NET_WM_ICON_GEOMETRY"},
+            {ewmh->_NET_WM_ICON, "_NET_WM_ICON"},
+            {ewmh->_NET_WM_PID, "_NET_WM_PID"},
+            {ewmh->_NET_WM_HANDLED_ICONS, "_NET_WM_HANDLED_ICONS"},
+            {ewmh->_NET_WM_USER_TIME, "_NET_WM_USER_TIME"},
+            {ewmh->_NET_WM_USER_TIME_WINDOW, "_NET_WM_USER_TIME_WINDOW"},
+            {ewmh->_NET_FRAME_EXTENTS, "_NET_FRAME_EXTENTS"},
+            {ewmh->_NET_WM_PING, "_NET_WM_PING"},
+            {ewmh->_NET_WM_SYNC_REQUEST, "_NET_WM_SYNC_REQUEST"},
+            {ewmh->_NET_WM_SYNC_REQUEST_COUNTER, "_NET_WM_SYNC_REQUEST_COUNTER"},
+            {ewmh->_NET_WM_FULLSCREEN_MONITORS, "_NET_WM_FULLSCREEN_MONITORS"},
+            {ewmh->_NET_WM_FULL_PLACEMENT, "_NET_WM_FULL_PLACEMENT"},
+            {ewmh->UTF8_STRING, "UTF8_STRING"},
+            {ewmh->WM_PROTOCOLS, "WM_PROTOCOLS"},
+            {ewmh->MANAGER, "MANAGER"},
+            {ewmh->_NET_WM_WINDOW_TYPE_DESKTOP, "_NET_WM_WINDOW_TYPE_DESKTOP"},
+            {ewmh->_NET_WM_WINDOW_TYPE_DOCK, "_NET_WM_WINDOW_TYPE_DOCK"},
+            {ewmh->_NET_WM_WINDOW_TYPE_TOOLBAR, "_NET_WM_WINDOW_TYPE_TOOLBAR"},
+            {ewmh->_NET_WM_WINDOW_TYPE_MENU, "_NET_WM_WINDOW_TYPE_MENU"},
+            {ewmh->_NET_WM_WINDOW_TYPE_UTILITY, "_NET_WM_WINDOW_TYPE_UTILITY"},
+            {ewmh->_NET_WM_WINDOW_TYPE_SPLASH, "_NET_WM_WINDOW_TYPE_SPLASH"},
+            {ewmh->_NET_WM_WINDOW_TYPE_DIALOG, "_NET_WM_WINDOW_TYPE_DIALOG"},
+            {ewmh->_NET_WM_WINDOW_TYPE_DROPDOWN_MENU, "_NET_WM_WINDOW_TYPE_DROPDOWN_MENU"},
+            {ewmh->_NET_WM_WINDOW_TYPE_POPUP_MENU, "_NET_WM_WINDOW_TYPE_POPUP_MENU"},
+            {ewmh->_NET_WM_WINDOW_TYPE_TOOLTIP, "_NET_WM_WINDOW_TYPE_TOOLTIP"},
+            {ewmh->_NET_WM_WINDOW_TYPE_NOTIFICATION, "_NET_WM_WINDOW_TYPE_NOTIFICATION"},
+            {ewmh->_NET_WM_WINDOW_TYPE_COMBO, "_NET_WM_WINDOW_TYPE_COMBO"},
+            {ewmh->_NET_WM_WINDOW_TYPE_DND, "_NET_WM_WINDOW_TYPE_DND"},
+            {ewmh->_NET_WM_WINDOW_TYPE_NORMAL, "_NET_WM_WINDOW_TYPE_NORMAL"},
+            {ewmh->_NET_WM_STATE_MODAL, "_NET_WM_STATE_MODAL"},
+            {ewmh->_NET_WM_STATE_STICKY, "_NET_WM_STATE_STICKY"},
+            {ewmh->_NET_WM_STATE_MAXIMIZED_VERT, "_NET_WM_STATE_MAXIMIZED_VERT"},
+            {ewmh->_NET_WM_STATE_MAXIMIZED_HORZ, "_NET_WM_STATE_MAXIMIZED_HORZ"},
+            {ewmh->_NET_WM_STATE_SHADED, "_NET_WM_STATE_SHADED"},
+            {ewmh->_NET_WM_STATE_SKIP_TASKBAR, "_NET_WM_STATE_SKIP_TASKBAR"},
+            {ewmh->_NET_WM_STATE_SKIP_PAGER, "_NET_WM_STATE_SKIP_PAGER"},
+            {ewmh->_NET_WM_STATE_HIDDEN, "_NET_WM_STATE_HIDDEN"},
+            {ewmh->_NET_WM_STATE_FULLSCREEN, "_NET_WM_STATE_FULLSCREEN"},
+            {ewmh->_NET_WM_STATE_ABOVE, "_NET_WM_STATE_ABOVE"},
+            {ewmh->_NET_WM_STATE_BELOW, "_NET_WM_STATE_BELOW"},
+            {ewmh->_NET_WM_STATE_DEMANDS_ATTENTION, "_NET_WM_STATE_DEMANDS_ATTENTION"},
+            {ewmh->_NET_WM_ACTION_MOVE, "_NET_WM_ACTION_MOVE"},
+            {ewmh->_NET_WM_ACTION_RESIZE, "_NET_WM_ACTION_RESIZE"},
+            {ewmh->_NET_WM_ACTION_MINIMIZE, "_NET_WM_ACTION_MINIMIZE"},
+            {ewmh->_NET_WM_ACTION_SHADE, "_NET_WM_ACTION_SHADE"},
+            {ewmh->_NET_WM_ACTION_STICK, "_NET_WM_ACTION_STICK"},
+            {ewmh->_NET_WM_ACTION_MAXIMIZE_HORZ, "_NET_WM_ACTION_MAXIMIZE_HORZ"},
+            {ewmh->_NET_WM_ACTION_MAXIMIZE_VERT, "_NET_WM_ACTION_MAXIMIZE_VERT"},
+            {ewmh->_NET_WM_ACTION_FULLSCREEN, "_NET_WM_ACTION_FULLSCREEN"},
+            {ewmh->_NET_WM_ACTION_CHANGE_DESKTOP, "_NET_WM_ACTION_CHANGE_DESKTOP"},
+            {ewmh->_NET_WM_ACTION_CLOSE, "_NET_WM_ACTION_CLOSE"},
+            {ewmh->_NET_WM_ACTION_ABOVE, "_NET_WM_ACTION_ABOVE"},
+            {ewmh->_NET_WM_ACTION_BELOW, "_NET_WM_ACTION_BELOW"}
+        };
+
+        auto it = atomMap.find(atom);
+        return (it != atomMap.end()) ? it->second : "Unknown Atom";
+    }
+
+    std::string 
+    WindowProperty(client * c, xcb_atom_t atom_name) 
     {
         xcb_get_property_reply_t *reply;
         unsigned int reply_len;
@@ -205,11 +299,8 @@ namespace get {
                 conn,
                 false,
                 c->win,
-                atom
-                (
-                    atom_name
-                ),
-                XCB_ATOM_ANY,
+                atom_name,
+                XCB_GET_PROPERTY_TYPE_ANY,
                 0,
                 60
             ),
@@ -239,7 +330,7 @@ namespace get {
             free(reply);
         }
 
-        log.log(INFO, __func__, "property value(" + std::string(atom_name) + ") = " + std::string(propertyValue));
+        log.log(INFO, __func__, "property value(" + getNetAtomAsString(atom_name) + ") = " + std::string(propertyValue));
         std::string spropertyValue = std::string(propertyValue);
         free(propertyValue);
 
@@ -274,6 +365,33 @@ namespace get {
         xcb_disconnect(conn);
 
         free(stateReply);
+    }
+
+    void 
+    sendCustomMessage(xcb_window_t targetWindow, xcb_atom_t messageType, uint32_t data) 
+    {
+        xcb_client_message_event_t event;
+        event.response_type = XCB_CLIENT_MESSAGE;
+        event.format = 32;
+        event.window = targetWindow;
+        event.type = messageType;
+        event.data.data32[0] = data;
+        event.data.data32[1] = XCB_CURRENT_TIME; // Timestamp, you can adjust this if needed
+        event.data.data32[2] = 0;  // Additional data
+        event.data.data32[3] = 0;  // Additional data
+        event.data.data32[4] = 0;  // Additional data
+
+        // Send the event to the root window
+        xcb_send_event
+        (
+            conn,
+            0,               // Propagate event to all clients
+            screen->root, // Target window is the root window
+            XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY,
+            reinterpret_cast<char *>(& event)
+        );
+
+        xcb_flush(conn);
     }
 }
 
@@ -1702,43 +1820,41 @@ class WinManager {
         static void
         get_win_info(client * & c)
         {
-            get::WindowProperty(c, "WINDOW");
-            get::WindowProperty(c, "WM_CLASS");
-            get::WindowProperty(c, "FULL_NAME");
-            get::WindowProperty(c, "ATOM");
-            get::WindowProperty(c, "DRAWEBLE");
-            get::WindowProperty(c, "FONT");
-            get::WindowProperty(c, "INTEGER");
-            get::WindowProperty(c, "PIXMAP");
-            get::WindowProperty(c, "VISUALID");
-            get::WindowProperty(c, "WM_COMMAND");
-            get::WindowProperty(c, "WM_HINTS");
-            get::WindowProperty(c, "WM_NORMAL_HINTS");
-            get::WindowProperty(c, "MIN_SPACE");
-            get::WindowProperty(c, "NORM_SPACE");
-            get::WindowProperty(c, "WM_SIZE_HINTS");
-            get::WindowProperty(c, "NOTICE");
-            get::WindowProperty(c, "_NET_WM_NAME");
-            get::WindowProperty(c, "_NET_WM_STATE");
-            get::WindowProperty(c, "_NET_WM_VISIBLE_NAME");
-            get::WindowProperty(c, "_NET_WM_ICON_NAME");
-            get::WindowProperty(c, "_NET_WM_VISIBLE_ICON_NAME");
-            get::WindowProperty(c, "_NET_WM_DESKTOP");
-            get::WindowProperty(c, "_NET_WM_WINDOW_TYPE");
-            get::WindowProperty(c, "_NET_WM_STATE");
-            get::WindowProperty(c, "_NET_WM_ALLOWED_ACTIONS");
-            get::WindowProperty(c, "_NET_WM_STRUT");
-            get::WindowProperty(c, "_NET_WM_STRUT_PARTIAL");
-            get::WindowProperty(c, "_NET_WM_ICON_GEOMETRY");
-            get::WindowProperty(c, "_NET_WM_ICON");
-            get::WindowProperty(c, "_NET_WM_PID");
-            get::WindowProperty(c, "_NET_WM_HANDLED_ICONS");
-            get::WindowProperty(c, "_NET_WM_USER_TIME");
-            get::WindowProperty(c, "_NET_WM_USER_TIME_WINDOW");
-            get::WindowProperty(c, "_NET_FRAME_EXTENTS");
-            get::WindowProperty(c, "_NET_WM_OPAQUE_REGION");
-            get::WindowProperty(c, "_NET_WM_BYPASS_COMPOSITOR");
-            get::WindowProperty(c, "_NET_SUPPORTED");
+            get::WindowProperty(c, WINDOW);
+            get::WindowProperty(c, WM_CLASS);
+            get::WindowProperty(c, FULL_NAME);
+            get::WindowProperty(c, ATOM);
+            get::WindowProperty(c, DRAWABLE);
+            get::WindowProperty(c, FONT);
+            get::WindowProperty(c, INTEGER);
+            get::WindowProperty(c, PIXMAP);
+            get::WindowProperty(c, VISUALID);
+            get::WindowProperty(c, WM_COMMAND);
+            get::WindowProperty(c, WM_HINTS);
+            get::WindowProperty(c, WM_NORMAL_HINTS);
+            get::WindowProperty(c, MIN_SPACE);
+            get::WindowProperty(c, NORM_SPACE);
+            get::WindowProperty(c, WM_SIZE_HINTS);
+            get::WindowProperty(c, NOTICE);
+            get::WindowProperty(c, ewmh->_NET_WM_NAME);
+            get::WindowProperty(c, ewmh->_NET_WM_STATE);
+            get::WindowProperty(c, ewmh->_NET_WM_VISIBLE_NAME);
+            get::WindowProperty(c, ewmh->_NET_WM_ICON_NAME);
+            get::WindowProperty(c, ewmh->_NET_WM_VISIBLE_ICON_NAME);
+            get::WindowProperty(c, ewmh->_NET_WM_DESKTOP);
+            get::WindowProperty(c, ewmh->_NET_WM_WINDOW_TYPE);
+            get::WindowProperty(c, ewmh->_NET_WM_STATE);
+            get::WindowProperty(c, ewmh->_NET_WM_ALLOWED_ACTIONS);
+            get::WindowProperty(c, ewmh->_NET_WM_STRUT);
+            get::WindowProperty(c, ewmh->_NET_WM_STRUT_PARTIAL);
+            get::WindowProperty(c, ewmh->_NET_WM_ICON_GEOMETRY);
+            get::WindowProperty(c, ewmh->_NET_WM_ICON);
+            get::WindowProperty(c, ewmh->_NET_WM_PID);
+            get::WindowProperty(c, ewmh->_NET_WM_HANDLED_ICONS);
+            get::WindowProperty(c, ewmh->_NET_WM_USER_TIME);
+            get::WindowProperty(c, ewmh->_NET_WM_USER_TIME_WINDOW);
+            get::WindowProperty(c, ewmh->_NET_FRAME_EXTENTS);
+            get::WindowProperty(c, ewmh->_NET_SUPPORTED);
         }
 };
 
