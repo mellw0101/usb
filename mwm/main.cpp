@@ -1301,8 +1301,7 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-            std::thread t(next_hide, c);
-            t.detach();
+            show_hide_client(c, HIDE);
 		}
 	}
 
@@ -1313,8 +1312,7 @@ Next_Desktop()
 	{
 		if (c) 
 		{
-			std::thread t(next_show, c);
-            t.detach();
+			show_hide_client(c, SHOW);
 		}
 	}
 }
@@ -1352,8 +1350,7 @@ Prev_Desktop()
 	{
 		if (c)
 		{
-            std::thread t(prev_hide, c);
-            t.detach();
+            show_hide_client(c, HIDE);
 		}
 	}
 
@@ -1363,8 +1360,7 @@ Prev_Desktop()
 	{
 		if (c)
 		{
-			std::thread t(prev_show, c);
-            t.detach();
+            show_hide_client(c, SHOW);
 		}
 	}
 }
