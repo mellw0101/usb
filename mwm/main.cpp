@@ -1,4 +1,3 @@
-#include "structs.hpp"
 #define main_cpp
 #include "include.hpp"
 
@@ -76,10 +75,7 @@ namespace get {
                 conn, 
                 false,
                 c->win, 
-                get::atom
-                (
-                    "WM_NAME"
-                ),
+                WM_NAME,
                 XCB_GET_PROPERTY_TYPE_ANY, 
                 0,
                 60
@@ -119,54 +115,55 @@ namespace get {
 }
 
 class focus {
-public:
-    static void
-    client(client * & c)
-    {
-        // LOG_func
-        if (c == nullptr)
+    public:
+        static void
+        client(client * & c)
         {
-            LOG_warning("client was nullptr");
-            return;
-        }
-        raise_client(c);
-        focus_input(c);
-        focused_client = c;
-    }
-private:
-    static void  
-    raise_client(struct client * & c) 
-    {
-        xcb_configure_window
-        (
-            conn,
-            c->win,
-            XCB_CONFIG_WINDOW_STACK_MODE, 
-            (const uint32_t[1])
+            // LOG_func
+            if (c == nullptr)
             {
-                XCB_STACK_MODE_ABOVE
+                LOG_warning("client was nullptr");
+                return;
             }
-        );
-        XCB_flush();
-    }
-    
-    static void 
-    focus_input(struct client * & c)
-    {
-        if (!c)
-        {
-            LOG_warning("client was nullptr");
-            return;
+            raise_client(c);
+            focus_input(c);
+            focused_client = c;
         }
-        xcb_set_input_focus
-        (
-            conn, 
-            XCB_INPUT_FOCUS_POINTER_ROOT, 
-            c->win, 
-            XCB_CURRENT_TIME
-        );
-        XCB_flush();
-    }
+
+    private:
+        static void  
+        raise_client(struct client * & c) 
+        {
+            xcb_configure_window
+            (
+                conn,
+                c->win,
+                XCB_CONFIG_WINDOW_STACK_MODE, 
+                (const uint32_t[1])
+                {
+                    XCB_STACK_MODE_ABOVE
+                }
+            );
+            XCB_flush();
+        }
+        
+        static void 
+        focus_input(struct client * & c)
+        {
+            if (!c)
+            {
+                LOG_warning("client was nullptr");
+                return;
+            }
+            xcb_set_input_focus
+            (
+                conn, 
+                XCB_INPUT_FOCUS_POINTER_ROOT, 
+                c->win, 
+                XCB_CURRENT_TIME
+            );
+            XCB_flush();
+        }
 };
 
 class wm {
