@@ -1012,7 +1012,7 @@ client * Animate::c = focused_client;
 void 
 move_desktop(const uint8_t & n)
 {
-    if (cur_d == desktop_list[n - 1] || n == 0)
+    if (cur_d == desktop_list[n - 1] || n == 0 || n == desktop_list.size())
     {
         return;
     }
