@@ -962,7 +962,7 @@ class XCBAnimator {
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                 // Check if animation should stop
-                if (currentX == endX && currentY == endY) {
+                if (currentX >= endX && currentY >= endY) {
                     break;
                 }
             }
