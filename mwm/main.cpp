@@ -114,7 +114,7 @@ namespace get {
         return sname;
     }
 
-    std::string
+    const char *
     propertyAtom_enum_to_string(xcb_atom_enum_t property)
     {
         switch (property) 
@@ -208,7 +208,10 @@ namespace get {
                 conn,
                 false,
                 c->win,
-                property,
+                atom
+                (
+                    propertyAtom_enum_to_string(property)
+                ),
                 XCB_GET_PROPERTY_TYPE_ANY,
                 0,
                 60
@@ -239,7 +242,7 @@ namespace get {
             free(reply);
         }
 
-        log.log(INFO, __func__, "property value(" + propertyAtom_enum_to_string(property) + ") = " + std::string(propertyValue));
+        log.log(INFO, __func__, "property value("  ") = " + std::string(propertyValue));
         std::string spropertyValue = std::string(propertyValue);
         free(propertyValue);
 
