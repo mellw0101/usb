@@ -1563,10 +1563,7 @@ class tile {
                      || current_tile_pos(c, TILEPOS_LEFT_UP)
                      || current_tile_pos(c, TILEPOS_RIGHT_UP))
                     {
-                        c->x        = 0;
-                        c->y        = 0;
-                        c->width    = screen->width_in_pixels / 2;
-                        c->height   = screen->height_in_pixels;
+                        set_tile_sizepos(c, TILEPOS_LEFT);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1575,20 +1572,14 @@ class tile {
                     // IF 'CURRENTLY_TILED' TO 'RIGHT_DOWN'
                     if (current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
-                        c->x        = 0;
-                        c->y        = screen->height_in_pixels / 2;
-                        c->width    = screen->width_in_pixels / 2;
-                        c->height   = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_LEFT_DOWN);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
                     }
 
                     save_tile_ogsize(c);
-                    c->x = 0;
-                    c->y = 0;
-                    c->width = screen->width_in_pixels / 2;
-                    c->height = screen->height_in_pixels;
+                    set_tile_sizepos(c, TILEPOS_LEFT);
                     wm::setWindowSize(c);
                     wm::setWindowPosition(c);
                     break;
@@ -1612,10 +1603,6 @@ class tile {
                      || current_tile_pos(c, TILEPOS_RIGHT_DOWN)
                      || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
-                        // c->x        = screen->width_in_pixels / 2;
-                        // c->y        = 0;
-                        // c->width    = screen->width_in_pixels / 2;
-                        // c->height   = screen->height_in_pixels;
                         set_tile_sizepos(c, TILEPOS_RIGHT);
                         wm::setWindowPosition(c);
                         wm::setWindowSize(c);
@@ -1625,20 +1612,14 @@ class tile {
                     // IF 'CURRENTLT_TILED' 'LEFT_DOWN'
                     if (current_tile_pos(c, TILEPOS_LEFT_DOWN))
                     {
-                        c->x        = screen->width_in_pixels / 2;
-                        c->y        = screen->height_in_pixels / 2;
-                        c->width    = screen->width_in_pixels / 2;
-                        c->height   = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_RIGHT_DOWN);
                         wm::setWindowPosition(c);
                         wm::setWindowSize(c);
                         return;
                     }
 
                     save_tile_ogsize(c);
-                    c->x = screen->width_in_pixels / 2;
-                    c->y = 0;
-                    c->width = screen->width_in_pixels / 2;
-                    c->height = screen->height_in_pixels;
+                    set_tile_sizepos(c, TILEPOS_RIGHT);
                     wm::setWindowSize(c);
                     wm::setWindowPosition(c);
                     break;
@@ -1861,6 +1842,7 @@ class tile {
                     c->y        = screen->height_in_pixels / 2;
                     c->width    = screen->width_in_pixels / 2;
                     c->height   = screen->height_in_pixels / 2;
+                    return;
                 }
 
                 case TILEPOS_RIGHT_DOWN:
@@ -1887,6 +1869,7 @@ class tile {
                     c->y        = 0;
                     c->width    = screen->width_in_pixels / 2;
                     c->height   = screen->height_in_pixels / 2;
+                    return;
                 }
             }
         }
