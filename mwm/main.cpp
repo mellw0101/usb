@@ -1031,9 +1031,9 @@ next_show(client * c)
 		c->x = c->x + screen->width_in_pixels;
 	}
 	// show_hide_client(c, SHOW);
-    focus::client(c);
 	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+    focus::client(c);
 }
 
 void
