@@ -933,23 +933,27 @@ class Animate {
         static void // Static method for the animation thread
         animateThread(int endX, int endY, int stepX, int stepY, int steps) 
         {
-            for (int i = 0; i < steps; ++i) {
-                // Perform animation step
-                move(stepX, stepY);
-
-                // Sleep for the animation interval
-                std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-
-                // Check if animation should stop
-                if (stopFlag.load()) 
+           while (currentX != endX || currentY != endY) 
+           {
+                for (int i = 0; i < steps; ++i) 
                 {
-                    return;
-                }
+                    // Perform animation step
+                    move(stepX, stepY);
 
-                // Check if the target position is reached
-                if (currentX == endX && currentY == endY) {
-                    return;
+                    // Sleep for the animation interval
+                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+
+                    // Check if animation should stop
+                    if (stopFlag.load()) 
+                    {
+                        return;
+                    }
                 }
+                // // Check if the target position is reached
+                // if (currentX == endX && currentY == endY) 
+                // {
+                //     break;   
+                // }
             }
 
             // Ensure final position is reached
