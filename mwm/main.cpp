@@ -890,7 +890,8 @@ class Animate {
         move(client * & cli, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
-			log_info("startY = " + std::to_string(startY));
+            log_info("endX = " + std::to_string(endX));
+            
             // Ensure any existing animation is stopped
             stopAnimation();
             
@@ -907,7 +908,6 @@ class Animate {
 			
 			log_info("steps = " + std::to_string(steps));
 			log_info("stepX = " + std::to_string(stepX));
-			log_info("stepY = " + std::to_string(stepY));
 
             // Start a new thread for animation
             animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
