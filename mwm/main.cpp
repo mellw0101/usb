@@ -1,4 +1,5 @@
 #include "structs.hpp"
+#include <algorithm>
 #include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
@@ -582,6 +583,20 @@ class wm {
             }
         }
 };
+
+// Function to remove a client based on its window ID
+void removeClient(const xcb_window_t & win) {
+    auto it = std::remove_if(client_list.begin(), client_list.end(),
+                             [win](const client* c) { return c->win == win; });
+
+    // Delete the removed clients to avoid memory leaks
+    for (auto iter = it; iter != client_list.end(); ++iter) {
+        delete *iter;
+    }
+
+    // Erase the removed clients from the vector
+    client_list.erase(it, client_list.end());
+}
 
 enum show_hide {
     SHOW,
@@ -2722,11 +2737,7 @@ class Event {
         {
             const auto * e = reinterpret_cast<const xcb_destroy_notify_event_t *>(ev);
 
-            client * c = get::client_from_win(& e->event);
-            if (c)
-            {
-                free(c);
-            }
+            removeClient(e->event);
         }
 };
 
