@@ -886,8 +886,10 @@ class mv_client {
 
 class Animate {
     public:
+        Animate(client * & cli) : c(cli), stopFlag(false) {}
+        
         void // Public static method to start the animation
-        move(client * & c, int startX, int startY, int endX, int endY, int time) 
+        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
             log_info("endX = " + std::to_string(endX));
@@ -895,6 +897,8 @@ class Animate {
             // Ensure any existing animation is stopped
             // stopAnimation();
             
+            c = cli;
+
             // Set initial coordinates
             currentX = startX;
             currentY = startY;
@@ -908,7 +912,7 @@ class Animate {
 			log_info("stepX = " + std::to_string(stepX));
 
             // Start a new thread for animation
-            std::thread animationThread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
+            animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
 
             // Wait for the animation to complete
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -919,21 +923,21 @@ class Animate {
         }
 
     private:
-        // Static member variables
         std::thread animationThread;
         std::atomic<bool> stopFlag;
         int currentX;
         int currentY;
 		// 50, 25, 5 works
         const int animationInterval = 1;
-
+        client * & c;
+        
         void // Static method for the animation thread
-        animateThread(client * & c, int endX, int endY, int stepX, int stepY, int steps) 
+        animateThread(int endX, int endY, int stepX, int stepY, int steps) 
         {
             for (int i = 0; i < steps; ++i) 
             {
                 // Perform animation step
-                move(c, stepX, stepY);
+                move(stepX, stepY);
 
                 // Sleep for the animation interval
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
@@ -945,11 +949,11 @@ class Animate {
                 // }
             }
             // Ensure final position is reached
-            move(c, endX - currentX, endY - currentY);
+            move(endX - currentX, endY - currentY);
         }
 
         void // Static method to move the coordinates
-        move(client * & c, int deltaX, int deltaY) 
+        move(int deltaX, int deltaY) 
         {
 			log_info("currentX = " + std::to_string(currentX));
             
@@ -1016,7 +1020,7 @@ move_desktop(const uint8_t & n)
 void 
 next_hide(client * & c) 
 {
-	Animate anim;
+	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
 	show_hide_client(c, HIDE);
@@ -1030,7 +1034,7 @@ next_show(client * & c)
 		c->x = c->x + screen->width_in_pixels;
 	}
 	show_hide_client(c, SHOW);
-	Animate anim;
+	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
     focus::client(c);
@@ -1079,7 +1083,7 @@ Prev_Desktop()
 	{
 		if (c)
 		{
-			Animate anim;
+			Animate anim(c);
             anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 			show_hide_client(c, HIDE);
@@ -1097,7 +1101,7 @@ Prev_Desktop()
 				c->x = c->x - screen->width_in_pixels;
 			}
 			show_hide_client(c, SHOW);
-			Animate anim;
+			Animate anim(c);
             anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
             focus::client(c);
