@@ -935,6 +935,12 @@ class Animate {
         {
             for (int i = 0; i < steps; ++i) {
                 // Perform animation step
+                if (currentX >= endX
+                 || currentY >= endY)
+                {
+                    return;
+                }
+
                 move(stepX, stepY);
 
                 // Sleep for the animation interval
