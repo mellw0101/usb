@@ -220,12 +220,12 @@ namespace get {
         {
             if (reply != nullptr) 
             {
-                log.log(ERROR, __func__, "reply length for property(" + std::string(atom_name) + ") = 0");
+                // log.log(ERROR, __func__, "reply length for property(" + std::string(atom_name) + ") = 0");
                 free(reply);
                 return "";
             }
 
-            log.log(ERROR, __func__, "reply == nullptr");
+            // log.log(ERROR, __func__, "reply == nullptr");
             return "";
         }
 
