@@ -886,8 +886,8 @@ class mv_client {
 
 class Animate {
     public:
-        static void // Public static method to start the animation
-        move(client * & cli, int startX, int startY, int endX, int endY, int time) 
+        void // Public static method to start the animation
+        move(client * & c, int startX, int startY, int endX, int endY, int time) 
         {
 			log_info("startX = " + std::to_string(startX));
             log_info("endX = " + std::to_string(endX));
@@ -895,8 +895,6 @@ class Animate {
             // Ensure any existing animation is stopped
             // stopAnimation();
             
-            c = cli;
-
             // Set initial coordinates
             currentX = startX;
             currentY = startY;
@@ -922,21 +920,20 @@ class Animate {
 
     private:
         // Static member variables
-        static std::thread animationThread;
-        static std::atomic<bool> stopFlag;
-        static int currentX;
-        static int currentY;
+        std::thread animationThread;
+        std::atomic<bool> stopFlag;
+        int currentX;
+        int currentY;
 		// 50, 25, 5 works
-        static const int animationInterval = 1;
-        static client * & c;
-        
-        static void // Static method for the animation thread
-        animateThread(int endX, int endY, int stepX, int stepY, int steps) 
+        const int animationInterval = 1;
+
+        void // Static method for the animation thread
+        animateThread(client * & c, int endX, int endY, int stepX, int stepY, int steps) 
         {
             for (int i = 0; i < steps; ++i) 
             {
                 // Perform animation step
-                move(stepX, stepY);
+                move(c, stepX, stepY);
 
                 // Sleep for the animation interval
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
@@ -948,11 +945,11 @@ class Animate {
                 // }
             }
             // Ensure final position is reached
-            move(endX - currentX, endY - currentY);
+            move(c, endX - currentX, endY - currentY);
         }
 
-        static void // Static method to move the coordinates
-        move(int deltaX, int deltaY) 
+        void // Static method to move the coordinates
+        move(client * & c, int deltaX, int deltaY) 
         {
 			log_info("currentX = " + std::to_string(currentX));
             
@@ -973,7 +970,7 @@ class Animate {
             xcb_flush(conn);
         }
 
-        static void // Static method to stop the animation
+        void // Static method to stop the animation
         stopAnimation() 
         {
             if (animationThread.joinable()) {
@@ -986,13 +983,6 @@ class Animate {
             }
         }
 };
-
-// Initialization of static member variables
-std::thread Animate::animationThread;
-std::atomic<bool> Animate::stopFlag(false);
-int Animate::currentX;
-int Animate::currentY;
-client * & Animate::c = focused_client;
 
 void 
 move_desktop(const uint8_t & n)
@@ -1026,7 +1016,8 @@ move_desktop(const uint8_t & n)
 void 
 next_hide(client * & c) 
 {
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	Animate anim;
+    anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
 	show_hide_client(c, HIDE);
 }
@@ -1039,7 +1030,8 @@ next_show(client * & c)
 		c->x = c->x + screen->width_in_pixels;
 	}
 	show_hide_client(c, SHOW);
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	Animate anim;
+    anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
     focus::client(c);
 }
@@ -1087,7 +1079,8 @@ Prev_Desktop()
 	{
 		if (c)
 		{
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+			Animate anim;
+            anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 			show_hide_client(c, HIDE);
 		}
@@ -1104,7 +1097,8 @@ Prev_Desktop()
 				c->x = c->x - screen->width_in_pixels;
 			}
 			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+			Animate anim;
+            anim.move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
             focus::client(c);
 		}
