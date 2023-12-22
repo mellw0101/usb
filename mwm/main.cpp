@@ -1021,7 +1021,7 @@ next_hide(client * & c)
 	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
-	show_hide_client(c, HIDE);
+	// show_hide_client(c, HIDE);
 }
 
 void 
@@ -1031,7 +1031,7 @@ next_show(client * & c)
 	{
 		c->x = c->x + screen->width_in_pixels;
 	}
-	show_hide_client(c, SHOW);
+	// show_hide_client(c, SHOW);
 	Animate anim(c);
     anim.move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
