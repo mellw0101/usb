@@ -926,8 +926,8 @@ class Animate {
         static std::atomic<bool> stopFlag;
         static int currentX;
         static int currentY;
-		// 50, 25 works
-        static const int animationInterval = 5;
+		// 50, 25, 5 works
+        static const int animationInterval = 2;
         static client * & c;
         
         static void // Static method for the animation thread
