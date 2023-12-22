@@ -70,7 +70,7 @@ class TIME {
 	}
 };
 
-class Converter{
+class Converter {
 public:
     static const char * 
     xcb_event_response_type_to_str(const uint8_t &response_type) 
