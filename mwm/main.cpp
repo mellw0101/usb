@@ -953,7 +953,7 @@ class XCBAnimator {
         // Static method for the animation thread
         void animateThread(int endX, int endY) 
         {
-            while (!stopFlag.load()) 
+            while (true) 
             {
                 // Perform animation step
                 moveStep();
