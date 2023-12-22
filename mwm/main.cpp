@@ -1305,7 +1305,8 @@ Next_Desktop()
 	{
 		if (c && c->desktop == cur_d->desktop) 
 		{
-			next_hide(c);
+            std::thread t(next_hide, c);
+            t.detach();
 		}
 	}
 
@@ -1316,9 +1317,33 @@ Next_Desktop()
 	{
 		if (c && c->desktop == cur_d->desktop) 
 		{
-			next_show(c);
+			std::thread t(next_show, c);
+            t.detach();
 		}
 	}
+}
+
+void
+prev_hide(client * c)
+{
+    XCBAnimator::Move anim(conn, c->win);
+    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+    wm::update_client(c);
+    show_hide_client(c, HIDE);
+}
+
+void 
+prev_show(client * c)
+{
+    if (c->x > 0)
+    {
+        c->x = c->x - screen->width_in_pixels;
+    }
+    show_hide_client(c, SHOW);
+    XCBAnimator::Move anim(conn, c->win);
+    anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+    wm::update_client(c);
+    focus::client(c);
 }
 
 void
@@ -1335,10 +1360,8 @@ Prev_Desktop()
 	{
 		if (c && c->desktop == cur_d->desktop)
 		{
-            XCBAnimator::Move anim(conn, c->win);
-			anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
-			wm::update_client(c);
-			show_hide_client(c, HIDE);
+            std::thread t(prev_hide, c);
+            t.detach();
 		}
 	}
 
@@ -1348,15 +1371,8 @@ Prev_Desktop()
 	{
 		if (c && c->desktop == cur_d->desktop)
 		{
-			if (c->x > 0)
-			{
-				c->x = c->x - screen->width_in_pixels;
-			}
-			show_hide_client(c, SHOW);
-            XCBAnimator::Move anim(conn, c->win);
-			anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
-			wm::update_client(c);
-            focus::client(c);
+			std::thread t(prev_show, c);
+            t.detach();
 		}
 	}
 }
@@ -2647,7 +2663,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        move_desktop(cur_d->desktop + 1);
+				        Next_Desktop();
                         break;
                     }
                     case SUPER:
@@ -2656,6 +2672,7 @@ class Event {
                         tile(c, 2);
                         break;
                     }
+                    return;
                 }
             }
 
@@ -2677,7 +2694,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        move_desktop(cur_d->desktop - 1);
+				        Prev_Desktop();
                         break;
                     }
                     case SUPER:
