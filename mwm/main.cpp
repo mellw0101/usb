@@ -945,6 +945,11 @@ class Animate {
                 {
                     return;
                 }
+
+                // Check if the target position is reached
+                if (currentX == endX && currentY == endY) {
+                    return;
+                }
             }
 
             // Ensure final position is reached
