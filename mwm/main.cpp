@@ -935,25 +935,20 @@ class Animate {
         {
             for (int i = 0; i < steps; ++i) {
                 // Perform animation step
-                if (currentX >= endX
-                 || currentY >= endY)
-                {
-                    return;
-                }
-
                 move(stepX, stepY);
 
                 // Sleep for the animation interval
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                 // Check if animation should stop
-                if (stopFlag.load()) {
+                if (stopFlag.load()) 
+                {
                     return;
                 }
             }
 
             // Ensure final position is reached
-            move(endX - currentX, endY - currentY);
+            // move(endX - currentX, endY - currentY);
         }
 
         static void // Static method to move the coordinates
