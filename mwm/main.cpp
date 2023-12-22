@@ -2395,6 +2395,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 2);
+                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2428,6 +2429,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 1);
+                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2445,6 +2447,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 3);
+                        wm::update_client(c);
                         return;
                         break;
                     }
@@ -2459,6 +2462,7 @@ class Event {
                     {
                         client * c = get::client_from_win(& e->event);
                         tile(c, 4);
+                        wm::update_client(c);
                         break;
                     }
                 }
