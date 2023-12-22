@@ -948,14 +948,13 @@ class Animate {
             }
 
             // Ensure final position is reached
-            // move(endX - currentX, endY - currentY);
+            move(endX - currentX, endY - currentY);
         }
 
         static void // Static method to move the coordinates
         move(int deltaX, int deltaY) 
         {
 			log_info("currentX = " + std::to_string(currentX));
-			log_info("currentY = " + std::to_string(currentY));
             
 			currentX += deltaX;
             currentY += deltaY;
