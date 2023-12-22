@@ -2489,7 +2489,7 @@ class Event {
                     case SUPER:
                     {
                         client * c = get::client_from_win(& e->event);
-                        Animate::move(c, c->x, c->y, c->x + 200, c->y, 1000);
+                        Animate::move(c, c->x, c->y, c->x + 200, c->y, 200);
                         break;
                     }
                 }
