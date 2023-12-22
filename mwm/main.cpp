@@ -1690,7 +1690,8 @@ class WinManager {
         static client * 
         make_client(const xcb_window_t & win) 
         {
-            client * c = static_cast<client *>(malloc(sizeof(client)));
+            // client * c = static_cast<client *>(malloc(sizeof(client)));
+            client * c = new client;
             
             if (!c) 
             {
