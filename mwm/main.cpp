@@ -912,7 +912,7 @@ class Animate {
 			log_info("stepX = " + std::to_string(stepX));
 
             // Start a new thread for animation
-            animationThread = std::thread(&Animate::animateThread, endX, endY, stepX, stepY, steps);
+            animationThread = std::thread(&Animate::animateThread, this, endX, endY, stepX, stepY, steps);
 
             // Wait for the animation to complete
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
