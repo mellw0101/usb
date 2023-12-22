@@ -2279,8 +2279,7 @@ class Event {
                  */
                 case XCB_CLIENT_MESSAGE: 
                 {
-                    const auto & e = reinterpret_cast<const xcb_client_message_event_t *>(ev);
-                    log_event_response_typ();
+                    configure_request_handler(ev);
                     break;
                 }
 
@@ -2774,6 +2773,56 @@ class Event {
                 free(c);
                 focused_client = nullptr;
             }
+        }
+
+        void
+        client_message_handler(const xcb_generic_event_t * & ev)
+        {
+            xcb_client_message_event_t *e= (xcb_client_message_event_t *)ev;
+            client * c;
+
+            if (e->type == ewmh->_NET_WM_STATE && e->format == 32) 
+            {    
+                c = get::client_from_win(& e->window);
+                if (!c)
+                {
+                    return;
+                }
+
+                if (e->data.data32[1] == ewmh->_NET_WM_STATE_FULLSCREEN
+                 || e->data.data32[2] == ewmh->_NET_WM_STATE_FULLSCREEN) 
+                {
+                    switch (e->data.data32[0]) 
+                    {
+                        case XCB_EWMH_WM_STATE_REMOVE:
+                        {
+                            borrowed::unmaxwin(c);
+                            break;
+                        }
+                        case XCB_EWMH_WM_STATE_ADD:
+                        {
+                            borrowed::maxwin(c, false);
+                            break;
+                        }
+                        case XCB_EWMH_WM_STATE_TOGGLE:
+                        {
+                            if(c->ismax)
+                            {
+                                borrowed::unmaxwin(c);
+                            }
+                            else
+                            {
+                                borrowed::maxwin(c, false);
+                            }
+                            break;
+                        }
+                        default:
+                        {
+                            break;
+                        }
+                    }
+                }
+            } 
         }
 };
 
