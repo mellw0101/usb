@@ -194,8 +194,6 @@ namespace get {
     std::string 
     WindowProperty(client * c, xcb_atom_enum_t property) 
     {
-        log.log(FUNC, __func__);
-
         xcb_get_property_reply_t *reply;
         unsigned int reply_len;
         char *propertyValue;
