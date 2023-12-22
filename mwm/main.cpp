@@ -1674,6 +1674,7 @@ class WinManager {
         {
             get::WindowProperty(c, XCB_ATOM_WINDOW);
             get::WindowProperty(c, XCB_ATOM_WM_CLASS);
+            get::WindowProperty(c, XCB_ATOM_FULL_NAME);
         }
 };
 
