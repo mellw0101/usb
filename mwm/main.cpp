@@ -1,3 +1,4 @@
+#include <thread>
 #define main_cpp
 #include "include.hpp"
 
@@ -2404,6 +2405,14 @@ class tile {
         }
 };
 
+void
+test(client * c)
+{
+    XCBAnimator::Resize anim(conn, c->win);
+    anim.resize(c->width, c->height, c->width + 100, c->height, 1000);
+    wm::update_client(c);
+}
+
 class Event {
     public:
         Event()
@@ -2732,11 +2741,20 @@ class Event {
                 {
                     case SUPER:
                     {
-                        client * c = get::client_from_win(& e->event);
-                        XCBAnimator::Resize anim(conn, c->win);
-                        anim.resize(c->width, c->height, c->width + 100, c->height, 1000);
-                        wm::update_client(c);
+                        for (const auto & c : cur_d->current_clients)
+                        {
+                            if (c)
+                            {
+                                std::thread t(test, c);
+                                t.detach();
+                            }
+                        }
                         break;
+
+                        // client * c = get::client_from_win(& e->event);
+                        // XCBAnimator::Resize anim(conn, c->win);
+                        // anim.resize(c->width, c->height, c->width + 100, c->height, 1000);
+                        // wm::update_client(c);
                     }
                 }
             }
