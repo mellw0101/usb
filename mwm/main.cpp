@@ -1632,10 +1632,7 @@ class tile {
                     if (current_tile_pos(c, TILEPOS_LEFT)
                      || current_tile_pos(c, TILEPOS_LEFT_UP))
                     {
-                        c->x = 0;
-                        c->y = screen->height_in_pixels / 2;
-                        c->width = screen->width_in_pixels / 2;
-                        c->height = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_LEFT_DOWN);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1646,10 +1643,7 @@ class tile {
                     if (current_tile_pos(c, TILEPOS_RIGHT)
                      || current_tile_pos(c, TILEPOS_RIGHT_UP))
                     {
-                        c->x        = screen->width_in_pixels / 2;
-                        c->y        = screen->height_in_pixels / 2;
-                        c->width    = screen->width_in_pixels / 2;
-                        c->height   = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_RIGHT_DOWN);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1675,10 +1669,7 @@ class tile {
                     if (current_tile_pos(c, TILEPOS_LEFT)
                      || current_tile_pos(c, TILEPOS_LEFT_DOWN))
                     {
-                        c->x = 0;
-                        c->y = 0;
-                        c->width = screen->width_in_pixels / 2;
-                        c->height = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_LEFT_UP);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
@@ -1689,10 +1680,7 @@ class tile {
                     if (current_tile_pos(c, TILEPOS_RIGHT)
                      || current_tile_pos(c, TILEPOS_RIGHT_DOWN))
                     {
-                        c->x = screen->width_in_pixels / 2;
-                        c->y = 0;
-                        c->width = screen->width_in_pixels / 2;
-                        c->height = screen->height_in_pixels / 2;
+                        set_tile_sizepos(c, TILEPOS_RIGHT_UP);
                         wm::setWindowSize(c);
                         wm::setWindowPosition(c);
                         return;
