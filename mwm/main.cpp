@@ -1162,7 +1162,8 @@ move_desktop(const uint8_t & n)
 void 
 next_hide(client * c) 
 {
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	XCBAnimator anim(conn, c->win);
+    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
 	show_hide_client(c, HIDE);
 }
@@ -1175,7 +1176,8 @@ next_show(client * c)
 		c->x = c->x + screen->width_in_pixels;
 	}
 	show_hide_client(c, SHOW);
-	Animate::move(c, c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
+	XCBAnimator anim(conn, c->win);
+    anim.move(c->x, c->y, c->x - screen->width_in_pixels, c->y, 200);
 	wm::update_client(c);
     focus::client(c);
 }
@@ -1223,7 +1225,8 @@ Prev_Desktop()
 	{
 		if (c && c->desktop == cur_d->desktop)
 		{
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+            XCBAnimator anim(conn, c->win);
+			anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
 			show_hide_client(c, HIDE);
 		}
@@ -1240,7 +1243,8 @@ Prev_Desktop()
 				c->x = c->x - screen->width_in_pixels;
 			}
 			show_hide_client(c, SHOW);
-			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
+            XCBAnimator anim(conn, c->win);
+			anim.move(c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
             focus::client(c);
 		}
@@ -2525,7 +2529,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        move_desktop(cur_d->desktop + 1);
+				        Next_Desktop();
                         break;
                     }
                     case SUPER:
@@ -2555,7 +2559,7 @@ class Event {
                     }
                     case CTRL + SUPER:
                     {
-				        move_desktop(cur_d->desktop - 1);
+				        Prev_Desktop();
                         break;
                     }
                     case SUPER:
