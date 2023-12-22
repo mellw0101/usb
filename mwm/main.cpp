@@ -1068,9 +1068,9 @@ Next_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : cur_d->current_clients) 
+	for (const auto & c : client_list) 
 	{
-		if (c) 
+		if (c && c->desktop == cur_d->desktop) 
 		{
 			next_hide(c);
 		}
@@ -1079,9 +1079,9 @@ Next_Desktop()
 	cur_d = desktop_list[cur_d->desktop];
 
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (const auto & c : client_list)
 	{
-		if (c) 
+		if (c && c->desktop == cur_d->desktop) 
 		{
 			next_show(c);
 		}
@@ -1098,9 +1098,9 @@ Prev_Desktop()
 	}
 
 	// HIDE CLIENTS ON CURRENT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (const auto & c : client_list)
 	{
-		if (c)
+		if (c && c->desktop == cur_d->desktop)
 		{
 			Animate::move(c, c->x, c->y, c->x + screen->width_in_pixels, c->y, 200);
 			wm::update_client(c);
@@ -1110,9 +1110,9 @@ Prev_Desktop()
 
 	cur_d = desktop_list[cur_d->desktop - 2];
 	// SHOW CLIENTS ON NEXT_DESKTOP
-	for (const auto & c : cur_d->current_clients)
+	for (const auto & c : client_list)
 	{
-		if (c)
+		if (c && c->desktop == cur_d->desktop)
 		{
 			if (c->x > 0)
 			{
