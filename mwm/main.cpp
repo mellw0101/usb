@@ -2279,7 +2279,7 @@ class Event {
                  */
                 case XCB_CLIENT_MESSAGE: 
                 {
-                    configure_request_handler(ev);
+                    client_message_handler(ev);
                     break;
                 }
 
@@ -2801,7 +2801,7 @@ class Event {
                         }
                         case XCB_EWMH_WM_STATE_ADD:
                         {
-                            borrowed::maxwin(c, false);
+                            borrowed::maxwin(c, 0);
                             break;
                         }
                         case XCB_EWMH_WM_STATE_TOGGLE:
@@ -2812,7 +2812,7 @@ class Event {
                             }
                             else
                             {
-                                borrowed::maxwin(c, false);
+                                borrowed::maxwin(c, 0);
                             }
                             break;
                         }
