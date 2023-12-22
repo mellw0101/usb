@@ -942,10 +942,10 @@ class Animate {
                 std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                 // Check if animation should stop
-                // if (stopFlag.load()) 
-                // {
-                //     return;
-                // }
+                if (stopFlag.load()) 
+                {
+                    return;
+                }
             }
             // Ensure final position is reached
             move(endX - currentX, endY - currentY);
