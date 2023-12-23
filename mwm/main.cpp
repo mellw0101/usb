@@ -1222,6 +1222,7 @@ namespace XCBAnimator {
             int stepWidth;
             int stepHeight;
             const int animationInterval = 10; // milliseconds
+            double animationINTER = 10.0; // milliseconds
             std::atomic<bool> stopXFlag{false};
             std::atomic<bool> stopYFlag{false};
             std::atomic<bool> stopResizeFlag{false};
@@ -1232,7 +1233,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     XStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+                    sleepForDoubleMilliseconds(animationINTER);
                     if (currentX >= endX) 
                     {
                         break;
@@ -1246,7 +1247,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     YStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+                    sleepForDoubleMilliseconds(animationINTER);
                     if (currentY >= endY) 
                     {
                         break;
@@ -1346,6 +1347,17 @@ namespace XCBAnimator {
                     stopResizeFlag.store(false);
                 }
             }
+
+            void 
+            sleepForDoubleMilliseconds(double milliseconds) 
+            {
+                // Creating a duration with double milliseconds
+                auto duration = std::chrono::duration<double, std::milli>(milliseconds);
+
+                // Sleeping for the duration
+                std::this_thread::sleep_for(duration);
+            }
+
     };
 
     class Resize {
