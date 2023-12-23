@@ -2710,69 +2710,71 @@ class tile {
                         screen->width_in_pixels / 2, 
                         screen->height_in_pixels
                     );
-                    // c->x        = 0;
-                    // c->y        = 0;
-                    // c->width    = screen->width_in_pixels / 2;
-                    // c->height   = screen->height_in_pixels;
                     return;
                 }
                 
                 case TILEPOS::RIGHT:
                 {
-                    XCBAnimator::Test anim(conn, c->win);
-                    anim.animate
+                    animate
                     (
-                        c->x,
-                        c->y, 
-                        c->width, 
-                        c->height, 
-                        screen->width_in_pixels / 2,
+                        c, 
+                        screen->width_in_pixels / 2, 
                         0, 
                         screen->width_in_pixels / 2, 
-                        screen->height_in_pixels, 
-                        400
+                        screen->height_in_pixels
                     );
-                    wm::update_client(c);
-                    // c->x        = screen->width_in_pixels / 2;
-                    // c->y        = 0;
-                    // c->width    = screen->width_in_pixels / 2;
-                    // c->height   = screen->height_in_pixels;
                     return;
                 }
                 
                 case TILEPOS::LEFT_DOWN:
                 {
-                    c->x        = 0;
-                    c->y        = screen->height_in_pixels / 2;
-                    c->width    = screen->width_in_pixels / 2;
-                    c->height   = screen->height_in_pixels / 2;
+                    animate
+                    (
+                        c, 
+                        0, 
+                        screen->height_in_pixels / 2, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels / 2
+                    );
                     return;
                 }
 
                 case TILEPOS::RIGHT_DOWN:
                 {
-                    c->x        = screen->width_in_pixels / 2;
-                    c->y        = screen->height_in_pixels / 2;
-                    c->width    = screen->width_in_pixels / 2;
-                    c->height   = screen->height_in_pixels / 2;
+                    animate
+                    (
+                        c, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels / 2, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels / 2
+                    );
                     return;
                 }
 
                 case TILEPOS::LEFT_UP:
                 {
-                    c->x        = 0;
-                    c->y        = 0;
-                    c->width    = screen->width_in_pixels / 2;
-                    c->height   = screen->height_in_pixels / 2;
+                    animate
+                    (
+                        c, 
+                        0, 
+                        0, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels / 2
+                    );
                     return;
                 } 
                 
                 case TILEPOS::RIGHT_UP:
                 {
-                    c->x        = screen->width_in_pixels / 2;
-                    c->y        = 0;
-                    c->width    = screen->width_in_pixels / 2;
-                    c->height   = screen->height_in_pixels / 2;
+                    animate
+                    (
+                        c, 
+                        screen->width_in_pixels / 2, 
+                        0, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels / 2
+                    );
                     return;
                 }
             }
