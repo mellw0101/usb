@@ -27,6 +27,10 @@ enum class TILE {
     UP      = 4
 };
 
+enum TILE_ANIMATION {
+    TILE_ANIMATION_DURATION = 200
+};
+
 enum Direction {
     NEXT,
     PREV

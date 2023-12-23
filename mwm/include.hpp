@@ -46,6 +46,7 @@
     #include "Log.hpp"
     #include "xcb.hpp"
     #include "defenitions.hpp"
+    #include "Screen.hpp"
 
 #endif
 

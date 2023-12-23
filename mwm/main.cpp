@@ -2590,10 +2590,18 @@ class tile {
             {
                 case TILEPOS::LEFT:
                 {
-                    c->x        = 0;
-                    c->y        = 0;
-                    c->width    = screen->width_in_pixels / 2;
-                    c->height   = screen->height_in_pixels;
+                    animate
+                    (
+                        c, 
+                        0, 
+                        0, 
+                        screen->width_in_pixels / 2, 
+                        screen->height_in_pixels
+                    );
+                    // c->x        = 0;
+                    // c->y        = 0;
+                    // c->width    = screen->width_in_pixels / 2;
+                    // c->height   = screen->height_in_pixels;
                     return;
                 }
                 
@@ -2665,6 +2673,25 @@ class tile {
             c->y        = c->tile_ogsize.y;
             c->width    = c->tile_ogsize.width;
             c->height   = c->tile_ogsize.height;
+        }
+
+        void
+        animate(client * & c, const int & endX, const int & endY, const int & endWidth, const int & endHeight)
+        {
+            XCBAnimator::Test anim(conn, c->win);
+            anim.animate
+            (
+                c->x,
+                c->y, 
+                c->width, 
+                c->height, 
+                endX,
+                endY, 
+                endWidth, 
+                endHeight, 
+                TILE_ANIMATION_DURATION
+            );
+            wm::update_client(c);
         }
 };
 
