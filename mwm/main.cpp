@@ -2143,8 +2143,6 @@ class tile {
                      || current_tile_pos(c, TILEPOS::RIGHT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS::RIGHT);
-                        wm::setWindowPosition(c);
-                        wm::setWindowSize(c);
                         return;
                     }
 
@@ -2370,7 +2368,7 @@ class tile {
                         c->height, 
                         screen->width_in_pixels / 2, 
                         screen->height_in_pixels, 
-                        1000
+                        400
                     );
                     wm::update_client(c);
                     // c->x        = screen->width_in_pixels / 2;
