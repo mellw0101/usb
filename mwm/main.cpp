@@ -1269,34 +1269,42 @@ namespace XCBAnimator {
             XStep() 
             {
                 currentX += stepX;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_X,
-                    (const uint32_t[1])
-                    {
-                        static_cast<const uint32_t &>(currentX)
-                    }
-                );
-                xcb_flush(connection);
+                
+                if (isTimeToRender())
+                {
+                    xcb_configure_window
+                    (
+                        connection,
+                        window,
+                        XCB_CONFIG_WINDOW_X,
+                        (const uint32_t[1])
+                        {
+                            static_cast<const uint32_t &>(currentX)
+                        }
+                    );
+                    xcb_flush(connection);
+                }
             }
 
             void 
             YStep() 
             {
                 currentY += stepY;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_Y,
-                    (const uint32_t[1])
-                    {
-                        static_cast<const uint32_t &>(currentY)
-                    }
-                );
-                xcb_flush(connection);
+                
+                if (isTimeToRender())
+                {
+                    xcb_configure_window
+                    (
+                        connection,
+                        window,
+                        XCB_CONFIG_WINDOW_Y,
+                        (const uint32_t[1])
+                        {
+                            static_cast<const uint32_t &>(currentY)
+                        }
+                    );
+                    xcb_flush(connection);
+                }
             }
 
             void 
@@ -1333,34 +1341,42 @@ namespace XCBAnimator {
             WStep() 
             {
                 currentWidth += stepWidth;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_WIDTH,
-                    (const uint32_t[1])
-                    {
-                        static_cast<const uint32_t &>(currentWidth) 
-                    }
-                );
-                xcb_flush(connection);
+
+                if (isTimeToRender())
+                {
+                    xcb_configure_window
+                    (
+                        connection,
+                        window,
+                        XCB_CONFIG_WINDOW_WIDTH,
+                        (const uint32_t[1])
+                        {
+                            static_cast<const uint32_t &>(currentWidth) 
+                        }
+                    );
+                    xcb_flush(connection);
+                }
             }
 
             void 
             HStep() 
             {
                 currentHeight += stepHeight;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_HEIGHT,
-                    (const uint32_t[1])
-                    {
-                        static_cast<const uint32_t &>(currentHeight)
-                    }
-                );
-                xcb_flush(connection);
+                
+                if (isTimeToRender())
+                {
+                    xcb_configure_window
+                    (
+                        connection,
+                        window,
+                        XCB_CONFIG_WINDOW_HEIGHT,
+                        (const uint32_t[1])
+                        {
+                            static_cast<const uint32_t &>(currentHeight)
+                        }
+                    );
+                    xcb_flush(connection);
+                }
             }
 
             // Static method to stop the movement and resizing animations
@@ -1404,6 +1420,38 @@ namespace XCBAnimator {
 
                 // Sleeping for the duration
                 std::this_thread::sleep_for(duration);
+            }
+
+            /* FRAMERATE */
+            const double frameRate = 120.0;
+
+            /* HIGH_PRECISION_CLOCK AND TIME_POINT */
+            std::chrono::high_resolution_clock::time_point lastUpdateTime = std::chrono::high_resolution_clock::now();
+            
+            /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
+            const double frameDuration = 1000.0 / frameRate; 
+            
+            bool 
+            isTimeToRender() 
+            {
+                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+                const auto & currentTime = std::chrono::high_resolution_clock::now();
+                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - lastUpdateTime;
+
+                /*
+                    CHECK IF THE ELAPSED TIME EXCEEDS THE FRAME DURATION
+                */ 
+                if (elapsedTime.count() >= frameDuration) 
+                {
+                    // UPDATE THE LAST_UPDATE_TIME TO THE 
+                    // CURRENT TIME FOR THE NEXT CHECK
+                    lastUpdateTime = currentTime; 
+                    
+                    // RETURN TRUE IF IT'S TIME TO RENDER
+                    return true; 
+                }
+                // RETURN FALSE IF NOT ENOUGH TIME HAS PASSED
+                return false; 
             }
     };
 
@@ -2689,7 +2737,7 @@ class tile {
                 endY, 
                 endWidth, 
                 endHeight, 
-                400
+                TILE_ANIMATION_DURATION
             );
             wm::update_client(c);
         }
