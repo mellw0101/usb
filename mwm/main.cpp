@@ -2689,7 +2689,7 @@ class tile {
                 endY, 
                 endWidth, 
                 endHeight, 
-                TILE_ANIMATION_DURATION
+                400
             );
             wm::update_client(c);
         }
