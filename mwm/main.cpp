@@ -1192,8 +1192,8 @@ namespace XCBAnimator {
                 // Start threads for animation
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
                 YAnimationThread = std::thread(&Test::YAnimation, this, endY);
-                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth, endHeight);
-                HAnimationThread = std::thread(&Test::HAnimation, this, endWidth, endHeight);
+                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
+                HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
 
                 // Wait for the animations to complete
                 std::this_thread::sleep_for(std::chrono::milliseconds(duration));
