@@ -1098,7 +1098,11 @@ class XCPPBAnimator
         std::chrono::high_resolution_clock::time_point YlastUpdateTime;
         std::chrono::high_resolution_clock::time_point WlastUpdateTime;
         std::chrono::high_resolution_clock::time_point HlastUpdateTime;
-
+        /* FRAMERATE */
+        const double frameRate = 240.0;
+        /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
+        const double frameDuration = 1000.0 / frameRate; 
+        
         void 
         XAnimation(int endX) 
         {
@@ -1294,12 +1298,7 @@ class XCPPBAnimator
             std::this_thread::sleep_for(duration);
         }
 
-        /* FRAMERATE */
-        const double frameRate = 120.0;
-        
-        /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
-        const double frameDuration = 1000.0 / frameRate; 
-        
+       
         bool 
         XisTimeToRender() 
         {
