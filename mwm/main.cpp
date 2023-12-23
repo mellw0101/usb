@@ -1189,12 +1189,16 @@ namespace XCBAnimator {
                 stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
                 stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
                 animationINTER  = static_cast<const double &>(duration)   / static_cast<const double &>(steps);
+                XAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endX - startX));
+                YAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endY - startY)); 
+                WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
+                HAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endHeight - startHeight)); 
 
                 // Start threads for animation
-                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
-                HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
                 YAnimationThread = std::thread(&Test::YAnimation, this, endY);
+                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
+                HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
 
                 // Wait for the animations to complete
                 std::this_thread::sleep_for(std::chrono::milliseconds(duration));
@@ -1224,6 +1228,10 @@ namespace XCBAnimator {
             int stepWidth;
             int stepHeight;
             double animationINTER; // milliseconds
+            double XAnimDuration;
+            double YAnimDuration;
+            double WAnimDuration;
+            double HAnimDuration;
             std::atomic<bool> stopXFlag{false};
             std::atomic<bool> stopYFlag{false};
             std::atomic<bool> stopWFlag{false};
@@ -1239,7 +1247,7 @@ namespace XCBAnimator {
                         break;
                     }
                     XStep();
-                    thread_sleep(animationINTER);
+                    thread_sleep(XAnimDuration);
                     log_info(currentX);
                 }
             }
@@ -1254,7 +1262,7 @@ namespace XCBAnimator {
                         break;
                     }
                     YStep();
-                    thread_sleep(animationINTER);
+                    thread_sleep(YAnimDuration);
                     log_info(currentY);
                 }
             }
@@ -1303,7 +1311,7 @@ namespace XCBAnimator {
                         break;
                     }
                     WStep();
-                    thread_sleep(animationINTER);
+                    thread_sleep(WAnimDuration);
                     log_info(currentWidth);
                 }
             }
@@ -1318,7 +1326,7 @@ namespace XCBAnimator {
                         break;
                     }
                     HStep();
-                    thread_sleep(animationINTER);
+                    thread_sleep(HAnimDuration);
                     log_info(currentHeight);
                 }
             }
