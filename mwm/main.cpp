@@ -1205,7 +1205,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentX)
                     }
                 );
-                xcb_flush(connection);
+                // xcb_flush(connection);
             }
         }
 
@@ -1258,7 +1258,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentY)
                     }
                 );
-                xcb_flush(connection);
+                // xcb_flush(connection);
             }
         }
 
@@ -1312,7 +1312,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentWidth) 
                     }
                 );
-                xcb_flush(connection);
+                // xcb_flush(connection);
             }
         }
 
@@ -1367,7 +1367,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentHeight)
                     }
                 );
-                xcb_flush(connection);
+                // xcb_flush(connection);
             }
         }
 
