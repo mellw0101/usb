@@ -1182,17 +1182,13 @@ namespace XCBAnimator {
                 currentY = startY;
                 currentWidth = startWidth;
                 currentHeight = startHeight;
-                saveEndX = endX;
-                saveEndY = endY;
-                saveEndW = endWidth;
-                saveEndH = endHeight;
 
                 int steps       = duration; 
                 stepX           = std::abs(endX - startX)               / (endX - startX);
                 stepY           = std::abs(endY - startY)               / (endY - startY);
                 stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
                 stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
-                animationINTER  = static_cast<double>(duration)            / steps;
+                animationINTER  = static_cast<const double &>(duration)   / static_cast<const double &>(steps);
 
                 // Start threads for animation
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
@@ -1227,7 +1223,6 @@ namespace XCBAnimator {
             int stepY;
             int stepWidth;
             int stepHeight;
-            int saveEndX, saveEndY, saveEndW, saveEndH;
             const int animationInterval = 10; // milliseconds
             double animationINTER; // milliseconds
             std::atomic<bool> stopXFlag{false};
@@ -1255,13 +1250,13 @@ namespace XCBAnimator {
             {
                 while (true) 
                 {
-                    YStep();
-                    thread_sleep(animationINTER);
-                    log_info(currentY);
-                    if (max(MAX::Y)) 
+                    if (currentY == endY) 
                     {
                         break;
                     }
+                    YStep();
+                    thread_sleep(animationINTER);
+                    log_info(currentY);
                 }
             }
 
@@ -1404,50 +1399,6 @@ namespace XCBAnimator {
 
                 // Sleeping for the duration
                 std::this_thread::sleep_for(duration);
-            }
-
-            bool
-            max(MAX Max)
-            {
-                switch (Max) 
-                {
-                    case MAX::X:
-                    {
-                        if (currentX >= saveEndX - 1 
-                         && currentX <= saveEndX + 1)
-                        {
-                            return true;
-                        }
-                    }
-
-                    case MAX::Y:
-                    {
-                        if (currentY >= saveEndY - 1 
-                         && currentY <= saveEndY + 1)
-                        {
-                            return true;
-                        }
-                    }
-
-                    case MAX::WIDTH:
-                    {
-                        if (currentWidth >= saveEndW - 1 
-                         && currentWidth <= saveEndW + 1)
-                        {
-                            return true;
-                        }
-                    }
-
-                    case MAX::HEIGHT:
-                    {
-                        if (currentHeight >= saveEndH - 1 
-                         && currentHeight <= saveEndH + 1)
-                        {
-                            return true;
-                        }
-                    }
-                }
-                return false;
             }
     };
 
