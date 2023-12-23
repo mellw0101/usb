@@ -1027,7 +1027,7 @@ namespace XCBAnimator {
             : connection(connection), window(window) {}
 
             void 
-            animate(int startX, int startY, int endX, int endY, int startWidth, int startHeight, int endWidth, int endHeight, int duration) 
+            animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
             {
                 // Ensure any existing animation is stopped
                 stopAnimations();
@@ -1172,7 +1172,7 @@ namespace XCBAnimator {
             : connection(connection), window(window) {}
 
             void 
-            animate(int startX, int startY, int endX, int endY, int startWidth, int startHeight, int endWidth, int endHeight, int duration) 
+            animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
             {
                 // Ensure any existing animation is stopped
                 stopAnimations();
@@ -1188,7 +1188,6 @@ namespace XCBAnimator {
                 stepY           = std::abs(endY - startY)               / (endY - startY);
                 stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
                 stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
-                animationINTER  = static_cast<const double &>(duration)   / static_cast<const double &>(steps);
                 XAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endX - startX));
                 YAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endY - startY)); 
                 WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
@@ -1227,7 +1226,6 @@ namespace XCBAnimator {
             int stepY;
             int stepWidth;
             int stepHeight;
-            double animationINTER; // milliseconds
             double XAnimDuration;
             double YAnimDuration;
             double WAnimDuration;
@@ -2606,10 +2604,10 @@ class tile {
                     (
                         c->x,
                         c->y, 
-                        screen->width_in_pixels / 2, 
-                        0, 
                         c->width, 
                         c->height, 
+                        screen->width_in_pixels / 2,
+                        0, 
                         screen->width_in_pixels / 2, 
                         screen->height_in_pixels, 
                         400
