@@ -1022,151 +1022,6 @@ namespace XCBAnimator {
             }
     };
 
-    class MoveResize {
-        public:
-            MoveResize(xcb_connection_t* connection, xcb_window_t window)
-            : connection(connection), window(window) {}
-
-            void 
-            animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
-            {
-                // Ensure any existing animation is stopped
-                stopAnimations();
-
-                // Set initial coordinates and dimensions
-                currentX = startX;
-                currentY = startY;
-                currentWidth = startWidth;
-                currentHeight = startHeight;
-
-                // Calculate step size based on time
-                int steps = duration / animationInterval;
-                stepX = (endX - startX) / steps;
-                stepY = (endY - startY) / steps;
-                stepWidth = (endWidth - startWidth) / steps;
-                stepHeight = (endHeight - startHeight) / steps;
-
-                // Start a new thread for movement animation
-                moveAnimationThread = std::thread(&MoveResize::moveAnimation, this, endX, endY);
-
-                // Start a new thread for resizing animation
-                resizeAnimationThread = std::thread(&MoveResize::resizeAnimation, this, endWidth, endHeight);
-
-                // Wait for the animations to complete
-                std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-
-                // Stop the animations
-                stopAnimations();
-            }
-
-            // Destructor to ensure the animation threads are stopped when the object is destroyed
-            ~MoveResize() {
-                stopAnimations();
-            }
-
-        private:
-            xcb_connection_t* connection;
-            xcb_window_t window;
-            std::thread moveAnimationThread;
-            std::thread resizeAnimationThread;
-            int currentX;
-            int currentY;
-            int currentWidth;
-            int currentHeight;
-            int stepX;
-            int stepY;
-            int stepWidth;
-            int stepHeight;
-            const int animationInterval = 10; // milliseconds
-            std::atomic<bool> stopMoveFlag{false};
-            std::atomic<bool> stopResizeFlag{false};
-
-            void 
-            moveAnimation(int endX, int endY) 
-            {
-                while (true) 
-                {
-                    moveStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-                    if (currentX >= endX && currentY >= endY) 
-                    {
-                        break;
-                    }
-                }
-            }
-
-            void 
-            resizeAnimation(int endWidth, int endHeight) 
-            {
-                while (true) 
-                {
-                    resizeStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-                    if (currentWidth >= endWidth && currentHeight >= endHeight) 
-                    {
-                        break;
-                    }
-                }
-            }
-
-            void 
-            moveStep() 
-            {
-                currentX += stepX;
-                currentY += stepY;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
-                    (const uint32_t[2])
-                    {
-                        static_cast<const uint32_t &>(currentX),
-                        static_cast<const uint32_t &>(currentY)
-                    }
-                );
-                xcb_flush(connection);
-            }
-
-            void 
-            resizeStep() 
-            {
-                currentWidth += stepWidth;
-                currentHeight += stepHeight;
-                xcb_configure_window
-                (
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
-                    (const uint32_t[2])
-                    {
-                        static_cast<const uint32_t &>(currentWidth), 
-                        static_cast<const uint32_t &>(currentHeight)
-                    }
-                );
-                xcb_flush(connection);
-            }
-
-            // Static method to stop the movement and resizing animations
-            void stopAnimations() 
-            {
-                stopMoveFlag.store(true);
-                stopResizeFlag.store(true);
-
-                if (moveAnimationThread.joinable()) 
-                {
-                    moveAnimationThread.join();
-                    stopMoveFlag.store(false);
-                }
-
-                if (resizeAnimationThread.joinable()) 
-                {
-                    resizeAnimationThread.join();
-                    stopResizeFlag.store(false);
-                }
-            }
-    };
-
     class Test {
         public:
             Test(xcb_connection_t* connection, xcb_window_t window)
@@ -1175,10 +1030,10 @@ namespace XCBAnimator {
             void 
             animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
             {
-                // Ensure any existing animation is stopped
+                // ENSURE ANY EXISTING ANIMATION IS STOPPED
                 stopAnimations();
 
-                // Set initial coordinates and dimensions
+                // INITILIZE CLASS VARIABELS WITH ORIGINAL VALUES
                 currentX = startX;
                 currentY = startY;
                 currentWidth = startWidth;
@@ -1194,13 +1049,13 @@ namespace XCBAnimator {
                 WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
                 HAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endHeight - startHeight)); 
 
-                // Start threads for animation
+                // START ANIMATION THREADS
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
                 YAnimationThread = std::thread(&Test::YAnimation, this, endY);
                 WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
                 HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
 
-                // Wait for the animations to complete
+                // WAIT FOR ANIMATION TO COMPLETE
                 std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 
                 // Stop the animations
@@ -1515,93 +1370,6 @@ namespace XCBAnimator {
                     }
                 );
                 xcb_flush(connection);
-            }
-    };
-
-    class Resize {
-        public:
-            Resize(xcb_connection_t* connection, xcb_window_t window)
-                : connection(connection), window(window) {}
-
-            // Public method to start the resize animation
-            void resize(int startWidth, int startHeight, int endWidth, int endHeight, int duration) {
-                // Ensure any existing animation is stopped
-                stopAnimation();
-
-                // Set initial dimensions
-                currentWidth = startWidth;
-                currentHeight = startHeight;
-
-                // Calculate step size based on time
-                int steps = duration / animationInterval;
-                stepWidth = (endWidth - startWidth) / steps;
-                stepHeight = (endHeight - startHeight) / steps;
-
-                // Start a new thread for animation
-                animationThread = std::thread(&Resize::animateThread, this, endWidth, endHeight);
-
-                // Wait for the animation to complete
-                std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-
-                // Stop the animation
-                stopAnimation();
-            }
-
-            // Destructor to ensure the animation thread is stopped when the object is destroyed
-            ~Resize() {
-                stopAnimation();
-            }
-
-        private:
-            xcb_connection_t* connection;
-            xcb_window_t window;
-            std::thread animationThread;
-            int currentWidth;
-            int currentHeight;
-            int stepWidth;
-            int stepHeight;
-            const int animationInterval = 10; // milliseconds
-            std::atomic<bool> stopFlag{false};
-
-            // Static method for the animation thread
-            void animateThread(int endWidth, int endHeight) {
-                while (!stopFlag.load()) {
-                    // Perform resize animation step
-                    resizeStep();
-
-                    // Sleep for the animation interval
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-
-                    // Check if resize animation should stop
-                    if (currentWidth == endWidth && currentHeight == endHeight) {
-                        break;
-                    }
-                }
-            }
-
-            // Static method to perform resize animation step
-            void resizeStep() {
-                currentWidth += stepWidth;
-                currentHeight += stepHeight;
-
-                xcb_configure_window(
-                    connection,
-                    window,
-                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
-                    (const uint32_t[2]){static_cast<const uint32_t &>(currentWidth), static_cast<const uint32_t &>(currentHeight)});
-                xcb_flush(connection);
-            }
-
-            // Static method to stop the resize animation
-            void stopAnimation() {
-                if (animationThread.joinable()) {
-                    // Signal the thread to exit
-                    stopFlag.store(true);
-                    // Wait for the thread to finish
-                    animationThread.join();
-                    // Reset the stop flag
-                    stopFlag.store(false);
-                }
             }
     };
 }
@@ -2064,21 +1832,7 @@ namespace borrowed {
             c->ogsize.width, 
             c->ogsize.height
         );
-
-        // c->x        = c->ogsize.x;
-        // c->y        = c->ogsize.y;
-        // c->width    = c->ogsize.width;
-        // c->height   = c->ogsize.height;
         c->ismax    = false;
-
-        // moveresize
-        // (
-        //     c->win,
-        //     c->x, 
-        //     c->y,
-        //     c->width,
-        //     c->height
-        // );
     }
 
     void
@@ -2117,9 +1871,7 @@ namespace borrowed {
         const uint16_t & mon_width  = screen->width_in_pixels;
         const uint16_t & mon_height = screen->height_in_pixels;
 
-        // show_hide_client(c, HIDE);
         wm::save_ogsize(c);
-
         maxwin_animate
         (
             c, 
@@ -2128,15 +1880,6 @@ namespace borrowed {
             mon_width, 
             mon_height
         );
-        // moveresize
-        // (
-        //     c->win, 
-        //     mon_x, 
-        //     mon_y, 
-        //     mon_width, 
-        //     mon_height
-        // );
-        // wm::update_client(c);
 
         if (!with_offsets) 
         {
@@ -2154,7 +1897,6 @@ namespace borrowed {
         }
         c->ismax = true;
         xcb_flush(conn);
-        // show_hide_client(c, SHOW);
         focus::client(c);
     }
 }
@@ -2868,14 +2610,6 @@ class tile {
         }
 };
 
-void
-test(client * c)
-{
-    XCBAnimator::Resize anim(conn, c->win);
-    anim.resize(c->width, c->height, c->width + 100, c->height, 1000);
-    wm::update_client(c);
-}
-
 class Event {
     public:
         Event()
@@ -3205,20 +2939,7 @@ class Event {
                 {
                     case SUPER:
                     {
-                        for (const auto & c : cur_d->current_clients)
-                        {
-                            if (c)
-                            {
-                                std::thread t(test, c);
-                                t.detach();
-                            }
-                        }
                         break;
-
-                        // client * c = get::client_from_win(& e->event);
-                        // XCBAnimator::Resize anim(conn, c->win);
-                        // anim.resize(c->width, c->height, c->width + 100, c->height, 1000);
-                        // wm::update_client(c);
                     }
                 }
             }
