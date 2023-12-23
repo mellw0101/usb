@@ -1023,10 +1023,11 @@ namespace XCBAnimator {
     class MoveResize {
         public:
             MoveResize(xcb_connection_t* connection, xcb_window_t window)
-                : connection(connection), window(window) {}
+            : connection(connection), window(window) {}
 
-            // Public method to start the move and resize animations
-            void animate(int startX, int startY, int endX, int endY, int startWidth, int startHeight, int endWidth, int endHeight, int duration) {
+            void 
+            animate(int startX, int startY, int endX, int endY, int startWidth, int startHeight, int endWidth, int endHeight, int duration) 
+            {
                 // Ensure any existing animation is stopped
                 stopAnimations();
 
@@ -1078,75 +1079,86 @@ namespace XCBAnimator {
             std::atomic<bool> stopMoveFlag{false};
             std::atomic<bool> stopResizeFlag{false};
 
-            // Static method for the movement animation thread
-            void moveAnimation(int endX, int endY) {
-                while (true) {
-                    // Perform movement animation step
+            void 
+            moveAnimation(int endX, int endY) 
+            {
+                while (true) 
+                {
                     moveStep();
-
-                    // Sleep for the animation interval
                     std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-
-                    // Check if movement animation should stop
-                    if (currentX >= endX && currentY >= endY) {
+                    if (currentX >= endX && currentY >= endY) 
+                    {
                         break;
                     }
                 }
             }
 
-            // Static method for the resizing animation thread
-            void resizeAnimation(int endWidth, int endHeight) {
-                while (true) {
-                    // Perform resizing animation step
+            void 
+            resizeAnimation(int endWidth, int endHeight) 
+            {
+                while (true) 
+                {
                     resizeStep();
-
-                    // Sleep for the animation interval
                     std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-
-                    // Check if resizing animation should stop
-                    if (currentWidth >= endWidth && currentHeight >= endHeight) {
+                    if (currentWidth >= endWidth && currentHeight >= endHeight) 
+                    {
                         break;
                     }
                 }
             }
 
-            // Static method to perform movement animation step
-            void moveStep() {
+            void 
+            moveStep() 
+            {
                 currentX += stepX;
                 currentY += stepY;
-
-                xcb_configure_window(
+                xcb_configure_window
+                (
                     connection,
                     window,
                     XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y,
-                    (const uint32_t[2]){static_cast<const uint32_t &>(currentX), static_cast<const uint32_t &>(currentY)});
+                    (const uint32_t[2])
+                    {
+                        static_cast<const uint32_t &>(currentX),
+                        static_cast<const uint32_t &>(currentY)
+                    }
+                );
                 xcb_flush(connection);
             }
 
-            // Static method to perform resizing animation step
-            void resizeStep() {
+            void 
+            resizeStep() 
+            {
                 currentWidth += stepWidth;
                 currentHeight += stepHeight;
-
-                xcb_configure_window(
+                xcb_configure_window
+                (
                     connection,
                     window,
                     XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
-                    (const uint32_t[2]){static_cast<const uint32_t &>(currentWidth), static_cast<const uint32_t &>(currentHeight)});
+                    (const uint32_t[2])
+                    {
+                        static_cast<const uint32_t &>(currentWidth), 
+                        static_cast<const uint32_t &>(currentHeight)
+                    }
+                );
                 xcb_flush(connection);
             }
 
             // Static method to stop the movement and resizing animations
-            void stopAnimations() {
+            void stopAnimations() 
+            {
                 stopMoveFlag.store(true);
                 stopResizeFlag.store(true);
 
-                if (moveAnimationThread.joinable()) {
+                if (moveAnimationThread.joinable()) 
+                {
                     moveAnimationThread.join();
                     stopMoveFlag.store(false);
                 }
 
-                if (resizeAnimationThread.joinable()) {
+                if (resizeAnimationThread.joinable()) 
+                {
                     resizeAnimationThread.join();
                     stopResizeFlag.store(false);
                 }
@@ -2156,8 +2168,6 @@ class tile {
 
                     save_tile_ogsize(c);
                     set_tile_sizepos(c, TILEPOS::RIGHT);
-                    wm::setWindowSize(c);
-                    wm::setWindowPosition(c);
                     break;
                 }
 
@@ -2362,6 +2372,7 @@ class tile {
                         screen->height_in_pixels, 
                         1000
                     );
+                    wm::update_client(c);
                     // c->x        = screen->width_in_pixels / 2;
                     // c->y        = 0;
                     // c->width    = screen->width_in_pixels / 2;
