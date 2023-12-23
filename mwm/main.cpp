@@ -1,4 +1,5 @@
 #include "structs.hpp"
+#include <chrono>
 #include <thread>
 #include <xcb/xproto.h>
 #define main_cpp
@@ -1234,10 +1235,15 @@ namespace XCBAnimator {
             std::atomic<bool> stopYFlag{false};
             std::atomic<bool> stopWFlag{false};
             std::atomic<bool> stopHFlag{false};
+            std::chrono::high_resolution_clock::time_point XlastUpdateTime;
+            std::chrono::high_resolution_clock::time_point YlastUpdateTime;
+            std::chrono::high_resolution_clock::time_point WlastUpdateTime;
+            std::chrono::high_resolution_clock::time_point HlastUpdateTime;
 
             void 
             XAnimation(int endX) 
             {
+                XlastUpdateTime = std::chrono::high_resolution_clock::now();
                 while (true) 
                 {
                     if (currentX == endX) 
@@ -1251,26 +1257,11 @@ namespace XCBAnimator {
             }
 
             void 
-            YAnimation(int endY) 
-            {
-                while (true) 
-                {
-                    if (currentY == endY) 
-                    {
-                        break;
-                    }
-                    YStep();
-                    thread_sleep(YAnimDuration);
-                    log_info(currentY);
-                }
-            }
-
-            void 
             XStep() 
             {
                 currentX += stepX;
                 
-                if (isTimeToRender())
+                if (XisTimeToRender())
                 {
                     xcb_configure_window
                     (
@@ -1287,11 +1278,27 @@ namespace XCBAnimator {
             }
 
             void 
+            YAnimation(int endY) 
+            {
+                YlastUpdateTime = std::chrono::high_resolution_clock::now();
+                while (true) 
+                {
+                    if (currentY == endY) 
+                    {
+                        break;
+                    }
+                    YStep();
+                    thread_sleep(YAnimDuration);
+                    log_info(currentY);
+                }
+            }
+
+            void 
             YStep() 
             {
                 currentY += stepY;
                 
-                if (isTimeToRender())
+                if (YisTimeToRender())
                 {
                     xcb_configure_window
                     (
@@ -1310,6 +1317,7 @@ namespace XCBAnimator {
             void 
             WAnimation(int endWidth) 
             {
+                WlastUpdateTime = std::chrono::high_resolution_clock::now();
                 while (true) 
                 {
                     if (currentWidth == endWidth) 
@@ -1323,26 +1331,11 @@ namespace XCBAnimator {
             }
 
             void 
-            HAnimation(int endHeight) 
-            {
-                while (true) 
-                {
-                    if (currentHeight == endHeight) 
-                    {
-                        break;
-                    }
-                    HStep();
-                    thread_sleep(HAnimDuration);
-                    log_info(currentHeight);
-                }
-            }
-
-            void 
             WStep() 
             {
                 currentWidth += stepWidth;
 
-                if (isTimeToRender())
+                if (WisTimeToRender())
                 {
                     xcb_configure_window
                     (
@@ -1359,11 +1352,27 @@ namespace XCBAnimator {
             }
 
             void 
+            HAnimation(int endHeight) 
+            {
+                HlastUpdateTime = std::chrono::high_resolution_clock::now();
+                while (true) 
+                {
+                    if (currentHeight == endHeight) 
+                    {
+                        break;
+                    }
+                    HStep();
+                    thread_sleep(HAnimDuration);
+                    log_info(currentHeight);
+                }
+            }
+
+            void 
             HStep() 
             {
                 currentHeight += stepHeight;
                 
-                if (isTimeToRender())
+                if (HisTimeToRender())
                 {
                     xcb_configure_window
                     (
@@ -1424,33 +1433,67 @@ namespace XCBAnimator {
 
             /* FRAMERATE */
             const double frameRate = 120.0;
-
-            /* HIGH_PRECISION_CLOCK AND TIME_POINT */
-            std::chrono::high_resolution_clock::time_point lastUpdateTime = std::chrono::high_resolution_clock::now();
             
             /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
             const double frameDuration = 1000.0 / frameRate; 
             
             bool 
-            isTimeToRender() 
+            XisTimeToRender() 
             {
                 // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
                 const auto & currentTime = std::chrono::high_resolution_clock::now();
-                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - lastUpdateTime;
+                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - XlastUpdateTime;
 
-                /*
-                    CHECK IF THE ELAPSED TIME EXCEEDS THE FRAME DURATION
-                */ 
                 if (elapsedTime.count() >= frameDuration) 
                 {
-                    // UPDATE THE LAST_UPDATE_TIME TO THE 
-                    // CURRENT TIME FOR THE NEXT CHECK
-                    lastUpdateTime = currentTime; 
-                    
-                    // RETURN TRUE IF IT'S TIME TO RENDER
+                    XlastUpdateTime = currentTime; 
                     return true; 
                 }
-                // RETURN FALSE IF NOT ENOUGH TIME HAS PASSED
+                return false; 
+            }
+
+            bool 
+            YisTimeToRender() 
+            {
+                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+                const auto & currentTime = std::chrono::high_resolution_clock::now();
+                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - YlastUpdateTime;
+
+                if (elapsedTime.count() >= frameDuration) 
+                {
+                    YlastUpdateTime = currentTime; 
+                    return true; 
+                }
+                return false; 
+            }
+            
+            bool
+            WisTimeToRender()
+            {
+                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+                const auto & currentTime = std::chrono::high_resolution_clock::now();
+                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - WlastUpdateTime;
+
+                if (elapsedTime.count() >= frameDuration) 
+                {
+                    WlastUpdateTime = currentTime; 
+                    return true; 
+                }
+                return false; 
+            }
+
+            bool
+            HisTimeToRender()
+            {
+                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+                const auto & currentTime = std::chrono::high_resolution_clock::now();
+                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - HlastUpdateTime;
+
+                if (elapsedTime.count() >= frameDuration) 
+                {
+                    HlastUpdateTime = currentTime; 
+                    return true; 
+                }
                 return false; 
             }
     };
