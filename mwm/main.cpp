@@ -1298,7 +1298,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     WStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+                    thread_sleep(animationINTER);
                     if (currentWidth >= endWidth) 
                     {
                         break;
@@ -1312,7 +1312,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     HStep();
-                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+                    thread_sleep(animationINTER);
                     if (currentHeight >= endHeight) 
                     {
                         break;
