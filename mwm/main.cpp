@@ -1237,6 +1237,7 @@ namespace XCBAnimator {
                 {
                     XStep();
                     thread_sleep(animationINTER);
+                    log_info(currentX);
                     if (currentX == endX) 
                     {
                         break;
@@ -1251,6 +1252,7 @@ namespace XCBAnimator {
                 {
                     YStep();
                     thread_sleep(animationINTER);
+                    log_info(currentY);
                     if (currentY == endY) 
                     {
                         break;
@@ -1299,6 +1301,7 @@ namespace XCBAnimator {
                 {
                     WStep();
                     thread_sleep(animationINTER);
+                    log_info(currentWidth);
                     if (currentWidth == endWidth) 
                     {
                         break;
@@ -1313,6 +1316,7 @@ namespace XCBAnimator {
                 {
                     HStep();
                     thread_sleep(animationINTER);
+                    log_info(currentHeight);
                     if (currentHeight == endHeight) 
                     {
                         break;
