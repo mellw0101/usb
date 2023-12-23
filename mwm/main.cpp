@@ -1080,7 +1080,7 @@ namespace XCBAnimator {
 
             // Static method for the movement animation thread
             void moveAnimation(int endX, int endY) {
-                while (!stopMoveFlag.load()) {
+                while (true) {
                     // Perform movement animation step
                     moveStep();
 
@@ -1088,7 +1088,7 @@ namespace XCBAnimator {
                     std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                     // Check if movement animation should stop
-                    if (currentX == endX && currentY == endY) {
+                    if (currentX >= endX && currentY >= endY) {
                         break;
                     }
                 }
@@ -1096,7 +1096,7 @@ namespace XCBAnimator {
 
             // Static method for the resizing animation thread
             void resizeAnimation(int endWidth, int endHeight) {
-                while (!stopResizeFlag.load()) {
+                while (true) {
                     // Perform resizing animation step
                     resizeStep();
 
@@ -1104,7 +1104,7 @@ namespace XCBAnimator {
                     std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
 
                     // Check if resizing animation should stop
-                    if (currentWidth == endWidth && currentHeight == endHeight) {
+                    if (currentWidth >= endWidth && currentHeight >= endHeight) {
                         break;
                     }
                 }
