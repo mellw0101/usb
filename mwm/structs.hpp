@@ -28,7 +28,7 @@ enum class TILE {
 };
 
 enum TILE_ANIMATION {
-    TILE_ANIMATION_DURATION = 400
+    TILE_ANIMATION_DURATION = 200
 };
 
 enum Direction {
