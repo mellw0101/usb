@@ -1606,6 +1606,25 @@ namespace XCBAnimator {
     };
 }
 
+void
+animate(client * & c, const int & endX, const int & endY, const int & endWidth, const int & endHeight, const int & duration)
+{
+    XCBAnimator::Test anim(conn, c->win);
+    anim.animate
+    (
+        c->x,
+        c->y, 
+        c->width, 
+        c->height, 
+        endX,
+        endY, 
+        endWidth, 
+        endHeight, 
+        duration
+    );
+    wm::update_client(c);
+}
+
 void 
 move_desktop(const uint8_t & n)
 {
@@ -2011,27 +2030,55 @@ namespace borrowed {
     }
 
     void
+    maxwin_animate(client * c, const int & endX, const int & endY, const int & endWidth, const int & endHeight)
+    {
+        if (!c)
+        {
+            return;
+        }
+        
+        animate
+        (
+            c, 
+            endX, 
+            endY, 
+            endWidth, 
+            endHeight, 
+            MAXWIN_ANIMATION_DURATION
+        );
+    }
+    
+    void
     unmax(client * c)
     {
         if (c == nullptr)
         {
             return;
         }
+    
+        maxwin_animate
+        (
+            c, 
+            c->ogsize.x, 
+            c->ogsize.y, 
+            c->ogsize.width, 
+            c->ogsize.height
+        );
 
-        c->x        = c->ogsize.x;
-        c->y        = c->ogsize.y;
-        c->width    = c->ogsize.width;
-        c->height   = c->ogsize.height;
+        // c->x        = c->ogsize.x;
+        // c->y        = c->ogsize.y;
+        // c->width    = c->ogsize.width;
+        // c->height   = c->ogsize.height;
         c->ismax    = false;
 
-        moveresize
-        (
-            c->win,
-            c->x, 
-            c->y,
-            c->width,
-            c->height
-        );
+        // moveresize
+        // (
+        //     c->win,
+        //     c->x, 
+        //     c->y,
+        //     c->width,
+        //     c->height
+        // );
     }
 
     void
@@ -2070,18 +2117,26 @@ namespace borrowed {
         const uint16_t & mon_width  = screen->width_in_pixels;
         const uint16_t & mon_height = screen->height_in_pixels;
 
-        show_hide_client(c, HIDE);
+        // show_hide_client(c, HIDE);
         wm::save_ogsize(c);
 
-        moveresize
+        maxwin_animate
         (
-            c->win, 
+            c, 
             mon_x, 
             mon_y, 
             mon_width, 
             mon_height
         );
-        wm::update_client(c);
+        // moveresize
+        // (
+        //     c->win, 
+        //     mon_x, 
+        //     mon_y, 
+        //     mon_width, 
+        //     mon_height
+        // );
+        // wm::update_client(c);
 
         if (!with_offsets) 
         {
@@ -2099,7 +2154,7 @@ namespace borrowed {
         }
         c->ismax = true;
         xcb_flush(conn);
-        show_hide_client(c, SHOW);
+        // show_hide_client(c, SHOW);
         focus::client(c);
     }
 }

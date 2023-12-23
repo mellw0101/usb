@@ -31,6 +31,10 @@ enum TILE_ANIMATION {
     TILE_ANIMATION_DURATION = 100
 };
 
+enum MAXWIN_ANIMATION {
+    MAXWIN_ANIMATION_DURATION = 100
+};
+
 enum Direction {
     NEXT,
     PREV
