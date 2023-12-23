@@ -1,5 +1,6 @@
 #include "structs.hpp"
 #include <thread>
+#include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -1344,7 +1345,7 @@ namespace XCBAnimator {
                 (
                     connection,
                     window,
-                    XCB_CONFIG_WINDOW_WIDTH,
+                    XCB_CONFIG_WINDOW_HEIGHT,
                     (const uint32_t[1])
                     {
                         static_cast<const uint32_t &>(currentHeight)
