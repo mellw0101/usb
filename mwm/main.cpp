@@ -1134,7 +1134,7 @@ class XCPPBAnimator
         std::chrono::high_resolution_clock::time_point HlastUpdateTime;
         
         /* FRAMERATE */
-        const double frameRate = 120.0;
+        const double frameRate = 600.0;
         
         /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
         const double frameDuration = 1000.0 / frameRate; 
