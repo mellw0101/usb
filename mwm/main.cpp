@@ -1248,6 +1248,7 @@ namespace XCBAnimator {
                 {
                     if (currentX == endX) 
                     {
+                        config_window(XCB_CONFIG_WINDOW_X, endX);
                         break;
                     }
                     XStep();
@@ -1285,6 +1286,7 @@ namespace XCBAnimator {
                 {
                     if (currentY == endY) 
                     {
+                        config_window(XCB_CONFIG_WINDOW_Y, endY);
                         break;
                     }
                     YStep();
@@ -1322,6 +1324,7 @@ namespace XCBAnimator {
                 {
                     if (currentWidth == endWidth) 
                     {
+                        config_window(XCB_CONFIG_WINDOW_WIDTH, endWidth);
                         break;
                     }
                     WStep();
@@ -1359,6 +1362,7 @@ namespace XCBAnimator {
                 {
                     if (currentHeight == endHeight) 
                     {
+                        config_window(XCB_CONFIG_WINDOW_HEIGHT, endHeight);
                         break;
                     }
                     HStep();
@@ -1495,6 +1499,22 @@ namespace XCBAnimator {
                     return true; 
                 }
                 return false; 
+            }
+
+            void
+            config_window(const uint32_t & mask, const uint32_t & value)
+            {
+                xcb_configure_window
+                (
+                    connection,
+                    window,
+                    mask,
+                    (const uint32_t[1])
+                    {
+                        static_cast<const uint32_t &>(value)
+                    }
+                );
+                xcb_flush(connection);
             }
     };
 
