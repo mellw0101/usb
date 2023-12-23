@@ -1085,7 +1085,6 @@ class XCPPBAnimator
             HAnimDuration = static_cast<const double &>(duration) / static_cast<const double &>(std::abs(endHeight - startHeight)); 
 
             /* START ANIMATION THREADS */
-            GlobalFramerateThread = std::thread(&XCPPBAnimator::GLobalFramerate, this);
             XAnimationThread = std::thread(&XCPPBAnimator::XAnimation, this, endX);
             YAnimationThread = std::thread(&XCPPBAnimator::YAnimation, this, endY);
             WAnimationThread = std::thread(&XCPPBAnimator::WAnimation, this, endWidth);
@@ -1103,14 +1102,12 @@ class XCPPBAnimator
          */
         ~XCPPBAnimator()
         {
-            running = false;
             stopAnimations();
         }
 
     private:
         xcb_connection_t* connection;
         xcb_window_t window;
-        std::thread GlobalFramerateThread;
         std::thread XAnimationThread;
         std::thread YAnimationThread;
         std::thread WAnimationThread;
@@ -1127,7 +1124,6 @@ class XCPPBAnimator
         double YAnimDuration;
         double WAnimDuration;
         double HAnimDuration;
-        std::atomic<bool> stopGFramerateFlag{false};
         std::atomic<bool> stopXFlag{false};
         std::atomic<bool> stopYFlag{false};
         std::atomic<bool> stopWFlag{false};
@@ -1142,18 +1138,6 @@ class XCPPBAnimator
         
         /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
         const double frameDuration = 1000.0 / frameRate; 
-
-        bool running = true;
-
-        void
-        GLobalFramerate()
-        {
-            while (running)
-            {
-                xcb_flush(connection);    
-                thread_sleep(frameDuration);
-            }
-        }
         
         void /**
          *
@@ -1205,7 +1189,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentX)
                     }
                 );
-                // xcb_flush(connection);
+                xcb_flush(connection);
             }
         }
 
@@ -1258,7 +1242,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentY)
                     }
                 );
-                // xcb_flush(connection);
+                xcb_flush(connection);
             }
         }
 
@@ -1312,7 +1296,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentWidth) 
                     }
                 );
-                // xcb_flush(connection);
+                xcb_flush(connection);
             }
         }
 
@@ -1367,7 +1351,7 @@ class XCPPBAnimator
                         static_cast<const uint32_t &>(currentHeight)
                     }
                 );
-                // xcb_flush(connection);
+                xcb_flush(connection);
             }
         }
 
@@ -1379,18 +1363,10 @@ class XCPPBAnimator
          */
         stopAnimations() 
         {
-            stopGFramerateFlag.store(true);
             stopXFlag.store(true);
             stopYFlag.store(true);
             stopWFlag.store(true);
             stopHFlag.store(true);
-
-            if (GlobalFramerateThread.joinable()) 
-            {
-                running = false;
-                GlobalFramerateThread.join();
-                stopGFramerateFlag.store(false);
-            }
 
             if (XAnimationThread.joinable()) 
             {
@@ -3373,9 +3349,9 @@ class Event
         }
 };
 
-void /* 
-    THIS IS THE MAIN EVENT LOOP
-    FOR THE 'WINDOW_MANAGER' 
+void /**
+ * THIS IS THE MAIN EVENT LOOP
+ * FOR THE 'WINDOW_MANAGER' 
  */
 run() 
 {
@@ -3399,8 +3375,8 @@ run()
     }
 }
 
-void /* 
-    INITIALIZES AN EWMH CONNECTION 
+void /**
+ *INITIALIZES AN EWMH CONNECTION 
  */
 ewmh_init()
 {
