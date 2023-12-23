@@ -1182,6 +1182,10 @@ namespace XCBAnimator {
                 currentY = startY;
                 currentWidth = startWidth;
                 currentHeight = startHeight;
+                saveEndX = endX;
+                saveEndY = endY;
+                saveEndW = endWidth;
+                saveEndH = endHeight;
 
                 int steps       = duration; 
                 stepX           = std::abs(endX - startX)               / (endX - startX);
@@ -1223,6 +1227,7 @@ namespace XCBAnimator {
             int stepY;
             int stepWidth;
             int stepHeight;
+            int saveEndX, saveEndY, saveEndW, saveEndH;
             const int animationInterval = 10; // milliseconds
             double animationINTER; // milliseconds
             std::atomic<bool> stopXFlag{false};
@@ -1235,13 +1240,13 @@ namespace XCBAnimator {
             {
                 while (true) 
                 {
-                    XStep();
-                    thread_sleep(animationINTER);
-                    log_info(currentX);
                     if (currentX == endX) 
                     {
                         break;
                     }
+                    XStep();
+                    thread_sleep(animationINTER);
+                    log_info(currentX);
                 }
             }
 
@@ -1253,7 +1258,7 @@ namespace XCBAnimator {
                     YStep();
                     thread_sleep(animationINTER);
                     log_info(currentY);
-                    if (currentY == endY) 
+                    if (max(MAX::Y)) 
                     {
                         break;
                     }
@@ -1299,13 +1304,13 @@ namespace XCBAnimator {
             {
                 while (true) 
                 {
-                    WStep();
-                    thread_sleep(animationINTER);
-                    log_info(currentWidth);
                     if (currentWidth == endWidth) 
                     {
                         break;
                     }
+                    WStep();
+                    thread_sleep(animationINTER);
+                    log_info(currentWidth);
                 }
             }
 
@@ -1314,13 +1319,13 @@ namespace XCBAnimator {
             {
                 while (true) 
                 {
-                    HStep();
-                    thread_sleep(animationINTER);
-                    log_info(currentHeight);
                     if (currentHeight == endHeight) 
                     {
                         break;
                     }
+                    HStep();
+                    thread_sleep(animationINTER);
+                    log_info(currentHeight);
                 }
             }
 
@@ -1401,6 +1406,49 @@ namespace XCBAnimator {
                 std::this_thread::sleep_for(duration);
             }
 
+            bool
+            max(MAX Max)
+            {
+                switch (Max) 
+                {
+                    case MAX::X:
+                    {
+                        if (currentX >= saveEndX - 1 
+                         && currentX <= saveEndX + 1)
+                        {
+                            return true;
+                        }
+                    }
+
+                    case MAX::Y:
+                    {
+                        if (currentY >= saveEndY - 1 
+                         && currentY <= saveEndY + 1)
+                        {
+                            return true;
+                        }
+                    }
+
+                    case MAX::WIDTH:
+                    {
+                        if (currentWidth >= saveEndW - 1 
+                         && currentWidth <= saveEndW + 1)
+                        {
+                            return true;
+                        }
+                    }
+
+                    case MAX::HEIGHT:
+                    {
+                        if (currentHeight >= saveEndH - 1 
+                         && currentHeight <= saveEndH + 1)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            }
     };
 
     class Resize {

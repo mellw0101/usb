@@ -12,24 +12,31 @@ enum {
 };
 
 enum class TILEPOS {
-    LEFT = 1,
-    RIGHT = 2,
-    LEFT_DOWN = 3,
-    RIGHT_DOWN = 4,
-    LEFT_UP = 5,
-    RIGHT_UP = 6
+    LEFT        = 1,
+    RIGHT       = 2,
+    LEFT_DOWN   = 3,
+    RIGHT_DOWN  = 4,
+    LEFT_UP     = 5,
+    RIGHT_UP    = 6
 };
 
 enum class TILE {
-    LEFT = 1,
-    RIGHT = 2,
-    DOWN = 3,
-    UP = 4
+    LEFT    = 1,
+    RIGHT   = 2,
+    DOWN    = 3,
+    UP      = 4
 };
 
 enum Direction {
     NEXT,
     PREV
+};
+
+enum class MAX {
+    X       = 1,
+    Y       = 2,
+    WIDTH   = 3,
+    HEIGHT  = 4
 };
 
 struct size_pos {
