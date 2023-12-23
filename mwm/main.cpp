@@ -1183,19 +1183,12 @@ namespace XCBAnimator {
                 currentWidth = startWidth;
                 currentHeight = startHeight;
 
-                int steps   = duration; 
-                stepX       = std::abs(endX - startX)           / (endX - startX);
-                stepY       = std::abs(endY - startY)           / (endY - startY);
-                stepWidth   = std::abs(endWidth - startWidth)   / (endWidth - startWidth);
-                stepHeight  = std::abs(endHeight - startHeight) / (endHeight - startHeight);
-                animationINTER = static_cast<double>(duration) / steps;
-
-                // // Calculate step size based on time
-                // int steps = duration / animationInterval;
-                // stepX = (endX - startX) / steps;
-                // stepY = (endY - startY) / steps;
-                // stepWidth = (endWidth - startWidth) / steps;
-                // stepHeight = (endHeight - startHeight) / steps;
+                int steps       = duration; 
+                stepX           = std::abs(endX - startX)               / (endX - startX);
+                stepY           = std::abs(endY - startY)               / (endY - startY);
+                stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
+                stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
+                animationINTER  = static_cast<double>(duration)            / steps;
 
                 // Start threads for animation
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
@@ -1244,7 +1237,7 @@ namespace XCBAnimator {
                 {
                     XStep();
                     thread_sleep(animationINTER);
-                    if (currentX >= endX) 
+                    if (currentX == endX) 
                     {
                         break;
                     }
@@ -1258,7 +1251,7 @@ namespace XCBAnimator {
                 {
                     YStep();
                     thread_sleep(animationINTER);
-                    if (currentY >= endY) 
+                    if (currentY == endY) 
                     {
                         break;
                     }
@@ -1306,7 +1299,7 @@ namespace XCBAnimator {
                 {
                     WStep();
                     thread_sleep(animationINTER);
-                    if (currentWidth >= endWidth) 
+                    if (currentWidth == endWidth) 
                     {
                         break;
                     }
@@ -1320,7 +1313,7 @@ namespace XCBAnimator {
                 {
                     HStep();
                     thread_sleep(animationINTER);
-                    if (currentHeight >= endHeight) 
+                    if (currentHeight == endHeight) 
                     {
                         break;
                     }
