@@ -1191,10 +1191,10 @@ namespace XCBAnimator {
                 animationINTER  = static_cast<const double &>(duration)   / static_cast<const double &>(steps);
 
                 // Start threads for animation
-                XAnimationThread = std::thread(&Test::XAnimation, this, endX);
-                YAnimationThread = std::thread(&Test::YAnimation, this, endY);
                 WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
+                XAnimationThread = std::thread(&Test::XAnimation, this, endX);
                 HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
+                YAnimationThread = std::thread(&Test::YAnimation, this, endY);
 
                 // Wait for the animations to complete
                 std::this_thread::sleep_for(std::chrono::milliseconds(duration));
@@ -1223,7 +1223,6 @@ namespace XCBAnimator {
             int stepY;
             int stepWidth;
             int stepHeight;
-            const int animationInterval = 10; // milliseconds
             double animationINTER; // milliseconds
             std::atomic<bool> stopXFlag{false};
             std::atomic<bool> stopYFlag{false};
