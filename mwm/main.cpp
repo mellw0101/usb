@@ -1,7 +1,3 @@
-#include "structs.hpp"
-#include <chrono>
-#include <thread>
-#include <xcb/xproto.h>
 #define main_cpp
 #include "include.hpp"
 
@@ -1025,55 +1021,96 @@ namespace XCBAnimator {
 
 }
 
+/**
+ * @class XCPPBAnimator
+ * @brief Class for animating the position and size of an XCB window.
+ */
 class XCPPBAnimator 
 {
     public:
         XCPPBAnimator(xcb_connection_t* connection, const xcb_window_t & window)
         : connection(connection), window(window) {}
 
-        void 
+        void /**
+         * @brief Animates the position and size of an object from a starting point to an ending point.
+         * 
+         * @param startX The starting X coordinate.
+         * @param startY The starting Y coordinate.
+         * @param startWidth The starting width.
+         * @param startHeight The starting height.
+         * @param endX The ending X coordinate.
+         * @param endY The ending Y coordinate.
+         * @param endWidth The ending width.
+         * @param endHeight The ending height.
+         * @param duration The duration of the animation in milliseconds.
+         */
         animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
         {
-            // ENSURE ANY EXISTING ANIMATION IS STOPPED
+            /* ENSURE ANY EXISTING ANIMATION IS STOPPED */
             stopAnimations();
-
-            // INITILIZE CLASS VARIABELS WITH ORIGINAL VALUES
-            currentX = startX;
-            currentY = startY;
-            currentWidth = startWidth;
+            
+            /* INITILIZE CLASS VARIABELS WITH INPUT VALUES */
+            currentX      = startX;
+            currentY      = startY;
+            currentWidth  = startWidth;
             currentHeight = startHeight;
 
-            int steps       = duration; 
-            stepX           = std::abs(endX - startX)               / (endX - startX);
-            stepY           = std::abs(endY - startY)               / (endY - startY);
-            stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
-            stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
-            XAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endX - startX));
-            YAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endY - startY)); 
-            WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
-            HAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endHeight - startHeight)); 
+            int steps = duration; 
 
-            // START ANIMATION THREADS
+            /**
+             * @brief Calculate if the step is positive or negative for each property.
+             *
+             * The variables @param stepX, stepY, stepWidth, stepHeight are always set to either 1 or -1.
+             * This is determined by dividing the absolute value of the difference between the start and end values
+             * by the difference itself. This results in a value of 1 or -1, which is used to determine if the animation 
+             * is moving in a positive (increasing) or negative (decreasing) direction for each property.
+             */
+            stepX      = std::abs(endX - startX)           / (endX - startX);
+            stepY      = std::abs(endY - startY)           / (endY - startY);
+            stepWidth  = std::abs(endWidth - startWidth)   / (endWidth - startWidth);
+            stepHeight = std::abs(endHeight - startHeight) / (endHeight - startHeight);
+
+            /**
+             * @brief CALCULATE THE DURATION FOR EACH STEP BASED ON THE TOTAL ANIMATION DURATION AND THE ABSOLUTE VALUE OF THE LENGTH OF EACH ANIMATION 
+             * 
+             * @param XAnimDuration, YAnimDuration, WAnimDuration, HAnimDuration represent the time each step takes to iterate one pixel for each respective thread.
+             * 
+             * The duration for each step is calculated by dividing the total animation duration by the absolute value of the lengt on the respective animation.
+             * This ensures that each thread will iterate each pixel from start to end value,
+             * ensuring that all threads will complete at the same time.
+             */
+            XAnimDuration = static_cast<const double &>(duration) / static_cast<const double &>(std::abs(endX - startX));
+            YAnimDuration = static_cast<const double &>(duration) / static_cast<const double &>(std::abs(endY - startY)); 
+            WAnimDuration = static_cast<const double &>(duration) / static_cast<const double &>(std::abs(endWidth - startWidth));
+            HAnimDuration = static_cast<const double &>(duration) / static_cast<const double &>(std::abs(endHeight - startHeight)); 
+
+            /* START ANIMATION THREADS */
+            GlobalFramerateThread = std::thread(&XCPPBAnimator::GLobalFramerate, this);
             XAnimationThread = std::thread(&XCPPBAnimator::XAnimation, this, endX);
             YAnimationThread = std::thread(&XCPPBAnimator::YAnimation, this, endY);
             WAnimationThread = std::thread(&XCPPBAnimator::WAnimation, this, endWidth);
             HAnimationThread = std::thread(&XCPPBAnimator::HAnimation, this, endHeight);
 
-            // WAIT FOR ANIMATION TO COMPLETE
+            /* WAIT FOR ANIMATION TO COMPLETE */
             std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 
-            // Stop the animations
+            /* STOP THE ANIMATION */
             stopAnimations();
         }
-
-        // Destructor to ensure the animation threads are stopped when the object is destroyed
-        ~XCPPBAnimator() {
+        
+        /**
+         * @brief Destructor to ensure the animation threads are stopped when the object is destroyed.
+         */
+        ~XCPPBAnimator()
+        {
+            running = false;
             stopAnimations();
         }
 
     private:
         xcb_connection_t* connection;
         xcb_window_t window;
+        std::thread GlobalFramerateThread;
         std::thread XAnimationThread;
         std::thread YAnimationThread;
         std::thread WAnimationThread;
@@ -1090,6 +1127,7 @@ class XCPPBAnimator
         double YAnimDuration;
         double WAnimDuration;
         double HAnimDuration;
+        std::atomic<bool> stopGFramerateFlag{false};
         std::atomic<bool> stopXFlag{false};
         std::atomic<bool> stopYFlag{false};
         std::atomic<bool> stopWFlag{false};
@@ -1098,13 +1136,37 @@ class XCPPBAnimator
         std::chrono::high_resolution_clock::time_point YlastUpdateTime;
         std::chrono::high_resolution_clock::time_point WlastUpdateTime;
         std::chrono::high_resolution_clock::time_point HlastUpdateTime;
+        
         /* FRAMERATE */
-        const double frameRate = 240.0;
+        const double frameRate = 120.0;
+        
         /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
         const double frameDuration = 1000.0 / frameRate; 
+
+        bool running = true;
+
+        void
+        GLobalFramerate()
+        {
+            while (running)
+            {
+                xcb_flush(connection);    
+                thread_sleep(frameDuration);
+            }
+        }
         
-        void 
-        XAnimation(int endX) 
+        void /**
+         *
+         * @brief Performs animation on window 'x' position until the specified 'endX' is reached.
+         * 
+         * This function updates the 'x' of a window in a loop until the current 'x'
+         * matches the specified end 'x'. It uses the "XStep()" function to incrementally
+         * update the 'x' and the "thread_sleep()" function to introduce a delay between updates.
+         * 
+         * @param endX The desired 'x' position of the window.
+         *
+         */
+        XAnimation(const int & endX) 
         {
             XlastUpdateTime = std::chrono::high_resolution_clock::now();
             while (true) 
@@ -1116,11 +1178,17 @@ class XCPPBAnimator
                 }
                 XStep();
                 thread_sleep(XAnimDuration);
-                log_info(currentX);
             }
         }
 
-        void 
+        void /**
+         * @brief Performs a step in the X direction.
+         * 
+         * This function increments the currentX variable by the stepX value.
+         * If it is time to render, it configures the window's X position using the currentX value.
+         * 
+         * @note This function assumes that the connection and window variables are properly initialized.
+         */
         XStep() 
         {
             currentX += stepX;
@@ -1141,8 +1209,18 @@ class XCPPBAnimator
             }
         }
 
-        void 
-        YAnimation(int endY) 
+        void /**
+         *
+         * @brief Performs animation on window 'y' position until the specified 'endY' is reached.
+         * 
+         * This function updates the 'y' of a window in a loop until the current 'y'
+         * matches the specified end 'y'. It uses the "YStep()" function to incrementally
+         * update the 'y' and the "thread_sleep()" function to introduce a delay between updates.
+         * 
+         * @param endY The desired 'y' positon of the window.
+         *
+         */
+        YAnimation(const int & endY) 
         {
             YlastUpdateTime = std::chrono::high_resolution_clock::now();
             while (true) 
@@ -1154,11 +1232,16 @@ class XCPPBAnimator
                 }
                 YStep();
                 thread_sleep(YAnimDuration);
-                log_info(currentY);
             }
         }
 
-        void 
+        void /**
+         * @brief Performs a step in the Y direction.
+         * 
+         * This function increments the currentY variable by the stepY value.
+         * If it is time to render, it configures the window's Y position using xcb_configure_window
+         * and flushes the connection using xcb_flush.
+         */
         YStep() 
         {
             currentY += stepY;
@@ -1179,8 +1262,18 @@ class XCPPBAnimator
             }
         }
 
-        void 
-        WAnimation(int endWidth) 
+        void /**
+         *
+         * @brief Performs a 'width' animation until the specified end 'width' is reached.
+         * 
+         * This function updates the 'width' of a window in a loop until the current 'width'
+         * matches the specified end 'width'. It uses the "WStep()" function to incrementally
+         * update the 'width' and the "thread_sleep()" function to introduce a delay between updates.
+         * 
+         * @param endWidth The desired 'width' of the window.
+         *
+         */
+        WAnimation(const int & endWidth) 
         {
             WlastUpdateTime = std::chrono::high_resolution_clock::now();
             while (true) 
@@ -1192,11 +1285,17 @@ class XCPPBAnimator
                 }
                 WStep();
                 thread_sleep(WAnimDuration);
-                log_info(currentWidth);
             }
         }
 
-        void 
+        void /**
+         *
+         * @brief Performs a step in the width calculation and updates the window width if it is time to render.
+         * 
+         * This function increments the current width by the step width. If it is time to render, it configures the window width
+         * using the XCB library and flushes the connection.
+         *
+         */
         WStep() 
         {
             currentWidth += stepWidth;
@@ -1217,8 +1316,18 @@ class XCPPBAnimator
             }
         }
 
-        void 
-        HAnimation(int endHeight) 
+        void /**
+         *
+         * @brief Performs a 'height' animation until the specified end 'height' is reached.
+         * 
+         * This function updates the 'height' of a window in a loop until the current 'height'
+         * matches the specified end 'height'. It uses the "HStep()" function to incrementally
+         * update the 'height' and the "thread_sleep()" function to introduce a delay between updates.
+         * 
+         * @param endWidth The desired 'height' of the window.
+         *
+         */
+        HAnimation(const int & endHeight) 
         {
             HlastUpdateTime = std::chrono::high_resolution_clock::now();
             while (true) 
@@ -1230,11 +1339,18 @@ class XCPPBAnimator
                 }
                 HStep();
                 thread_sleep(HAnimDuration);
-                log_info(currentHeight);
             }
         }
 
-        void 
+        void /**
+         *
+         * @brief Increases the current height by the step height and updates the window height if it's time to render.
+         * 
+         * This function is responsible for incrementing the current height by the step height and updating the window height
+         * if it's time to render. It uses the xcb_configure_window function to configure the window height and xcb_flush to
+         * flush the changes to the X server.
+         *
+         */
         HStep() 
         {
             currentHeight += stepHeight;
@@ -1255,13 +1371,26 @@ class XCPPBAnimator
             }
         }
 
-        // Static method to stop the movement and resizing animations
-        void stopAnimations() 
+        void /**
+         *
+         * @brief Stops all animations by setting the corresponding flags to true and joining the animation threads.
+         *        After joining the threads, the flags are set back to false.
+         *
+         */
+        stopAnimations() 
         {
+            stopGFramerateFlag.store(true);
             stopXFlag.store(true);
             stopYFlag.store(true);
             stopWFlag.store(true);
             stopHFlag.store(true);
+
+            if (GlobalFramerateThread.joinable()) 
+            {
+                running = false;
+                GlobalFramerateThread.join();
+                stopGFramerateFlag.store(false);
+            }
 
             if (XAnimationThread.joinable()) 
             {
@@ -1288,8 +1417,18 @@ class XCPPBAnimator
             }
         }
 
-        void 
-        thread_sleep(double milliseconds) 
+        void /**
+         *
+         * @brief Sleeps the current thread for the specified number of milliseconds.
+         *
+         * @param milliseconds The number of milliseconds to sleep. A double is used to allow for
+         *                     fractional milliseconds, providing finer control over animation timing.
+         *
+         * @note This is needed as the time for each thread to sleep is the main thing to be calculated, 
+         *       as this class is designed to iterate every pixel and then only update that to the X-server at the given framerate.
+         *
+         */
+        thread_sleep(const double & milliseconds) 
         {
             // Creating a duration with double milliseconds
             auto duration = std::chrono::duration<double, std::milli>(milliseconds);
@@ -1298,8 +1437,12 @@ class XCPPBAnimator
             std::this_thread::sleep_for(duration);
         }
 
-       
-        bool 
+        bool /**
+         *
+         * Checks if it is time to render based on the elapsed time since the last update.
+         * @return true if it is time to render, @return false otherwise.
+         *
+         */
         XisTimeToRender() 
         {
             // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
@@ -1314,7 +1457,12 @@ class XCPPBAnimator
             return false; 
         }
 
-        bool 
+        bool /**
+         *
+         * Checks if it is time to render a frame based on the elapsed time since the last update.
+         * @return true if it is time to render, @return false otherwise.
+         *
+         */
         YisTimeToRender() 
         {
             // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
@@ -1329,7 +1477,12 @@ class XCPPBAnimator
             return false; 
         }
         
-        bool
+        bool /**
+         *
+         * Checks if it is time to render based on the elapsed time since the last update.
+         * @return true if it is time to render, @return false otherwise.
+         *
+         */
         WisTimeToRender()
         {
             // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
@@ -1344,7 +1497,12 @@ class XCPPBAnimator
             return false; 
         }
 
-        bool
+        bool /**
+         *
+         * Checks if it is time to render based on the elapsed time since the last update.
+         * @return true if it is time to render, @return false otherwise.
+         *
+         */
         HisTimeToRender()
         {
             // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
@@ -1359,7 +1517,17 @@ class XCPPBAnimator
             return false; 
         }
 
-        void
+        void /**
+         *
+         * @brief Configures the window with the specified mask and value.
+         * 
+         * This function configures the window using the XCB library. It takes in a mask and a value
+         * as parameters and applies the configuration to the window.
+         * 
+         * @param mask The mask specifying which attributes to configure.
+         * @param value The value to set for the specified attributes.
+         * 
+         */
         config_window(const uint32_t & mask, const uint32_t & value)
         {
             xcb_configure_window
@@ -2229,6 +2397,14 @@ class WinManager
         }
 };
 
+/**
+ * @class tile
+ * @brief Represents a tile obj.
+ * 
+ * The `tile` class is responsible for managing the tiling behavior of windows in the window manager.
+ * It provides methods to tile windows to the left, right, *up, or *down positions on the screen.
+ * The class also includes helper methods to check the current tile position of a window and set the size and position of a window.
+ */
 class tile 
 {
     public:
@@ -2620,11 +2796,19 @@ class tile
 class Event 
 {
     public:
+        /**
+         * @brief Constructor for the Event class.
+         *        Initializes the key symbols and keycodes.
+         */
         Event()
         {
             initialize_keysyms();
         }
 
+        /**
+         * @brief Destructor for the Event class.
+         *        Frees the allocated key symbols.
+         */
         ~Event() 
         {
             if (keysyms) 
@@ -2632,8 +2816,14 @@ class Event
                 xcb_key_symbols_free(keysyms);
             }
         }
-
-        void 
+        
+        void /**
+         *
+         * @brief Event handler function that processes the incoming XCB events.
+         * 
+         * @param ev The XCB event to be handled.
+         *
+         */
         handler(const xcb_generic_event_t * ev)
         {
             switch (ev->response_type & ~0x80) 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
-install_dependencies() {
+install_dependencies() 
+{
     # Check the distribution
     if [ -x "$(command -v apt)" ]; then
         # Debian/Ubuntu

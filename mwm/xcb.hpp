@@ -1,6 +1,5 @@
 #ifndef XCB_HPP
 #define XCB_HPP
-#include "Log.hpp"
 #include "include.hpp"
 
 class XCB {

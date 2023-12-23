@@ -2,7 +2,8 @@
 #define STRUCTS_HPP
 #include "include.hpp"
 
-enum {
+enum 
+{
     N = 12, /* 
         THIS IS HOW FAR AWAY SNAPING WILL HAPPEN 
      */ 
@@ -11,7 +12,8 @@ enum {
      */
 };
 
-enum class TILEPOS {
+enum class TILEPOS 
+{
     LEFT        = 1,
     RIGHT       = 2,
     LEFT_DOWN   = 3,
@@ -20,38 +22,45 @@ enum class TILEPOS {
     RIGHT_UP    = 6
 };
 
-enum class TILE {
-    LEFT    = 1,
-    RIGHT   = 2,
-    DOWN    = 3,
+enum class TILE 
+{
+    LEFT    = 1 ,
+    RIGHT   = 2 ,
+    DOWN    = 3 ,
     UP      = 4
 };
 
-enum TILE_ANIMATION {
+enum TILE_ANIMATION 
+{
     TILE_ANIMATION_DURATION = 100
 };
 
-enum MAXWIN_ANIMATION {
+enum MAXWIN_ANIMATION 
+{
     MAXWIN_ANIMATION_DURATION = 100
 };
 
-enum Direction {
+enum Direction 
+{
     NEXT,
     PREV
 };
 
-enum class MAX {
-    X       = 1,
-    Y       = 2,
-    WIDTH   = 3,
+enum class MAX 
+{
+    X       = 1 ,
+    Y       = 2 ,
+    WIDTH   = 3 ,
     HEIGHT  = 4
 };
 
-struct size_pos {
+struct size_pos 
+{
     uint16_t x, y, width, height;
 };
 
-struct client {                  
+struct client 
+{
 	xcb_window_t win;
     xcb_window_t frame;            
 	int16_t x, y;                   
@@ -63,12 +72,14 @@ struct client {
     uint16_t desktop;
 };
 
-struct win_data {
+struct win_data 
+{
     xcb_window_t win;
     uint16_t x, y, width, height;
 };
 
-struct desktop {
+struct desktop 
+{
     std::vector<client *> current_clients;
     uint16_t desktop;
     const uint16_t x = 0;
