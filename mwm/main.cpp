@@ -1075,7 +1075,7 @@ namespace XCBAnimator {
             int stepY;
             int stepWidth;
             int stepHeight;
-            const int animationInterval = 1; // milliseconds
+            const int animationInterval = 10; // milliseconds
             std::atomic<bool> stopMoveFlag{false};
             std::atomic<bool> stopResizeFlag{false};
 
