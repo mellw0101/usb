@@ -2394,8 +2394,6 @@ class tile
                     if (current_tile_pos(c, TILEPOS::LEFT))
                     {
                         set_tile_ogsize(c);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
                     
@@ -2405,8 +2403,6 @@ class tile
                      || current_tile_pos(c, TILEPOS::LEFT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS::LEFT);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -2414,8 +2410,6 @@ class tile
                     if (current_tile_pos(c, TILEPOS::RIGHT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS::LEFT_DOWN);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -2423,15 +2417,11 @@ class tile
                     if (current_tile_pos(c, TILEPOS::RIGHT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS::LEFT_UP);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
                     save_tile_ogsize(c);
                     set_tile_sizepos(c, TILEPOS::LEFT);
-                    wm::setWindowSize(c);
-                    wm::setWindowPosition(c);
                     break;
                 }
                 
@@ -2441,8 +2431,6 @@ class tile
                     if (current_tile_pos(c, TILEPOS::RIGHT))
                     {
                         set_tile_ogsize(c);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -2459,8 +2447,6 @@ class tile
                     if (current_tile_pos(c, TILEPOS::LEFT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS::RIGHT_DOWN);
-                        wm::setWindowPosition(c);
-                        wm::setWindowSize(c);
                         return;
                     }
 
@@ -2468,8 +2454,6 @@ class tile
                     if (current_tile_pos(c, TILEPOS::LEFT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS::RIGHT_UP);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -2485,10 +2469,7 @@ class tile
                      || current_tile_pos(c, TILEPOS::LEFT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS::LEFT_DOWN);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
-                        break;
                     }
 
                     // IF 'CURRENTLY_TILED' 'RIGHT' OR 'RIGHT_UP'
@@ -2496,10 +2477,7 @@ class tile
                      || current_tile_pos(c, TILEPOS::RIGHT_UP))
                     {
                         set_tile_sizepos(c, TILEPOS::RIGHT_DOWN);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
-                        break;
                     }
 
                     // IF 'CURRENTLY_TILED' 'LEFT_DOWN' OR 'RIGHT_DOWN'
@@ -2507,10 +2485,7 @@ class tile
                      || current_tile_pos(c, TILEPOS::RIGHT_DOWN))
                     {
                         set_tile_ogsize(c);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
-                        break;
                     }
                 }
 
@@ -2521,8 +2496,6 @@ class tile
                      || current_tile_pos(c, TILEPOS::LEFT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS::LEFT_UP);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
 
@@ -2531,8 +2504,6 @@ class tile
                      || current_tile_pos(c, TILEPOS::RIGHT_DOWN))
                     {
                         set_tile_sizepos(c, TILEPOS::RIGHT_UP);
-                        wm::setWindowSize(c);
-                        wm::setWindowPosition(c);
                         return;
                     }
                 }
