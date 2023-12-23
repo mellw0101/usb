@@ -2783,10 +2783,14 @@ class tile {
         void 
         set_tile_ogsize(client * & c)
         {
-            c->x        = c->tile_ogsize.x;
-            c->y        = c->tile_ogsize.y;
-            c->width    = c->tile_ogsize.width;
-            c->height   = c->tile_ogsize.height;
+            animate
+            (
+                c, 
+                c->tile_ogsize.x, 
+                c->tile_ogsize.y, 
+                c->tile_ogsize.width, 
+                c->tile_ogsize.height
+            );
         }
 
         void
