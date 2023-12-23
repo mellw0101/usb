@@ -630,7 +630,8 @@ show_hide_client(client * c, const show_hide & mode)
     xcb_flush(conn);    
 }
 
-class mv_client {
+class mv_client 
+{
     public:
         mv_client(client * & c, const uint16_t & start_x, const uint16_t & start_y) 
         : c(c), start_x(start_x), start_y(start_y)
@@ -1022,362 +1023,364 @@ namespace XCBAnimator {
             }
     };
 
-    class Test {
-        public:
-            Test(xcb_connection_t* connection, xcb_window_t window)
-            : connection(connection), window(window) {}
+}
 
-            void 
-            animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
+class XCPPBAnimator 
+{
+    public:
+        XCPPBAnimator(xcb_connection_t* connection, const xcb_window_t & window)
+        : connection(connection), window(window) {}
+
+        void 
+        animate(int startX, int startY, int startWidth, int startHeight, int endX, int endY, int endWidth, int endHeight, int duration) 
+        {
+            // ENSURE ANY EXISTING ANIMATION IS STOPPED
+            stopAnimations();
+
+            // INITILIZE CLASS VARIABELS WITH ORIGINAL VALUES
+            currentX = startX;
+            currentY = startY;
+            currentWidth = startWidth;
+            currentHeight = startHeight;
+
+            int steps       = duration; 
+            stepX           = std::abs(endX - startX)               / (endX - startX);
+            stepY           = std::abs(endY - startY)               / (endY - startY);
+            stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
+            stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
+            XAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endX - startX));
+            YAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endY - startY)); 
+            WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
+            HAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endHeight - startHeight)); 
+
+            // START ANIMATION THREADS
+            XAnimationThread = std::thread(&XCPPBAnimator::XAnimation, this, endX);
+            YAnimationThread = std::thread(&XCPPBAnimator::YAnimation, this, endY);
+            WAnimationThread = std::thread(&XCPPBAnimator::WAnimation, this, endWidth);
+            HAnimationThread = std::thread(&XCPPBAnimator::HAnimation, this, endHeight);
+
+            // WAIT FOR ANIMATION TO COMPLETE
+            std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+
+            // Stop the animations
+            stopAnimations();
+        }
+
+        // Destructor to ensure the animation threads are stopped when the object is destroyed
+        ~XCPPBAnimator() {
+            stopAnimations();
+        }
+
+    private:
+        xcb_connection_t* connection;
+        xcb_window_t window;
+        std::thread XAnimationThread;
+        std::thread YAnimationThread;
+        std::thread WAnimationThread;
+        std::thread HAnimationThread;
+        int currentX;
+        int currentY;
+        int currentWidth;
+        int currentHeight;
+        int stepX;
+        int stepY;
+        int stepWidth;
+        int stepHeight;
+        double XAnimDuration;
+        double YAnimDuration;
+        double WAnimDuration;
+        double HAnimDuration;
+        std::atomic<bool> stopXFlag{false};
+        std::atomic<bool> stopYFlag{false};
+        std::atomic<bool> stopWFlag{false};
+        std::atomic<bool> stopHFlag{false};
+        std::chrono::high_resolution_clock::time_point XlastUpdateTime;
+        std::chrono::high_resolution_clock::time_point YlastUpdateTime;
+        std::chrono::high_resolution_clock::time_point WlastUpdateTime;
+        std::chrono::high_resolution_clock::time_point HlastUpdateTime;
+
+        void 
+        XAnimation(int endX) 
+        {
+            XlastUpdateTime = std::chrono::high_resolution_clock::now();
+            while (true) 
             {
-                // ENSURE ANY EXISTING ANIMATION IS STOPPED
-                stopAnimations();
-
-                // INITILIZE CLASS VARIABELS WITH ORIGINAL VALUES
-                currentX = startX;
-                currentY = startY;
-                currentWidth = startWidth;
-                currentHeight = startHeight;
-
-                int steps       = duration; 
-                stepX           = std::abs(endX - startX)               / (endX - startX);
-                stepY           = std::abs(endY - startY)               / (endY - startY);
-                stepWidth       = std::abs(endWidth - startWidth)       / (endWidth - startWidth);
-                stepHeight      = std::abs(endHeight - startHeight)     / (endHeight - startHeight);
-                XAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endX - startX));
-                YAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endY - startY)); 
-                WAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endWidth - startWidth));
-                HAnimDuration   = static_cast<const double &>(duration)   / static_cast<const double &>(std::abs(endHeight - startHeight)); 
-
-                // START ANIMATION THREADS
-                XAnimationThread = std::thread(&Test::XAnimation, this, endX);
-                YAnimationThread = std::thread(&Test::YAnimation, this, endY);
-                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth);
-                HAnimationThread = std::thread(&Test::HAnimation, this, endHeight);
-
-                // WAIT FOR ANIMATION TO COMPLETE
-                std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-
-                // Stop the animations
-                stopAnimations();
-            }
-
-            // Destructor to ensure the animation threads are stopped when the object is destroyed
-            ~Test() {
-                stopAnimations();
-            }
-
-        private:
-            xcb_connection_t* connection;
-            xcb_window_t window;
-            std::thread XAnimationThread;
-            std::thread YAnimationThread;
-            std::thread WAnimationThread;
-            std::thread HAnimationThread;
-            int currentX;
-            int currentY;
-            int currentWidth;
-            int currentHeight;
-            int stepX;
-            int stepY;
-            int stepWidth;
-            int stepHeight;
-            double XAnimDuration;
-            double YAnimDuration;
-            double WAnimDuration;
-            double HAnimDuration;
-            std::atomic<bool> stopXFlag{false};
-            std::atomic<bool> stopYFlag{false};
-            std::atomic<bool> stopWFlag{false};
-            std::atomic<bool> stopHFlag{false};
-            std::chrono::high_resolution_clock::time_point XlastUpdateTime;
-            std::chrono::high_resolution_clock::time_point YlastUpdateTime;
-            std::chrono::high_resolution_clock::time_point WlastUpdateTime;
-            std::chrono::high_resolution_clock::time_point HlastUpdateTime;
-
-            void 
-            XAnimation(int endX) 
-            {
-                XlastUpdateTime = std::chrono::high_resolution_clock::now();
-                while (true) 
+                if (currentX == endX) 
                 {
-                    if (currentX == endX) 
-                    {
-                        config_window(XCB_CONFIG_WINDOW_X, endX);
-                        break;
-                    }
-                    XStep();
-                    thread_sleep(XAnimDuration);
-                    log_info(currentX);
+                    config_window(XCB_CONFIG_WINDOW_X, endX);
+                    break;
                 }
+                XStep();
+                thread_sleep(XAnimDuration);
+                log_info(currentX);
             }
+        }
 
-            void 
-            XStep() 
-            {
-                currentX += stepX;
-                
-                if (XisTimeToRender())
-                {
-                    xcb_configure_window
-                    (
-                        connection,
-                        window,
-                        XCB_CONFIG_WINDOW_X,
-                        (const uint32_t[1])
-                        {
-                            static_cast<const uint32_t &>(currentX)
-                        }
-                    );
-                    xcb_flush(connection);
-                }
-            }
-
-            void 
-            YAnimation(int endY) 
-            {
-                YlastUpdateTime = std::chrono::high_resolution_clock::now();
-                while (true) 
-                {
-                    if (currentY == endY) 
-                    {
-                        config_window(XCB_CONFIG_WINDOW_Y, endY);
-                        break;
-                    }
-                    YStep();
-                    thread_sleep(YAnimDuration);
-                    log_info(currentY);
-                }
-            }
-
-            void 
-            YStep() 
-            {
-                currentY += stepY;
-                
-                if (YisTimeToRender())
-                {
-                    xcb_configure_window
-                    (
-                        connection,
-                        window,
-                        XCB_CONFIG_WINDOW_Y,
-                        (const uint32_t[1])
-                        {
-                            static_cast<const uint32_t &>(currentY)
-                        }
-                    );
-                    xcb_flush(connection);
-                }
-            }
-
-            void 
-            WAnimation(int endWidth) 
-            {
-                WlastUpdateTime = std::chrono::high_resolution_clock::now();
-                while (true) 
-                {
-                    if (currentWidth == endWidth) 
-                    {
-                        config_window(XCB_CONFIG_WINDOW_WIDTH, endWidth);
-                        break;
-                    }
-                    WStep();
-                    thread_sleep(WAnimDuration);
-                    log_info(currentWidth);
-                }
-            }
-
-            void 
-            WStep() 
-            {
-                currentWidth += stepWidth;
-
-                if (WisTimeToRender())
-                {
-                    xcb_configure_window
-                    (
-                        connection,
-                        window,
-                        XCB_CONFIG_WINDOW_WIDTH,
-                        (const uint32_t[1])
-                        {
-                            static_cast<const uint32_t &>(currentWidth) 
-                        }
-                    );
-                    xcb_flush(connection);
-                }
-            }
-
-            void 
-            HAnimation(int endHeight) 
-            {
-                HlastUpdateTime = std::chrono::high_resolution_clock::now();
-                while (true) 
-                {
-                    if (currentHeight == endHeight) 
-                    {
-                        config_window(XCB_CONFIG_WINDOW_HEIGHT, endHeight);
-                        break;
-                    }
-                    HStep();
-                    thread_sleep(HAnimDuration);
-                    log_info(currentHeight);
-                }
-            }
-
-            void 
-            HStep() 
-            {
-                currentHeight += stepHeight;
-                
-                if (HisTimeToRender())
-                {
-                    xcb_configure_window
-                    (
-                        connection,
-                        window,
-                        XCB_CONFIG_WINDOW_HEIGHT,
-                        (const uint32_t[1])
-                        {
-                            static_cast<const uint32_t &>(currentHeight)
-                        }
-                    );
-                    xcb_flush(connection);
-                }
-            }
-
-            // Static method to stop the movement and resizing animations
-            void stopAnimations() 
-            {
-                stopXFlag.store(true);
-                stopYFlag.store(true);
-                stopWFlag.store(true);
-                stopHFlag.store(true);
-
-                if (XAnimationThread.joinable()) 
-                {
-                    XAnimationThread.join();
-                    stopXFlag.store(false);
-                }
-
-                if (YAnimationThread.joinable()) 
-                {
-                    YAnimationThread.join();
-                    stopYFlag.store(false);
-                }
-
-                if (WAnimationThread.joinable()) 
-                {
-                    WAnimationThread.join();
-                    stopWFlag.store(false);
-                }
-
-                if (HAnimationThread.joinable()) 
-                {
-                    HAnimationThread.join();
-                    stopHFlag.store(false);
-                }
-            }
-
-            void 
-            thread_sleep(double milliseconds) 
-            {
-                // Creating a duration with double milliseconds
-                auto duration = std::chrono::duration<double, std::milli>(milliseconds);
-
-                // Sleeping for the duration
-                std::this_thread::sleep_for(duration);
-            }
-
-            /* FRAMERATE */
-            const double frameRate = 120.0;
+        void 
+        XStep() 
+        {
+            currentX += stepX;
             
-            /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
-            const double frameDuration = 1000.0 / frameRate; 
-            
-            bool 
-            XisTimeToRender() 
-            {
-                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
-                const auto & currentTime = std::chrono::high_resolution_clock::now();
-                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - XlastUpdateTime;
-
-                if (elapsedTime.count() >= frameDuration) 
-                {
-                    XlastUpdateTime = currentTime; 
-                    return true; 
-                }
-                return false; 
-            }
-
-            bool 
-            YisTimeToRender() 
-            {
-                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
-                const auto & currentTime = std::chrono::high_resolution_clock::now();
-                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - YlastUpdateTime;
-
-                if (elapsedTime.count() >= frameDuration) 
-                {
-                    YlastUpdateTime = currentTime; 
-                    return true; 
-                }
-                return false; 
-            }
-            
-            bool
-            WisTimeToRender()
-            {
-                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
-                const auto & currentTime = std::chrono::high_resolution_clock::now();
-                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - WlastUpdateTime;
-
-                if (elapsedTime.count() >= frameDuration) 
-                {
-                    WlastUpdateTime = currentTime; 
-                    return true; 
-                }
-                return false; 
-            }
-
-            bool
-            HisTimeToRender()
-            {
-                // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
-                const auto & currentTime = std::chrono::high_resolution_clock::now();
-                const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - HlastUpdateTime;
-
-                if (elapsedTime.count() >= frameDuration) 
-                {
-                    HlastUpdateTime = currentTime; 
-                    return true; 
-                }
-                return false; 
-            }
-
-            void
-            config_window(const uint32_t & mask, const uint32_t & value)
+            if (XisTimeToRender())
             {
                 xcb_configure_window
                 (
                     connection,
                     window,
-                    mask,
+                    XCB_CONFIG_WINDOW_X,
                     (const uint32_t[1])
                     {
-                        static_cast<const uint32_t &>(value)
+                        static_cast<const uint32_t &>(currentX)
                     }
                 );
                 xcb_flush(connection);
             }
-    };
-}
+        }
+
+        void 
+        YAnimation(int endY) 
+        {
+            YlastUpdateTime = std::chrono::high_resolution_clock::now();
+            while (true) 
+            {
+                if (currentY == endY) 
+                {
+                    config_window(XCB_CONFIG_WINDOW_Y, endY);
+                    break;
+                }
+                YStep();
+                thread_sleep(YAnimDuration);
+                log_info(currentY);
+            }
+        }
+
+        void 
+        YStep() 
+        {
+            currentY += stepY;
+            
+            if (YisTimeToRender())
+            {
+                xcb_configure_window
+                (
+                    connection,
+                    window,
+                    XCB_CONFIG_WINDOW_Y,
+                    (const uint32_t[1])
+                    {
+                        static_cast<const uint32_t &>(currentY)
+                    }
+                );
+                xcb_flush(connection);
+            }
+        }
+
+        void 
+        WAnimation(int endWidth) 
+        {
+            WlastUpdateTime = std::chrono::high_resolution_clock::now();
+            while (true) 
+            {
+                if (currentWidth == endWidth) 
+                {
+                    config_window(XCB_CONFIG_WINDOW_WIDTH, endWidth);
+                    break;
+                }
+                WStep();
+                thread_sleep(WAnimDuration);
+                log_info(currentWidth);
+            }
+        }
+
+        void 
+        WStep() 
+        {
+            currentWidth += stepWidth;
+
+            if (WisTimeToRender())
+            {
+                xcb_configure_window
+                (
+                    connection,
+                    window,
+                    XCB_CONFIG_WINDOW_WIDTH,
+                    (const uint32_t[1])
+                    {
+                        static_cast<const uint32_t &>(currentWidth) 
+                    }
+                );
+                xcb_flush(connection);
+            }
+        }
+
+        void 
+        HAnimation(int endHeight) 
+        {
+            HlastUpdateTime = std::chrono::high_resolution_clock::now();
+            while (true) 
+            {
+                if (currentHeight == endHeight) 
+                {
+                    config_window(XCB_CONFIG_WINDOW_HEIGHT, endHeight);
+                    break;
+                }
+                HStep();
+                thread_sleep(HAnimDuration);
+                log_info(currentHeight);
+            }
+        }
+
+        void 
+        HStep() 
+        {
+            currentHeight += stepHeight;
+            
+            if (HisTimeToRender())
+            {
+                xcb_configure_window
+                (
+                    connection,
+                    window,
+                    XCB_CONFIG_WINDOW_HEIGHT,
+                    (const uint32_t[1])
+                    {
+                        static_cast<const uint32_t &>(currentHeight)
+                    }
+                );
+                xcb_flush(connection);
+            }
+        }
+
+        // Static method to stop the movement and resizing animations
+        void stopAnimations() 
+        {
+            stopXFlag.store(true);
+            stopYFlag.store(true);
+            stopWFlag.store(true);
+            stopHFlag.store(true);
+
+            if (XAnimationThread.joinable()) 
+            {
+                XAnimationThread.join();
+                stopXFlag.store(false);
+            }
+
+            if (YAnimationThread.joinable()) 
+            {
+                YAnimationThread.join();
+                stopYFlag.store(false);
+            }
+
+            if (WAnimationThread.joinable()) 
+            {
+                WAnimationThread.join();
+                stopWFlag.store(false);
+            }
+
+            if (HAnimationThread.joinable()) 
+            {
+                HAnimationThread.join();
+                stopHFlag.store(false);
+            }
+        }
+
+        void 
+        thread_sleep(double milliseconds) 
+        {
+            // Creating a duration with double milliseconds
+            auto duration = std::chrono::duration<double, std::milli>(milliseconds);
+
+            // Sleeping for the duration
+            std::this_thread::sleep_for(duration);
+        }
+
+        /* FRAMERATE */
+        const double frameRate = 120.0;
+        
+        /* DURATION IN MILLISECONDS THAT EACH FRAME SHOULD LAST */
+        const double frameDuration = 1000.0 / frameRate; 
+        
+        bool 
+        XisTimeToRender() 
+        {
+            // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+            const auto & currentTime = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - XlastUpdateTime;
+
+            if (elapsedTime.count() >= frameDuration) 
+            {
+                XlastUpdateTime = currentTime; 
+                return true; 
+            }
+            return false; 
+        }
+
+        bool 
+        YisTimeToRender() 
+        {
+            // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+            const auto & currentTime = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - YlastUpdateTime;
+
+            if (elapsedTime.count() >= frameDuration) 
+            {
+                YlastUpdateTime = currentTime; 
+                return true; 
+            }
+            return false; 
+        }
+        
+        bool
+        WisTimeToRender()
+        {
+            // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+            const auto & currentTime = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - WlastUpdateTime;
+
+            if (elapsedTime.count() >= frameDuration) 
+            {
+                WlastUpdateTime = currentTime; 
+                return true; 
+            }
+            return false; 
+        }
+
+        bool
+        HisTimeToRender()
+        {
+            // CALCULATE ELAPSED TIME SINCE THE LAST UPDATE
+            const auto & currentTime = std::chrono::high_resolution_clock::now();
+            const std::chrono::duration<double, std::milli> & elapsedTime = currentTime - HlastUpdateTime;
+
+            if (elapsedTime.count() >= frameDuration) 
+            {
+                HlastUpdateTime = currentTime; 
+                return true; 
+            }
+            return false; 
+        }
+
+        void
+        config_window(const uint32_t & mask, const uint32_t & value)
+        {
+            xcb_configure_window
+            (
+                connection,
+                window,
+                mask,
+                (const uint32_t[1])
+                {
+                    static_cast<const uint32_t &>(value)
+                }
+            );
+            xcb_flush(connection);
+        }
+};
 
 void
 animate(client * & c, const int & endX, const int & endY, const int & endWidth, const int & endHeight, const int & duration)
 {
-    XCBAnimator::Test anim(conn, c->win);
+    XCPPBAnimator anim(conn, c->win);
     anim.animate
     (
         c->x,
@@ -1553,7 +1556,8 @@ move_to_previus_desktop_w_app()
     wm::raise_client(focused_client);
 }
 
-class resize_client {
+class resize_client 
+{
     public:
         /* 
             THE REASON FOR THE 'retard_int' IS BECUSE WITHOUT IT 
@@ -1741,7 +1745,8 @@ class resize_client {
         }
 };
 
-namespace borrowed {
+namespace borrowed 
+{
     bool
     getgeom(const xcb_drawable_t * win, int16_t * x, int16_t * y, uint16_t * width, uint16_t * height, uint8_t * depth)
     {
@@ -1901,7 +1906,8 @@ namespace borrowed {
     }
 }
 
-class WinManager {
+class WinManager 
+{
     public:
         static void 
         manage_new_window(const xcb_drawable_t & w) 
@@ -2224,7 +2230,8 @@ class WinManager {
         }
 };
 
-class tile {
+class tile 
+{
     public:
         tile(client * & c, TILE tile)
         {
@@ -2380,6 +2387,7 @@ class tile {
                 }
             }
         } 
+
     private:
         void 
         save_tile_ogsize(client * & c)
@@ -2593,7 +2601,7 @@ class tile {
         void
         animate(client * & c, const int & endX, const int & endY, const int & endWidth, const int & endHeight)
         {
-            XCBAnimator::Test anim(conn, c->win);
+            XCPPBAnimator anim(conn, c->win);
             anim.animate
             (
                 c->x,
@@ -2610,7 +2618,8 @@ class tile {
         }
 };
 
-class Event {
+class Event 
+{
     public:
         Event()
         {
