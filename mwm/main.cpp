@@ -1189,11 +1189,11 @@ namespace XCBAnimator {
                 stepWidth = (endWidth - startWidth) / steps;
                 stepHeight = (endHeight - startHeight) / steps;
 
+                // Start threads for animation
                 XAnimationThread = std::thread(&Test::XAnimation, this, endX);
                 YAnimationThread = std::thread(&Test::YAnimation, this, endY);
-
-                // Start a new thread for resizing animation
-                resizeAnimationThread = std::thread(&Test::resizeAnimation, this, endWidth, endHeight);
+                WAnimationThread = std::thread(&Test::WAnimation, this, endWidth, endHeight);
+                HAnimationThread = std::thread(&Test::HAnimation, this, endWidth, endHeight);
 
                 // Wait for the animations to complete
                 std::this_thread::sleep_for(std::chrono::milliseconds(duration));
@@ -1212,7 +1212,8 @@ namespace XCBAnimator {
             xcb_window_t window;
             std::thread XAnimationThread;
             std::thread YAnimationThread;
-            std::thread resizeAnimationThread;
+            std::thread WAnimationThread;
+            std::thread HAnimationThread;
             int currentX;
             int currentY;
             int currentWidth;
@@ -1225,7 +1226,8 @@ namespace XCBAnimator {
             double animationINTER = 10.0; // milliseconds
             std::atomic<bool> stopXFlag{false};
             std::atomic<bool> stopYFlag{false};
-            std::atomic<bool> stopResizeFlag{false};
+            std::atomic<bool> stopWFlag{false};
+            std::atomic<bool> stopHFlag{false};
 
             void 
             XAnimation(int endX) 
@@ -1233,7 +1235,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     XStep();
-                    sleepForDoubleMilliseconds(animationINTER);
+                    thread_sleep(animationINTER);
                     if (currentX >= endX) 
                     {
                         break;
@@ -1247,7 +1249,7 @@ namespace XCBAnimator {
                 while (true) 
                 {
                     YStep();
-                    sleepForDoubleMilliseconds(animationINTER);
+                    thread_sleep(animationINTER);
                     if (currentY >= endY) 
                     {
                         break;
@@ -1290,13 +1292,13 @@ namespace XCBAnimator {
             }
 
             void 
-            resizeAnimation(int endWidth, int endHeight) 
+            WAnimation(int endWidth) 
             {
                 while (true) 
                 {
-                    resizeStep();
+                    WStep();
                     std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
-                    if (currentWidth >= endWidth && currentHeight >= endHeight) 
+                    if (currentWidth >= endWidth) 
                     {
                         break;
                     }
@@ -1304,18 +1306,47 @@ namespace XCBAnimator {
             }
 
             void 
-            resizeStep() 
+            HAnimation(int endHeight) 
+            {
+                while (true) 
+                {
+                    HStep();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(animationInterval));
+                    if (currentHeight >= endHeight) 
+                    {
+                        break;
+                    }
+                }
+            }
+
+            void 
+            WStep() 
             {
                 currentWidth += stepWidth;
+                xcb_configure_window
+                (
+                    connection,
+                    window,
+                     XCB_CONFIG_WINDOW_HEIGHT,
+                    (const uint32_t[1])
+                    {
+                        static_cast<const uint32_t &>(currentWidth) 
+                    }
+                );
+                xcb_flush(connection);
+            }
+
+            void 
+            HStep() 
+            {
                 currentHeight += stepHeight;
                 xcb_configure_window
                 (
                     connection,
                     window,
-                    XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
-                    (const uint32_t[2])
+                    XCB_CONFIG_WINDOW_WIDTH,
+                    (const uint32_t[1])
                     {
-                        static_cast<const uint32_t &>(currentWidth), 
                         static_cast<const uint32_t &>(currentHeight)
                     }
                 );
@@ -1327,7 +1358,8 @@ namespace XCBAnimator {
             {
                 stopXFlag.store(true);
                 stopYFlag.store(true);
-                stopResizeFlag.store(true);
+                stopWFlag.store(true);
+                stopHFlag.store(true);
 
                 if (XAnimationThread.joinable()) 
                 {
@@ -1341,15 +1373,21 @@ namespace XCBAnimator {
                     stopYFlag.store(false);
                 }
 
-                if (resizeAnimationThread.joinable()) 
+                if (WAnimationThread.joinable()) 
                 {
-                    resizeAnimationThread.join();
-                    stopResizeFlag.store(false);
+                    WAnimationThread.join();
+                    stopWFlag.store(false);
+                }
+
+                if (HAnimationThread.joinable()) 
+                {
+                    HAnimationThread.join();
+                    stopHFlag.store(false);
                 }
             }
 
             void 
-            sleepForDoubleMilliseconds(double milliseconds) 
+            thread_sleep(double milliseconds) 
             {
                 // Creating a duration with double milliseconds
                 auto duration = std::chrono::duration<double, std::milli>(milliseconds);
